@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.team
 
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -30,13 +31,13 @@ inline fun <reified T : Any> NavGraphBuilder.teamNavigation() {
             val teamModel: TeamViewModel = hiltViewModel()
             Users(viewModel = teamModel, isUsersPage = false)
         }
-        editUser<RouteCompose.Main.Team.AuthorizeUser>()
-        editUser<RouteCompose.Main.Team.EditUser>()
+        editUser<RouteCompose.Main.Team.AuthorizeUser>(RouteCompose.Main.Team.AuthorizeUser().deepLinks)
+        editUser<RouteCompose.Main.Team.EditUser>(RouteCompose.Main.Team.EditUser().deepLinks)
     }
 }
 
-inline fun <reified T : Any> NavGraphBuilder.editUser() {
-    composable<T> {
+inline fun <reified T : RouteCompose> NavGraphBuilder.editUser(deepLinks: List<NavDeepLink>) {
+    composable<T>(deepLinks = deepLinks) {
         val userModel: UserViewModel = hiltViewModel()
         UserForm(viewModel = userModel)
     }

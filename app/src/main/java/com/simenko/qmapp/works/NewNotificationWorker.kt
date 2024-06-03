@@ -20,10 +20,8 @@ import com.simenko.qmapp.receivers.NotificationActionsReceiver
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.services.MessagingService
 import com.simenko.qmapp.ui.navigation.NavArguments
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.navigation.NavRouteName
-import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY
 import com.simenko.qmapp.works.WorkerKeys.EMAIL
@@ -77,8 +75,10 @@ class NewNotificationWorker @AssistedInject constructor(
 
                     val intent = Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
-                        data = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${Route.Main.Team.AuthorizeUser.withArgs(it)}".toUri()
+                        val link = "${with(RouteCompose) { RouteCompose.Main.Team.AuthorizeUser::class.simpleName?.withArgs(it) }}"
+                        data = "${NavArguments.domain}/$link".toUri()
                     }
+
                     val pendingIntent = TaskStackBuilder.create(context).run {
                         addNextIntentWithParentStack(intent)
                         getPendingIntent(Objects.hash(it), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)

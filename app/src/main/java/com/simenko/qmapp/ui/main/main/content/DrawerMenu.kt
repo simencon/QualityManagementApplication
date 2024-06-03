@@ -20,9 +20,4 @@ enum class DrawerMenuItems(override val tag: String, override val image: ImageVe
     ;
 
     override val title: String get() = StringUtils.getWithSpacesTitle(this.name)
-
-    companion object {
-        fun toList(): List<MenuItem> = entries
-        val startingDrawerMenuItem: MenuItem = TEAM
-    }
 }

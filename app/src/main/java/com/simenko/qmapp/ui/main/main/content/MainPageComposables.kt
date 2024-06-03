@@ -223,7 +223,7 @@ fun DrawerBody(
 ) {
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.COMPANY.group, withDivider = false)
-    DrawerMenuItems.toList().forEach { item ->
+    DrawerMenuItems.entries.forEach { item ->
         if (item.group == MenuItem.MenuGroup.COMPANY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.title) },
@@ -238,7 +238,7 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.QUALITY.group)
-    DrawerMenuItems.toList().forEach { item ->
+    DrawerMenuItems.entries.forEach { item ->
         if (item.group == MenuItem.MenuGroup.QUALITY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.title) },
@@ -253,7 +253,7 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.GENERAL.group)
-    DrawerMenuItems.toList().forEach { item ->
+    DrawerMenuItems.entries.forEach { item ->
         if (item.group == MenuItem.MenuGroup.GENERAL)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.title) },

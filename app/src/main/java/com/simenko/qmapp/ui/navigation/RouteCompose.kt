@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.navigation
 
+import android.content.Intent
 import androidx.navigation.NavDeepLink
+import androidx.navigation.navDeepLink
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
@@ -55,7 +57,15 @@ sealed interface RouteCompose {
             data class Requests(val userId: String = NoRecordStr.str) : RouteCompose
 
             @Serializable
-            data class AuthorizeUser(val userId: String = NoRecordStr.str) : RouteCompose
+            data class AuthorizeUser(val userId: String = NoRecordStr.str) : RouteCompose {
+                override val deepLinks: List<NavDeepLink>
+                    get() = listOf(
+                        navDeepLink {
+                            uriPattern = "${NavArguments.domain}/${AuthorizeUser::class.simpleName}}/{userId}"
+                            action = Intent.ACTION_VIEW
+                        }
+                    )
+            }
         }
 
         @Serializable
@@ -214,6 +224,51 @@ sealed interface RouteCompose {
 
             @Serializable
             data class EditUserDetails(val userEditMode: Boolean = false) : RouteCompose
+        }
+    }
+
+    companion object {
+        fun opt(p: String) = "$p={$p}"
+        fun arg(p: String) = "/{$p}"
+
+        fun String.withArgs(vararg args: String): String {
+            val link = this
+            return buildString {
+                append(link.split("/")[0])
+                args.forEach { arg ->
+                    append("/$arg")
+                }
+            }
+        }
+
+        private fun String.getParamsNames(): List<String> {
+            val list = mutableListOf<String>()
+            val rawList = this.split('?')[1].split('&')
+            rawList.forEach { item ->
+                if (item.find { it == '{' } != null) {
+                    list.add(item.substringAfter('{').substringBefore('}'))
+                }
+            }
+            return list.toList()
+        }
+
+        fun String.withOpts(vararg args: String): String {
+            val link = this
+            val list = link.getParamsNames()
+            var index = 0
+
+            return buildString {
+                append(link.split("?")[0])
+                args.forEach { arg ->
+                    if (index == 0) {
+                        append("?${list[index]}=$arg")
+                        index++
+                    } else {
+                        append("&${list[index]}=$arg")
+                        index++
+                    }
+                }
+            }
         }
     }
 }

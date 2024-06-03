@@ -4,17 +4,19 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
-import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.createMainActivityIntent
+import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -25,8 +27,6 @@ import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.Objects
 
 @HiltWorker
@@ -63,24 +63,24 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
 
     @SuppressLint("MissingPermission")
-    fun makeNotification(notificationData: NotificationData) {
-        val link = Json.encodeToString(RouteCompose.Main.AllInvestigations.AllInvestigationsList(notificationData.orderId, notificationData.subOrderId))
-        val intent = createMainActivityIntent(context, link)
+    fun makeNotification(nData: NotificationData) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            val link = "${with(RouteCompose) { RouteCompose.Main.AllInvestigations.AllInvestigationsList::class.simpleName?.withArgs(nData.orderId.toString(), nData.subOrderId.toString()) }}"
+            data = "${NavArguments.domain}/$link".toUri()
+        }
 
         var title: String
         var msg: String
 
-        notificationData.let {
+        nData.let {
             title = it.notificationReason.reason + concatTwoStrings1(it.orderNumber.toString(), it.subOrderStatus)
             msg = concatThreeStrings(it.departmentAbbr, it.channelAbbr, it.itemTypeCompleteDesignation)
         }
 
         val pendingIntent = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(
-                Objects.hash(notificationData.orderId, notificationData.subOrderId),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-            )
+            getPendingIntent(Objects.hash(nData.orderId, nData.subOrderId), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         val builder = NotificationCompat.Builder(context, SYNC_NOTIFICATION_CHANNEL_ID)
@@ -94,7 +94,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
             .setContentIntent(pendingIntent)
 
         with(notificationManagerCompat) {
-            notify(notificationData.subOrderId.toInt(), builder.build())
+            notify(nData.subOrderId.toInt(), builder.build())
         }
     }
 }

@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
+import com.simenko.qmapp.ui.main.MainActivity.Companion.createMainActivityIntent
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.RouteCompose

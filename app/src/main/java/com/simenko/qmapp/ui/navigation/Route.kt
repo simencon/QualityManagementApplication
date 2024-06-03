@@ -342,11 +342,13 @@ sealed class Route(
                     ),
                     route = NavRouteName.product_lines
                 ) {
-                    data object CharSubGroupAddEdit: Route(
+                    data object CharSubGroupAddEdit : Route(
                         link = "${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${arg(NavArguments.charSubGroupId)}",
                         deepLinks = listOf(
                             navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_line_characteristics}/${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${arg(NavArguments.charSubGroupId)}"
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_line_characteristics}/${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${
+                                    arg(NavArguments.charSubGroupId)
+                                }"
                                 action = Intent.ACTION_VIEW
                             }
                         ),
@@ -767,7 +769,7 @@ sealed class Route(
         fun opt(p: String) = "$p={$p}"
         fun arg(p: String) = "/{$p}"
 
-        fun String.withArgs(vararg args: String): String {
+        private fun String.withArgs(vararg args: String): String {
             val link = this
             return buildString {
                 append(link.split("/")[0])
@@ -788,7 +790,7 @@ sealed class Route(
             return list.toList()
         }
 
-        fun String.withOpts(vararg args: String): String {
+        private fun String.withOpts(vararg args: String): String {
             val link = this
             val list = link.getParamsNames()
             var index = 0

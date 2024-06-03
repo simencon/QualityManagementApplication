@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -43,25 +42,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "MainActivity"
-
-internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
-
-fun createMainActivityIntent(context: Context, route: String = DrawerMenuItems.startingDrawerMenuItem.tag): Intent {
-    val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra(INITIAL_ROUTE, route)
-    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-    return intent
-}
-
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
+
+    companion object {
+        fun createMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
 
     @Inject
     lateinit var remoteConfig: FirebaseRemoteConfig
     private lateinit var analytics: FirebaseAnalytics
-
-    private lateinit var initialRoute: String
 
     val viewModel: MainActivityViewModel by viewModels()
 
@@ -70,7 +62,6 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fetchAndActivateRemoteConfigValues()
-        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: DrawerMenuItems.startingDrawerMenuItem.tag
 
         if (
             ActivityCompat.checkSelfPermission(
@@ -192,12 +183,11 @@ class MainActivity : BaseActivity() {
         }
     }
 
+
     private fun fetchAndActivateRemoteConfigValues() {
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val updated = task.result
-                    Log.d(TAG, "Config params updated: $updated")
                     Toast.makeText(
                         this,
                         "Fetch and activate succeeded",
