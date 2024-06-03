@@ -71,7 +71,7 @@ fun EnterDetails(
             when (state) {
                 is FillInSuccessState ->
                     if (!editMode) {
-                        viewModel.onFillInSuccess(rawPrinciple.email)
+                        viewModel.onFillInSuccess(rawPrinciple.fullName)
                     } else {
                         viewModel.initRawUser()
                         viewModel.onSaveUserDataClick()

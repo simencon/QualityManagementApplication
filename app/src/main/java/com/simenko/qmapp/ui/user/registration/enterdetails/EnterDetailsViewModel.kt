@@ -15,7 +15,6 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +40,7 @@ class EnterDetailsViewModel @Inject constructor(
     init {
         mainPageHandler = MainPageHandler.Builder(if (userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
             .setOnNavMenuClickAction {
-                appNavigator.navigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
+                appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main.Settings.UserDetails, inclusive = true)
             }
             .setOnFabClickAction { this.validateInput() }
             .setOnPullRefreshAction { this.updateUserData() }
@@ -138,11 +137,11 @@ class EnterDetailsViewModel @Inject constructor(
     fun onFillInSuccess(fullName: String) {
         initRawUser()
         resetToInitialState()
-        appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(fullName))
+        appNavigator.tryNavigateTo(RouteCompose.LoggedOut.Registration.TermsAndConditions(fullName))
     }
 
     fun onLogInClick() {
-        appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link)
+        appNavigator.tryNavigateTo(RouteCompose.LoggedOut.LogIn)
     }
 
     fun onSaveUserDataClick() {
@@ -151,7 +150,7 @@ class EnterDetailsViewModel @Inject constructor(
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     mainPageHandler.updateLoadingState(Pair(false, null))
-                    appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
+                    appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main, inclusive = true)
                 } else {
                     mainPageHandler.updateLoadingState(Pair(false, task.exception?.message))
                 }
@@ -160,7 +159,7 @@ class EnterDetailsViewModel @Inject constructor(
     }
 }
 
-fun Long.phoneNumberToString(): String = if (this == NoRecord.num.toLong()) "" else this.toString()
+fun Long.phoneNumberToString(): String = if (this == NoRecord.num) "" else this.toString()
 
 
 fun String.stringToPhoneNumber(): Long {
@@ -169,7 +168,7 @@ fun String.stringToPhoneNumber(): Long {
         filtered = filtered.dropLast(1)
     }
     return if (filtered == EmptyString.str) {
-        NoRecord.num.toLong()
+        NoRecord.num
     } else {
         filtered.toLong()
     }

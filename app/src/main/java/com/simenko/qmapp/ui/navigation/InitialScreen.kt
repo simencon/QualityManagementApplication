@@ -10,6 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
@@ -55,23 +59,25 @@ fun InitialScreen(
                 }
             }
 
-            NavHost(navController = userViewModel.navHostController, startDestination = Route.LoggedOut.InitialScreen) {
-                composable(destination = Route.LoggedOut.InitialScreen) {
+            NavHost(navController = userViewModel.navHostController, startDestination = RouteCompose.LoggedOut.InitialScreen, route = RouteCompose.LoggedOut::class) {
+
+                composable<RouteCompose.LoggedOut.InitialScreen> {
                     LoadingScreen()
                 }
 
-                navigation(startDestination = Route.LoggedOut.Registration.EnterDetails) {
-                    composable(destination = Route.LoggedOut.Registration.EnterDetails) {
+                navigation<RouteCompose.LoggedOut.Registration>(startDestination = RouteCompose.LoggedOut.Registration.EnterDetails()) {
+                    composable<RouteCompose.LoggedOut.Registration.EnterDetails> {
                         val enterDetModel: EnterDetailsViewModel = hiltViewModel()
                         EnterDetails(viewModel = enterDetModel)
                     }
 
-                    composable(destination = Route.LoggedOut.Registration.TermsAndConditions) {
+                    composable<RouteCompose.LoggedOut.Registration.TermsAndConditions> {
+                        val args = it.toRoute<RouteCompose.LoggedOut.Registration.TermsAndConditions>()
                         val regModel: RegistrationViewModel = hiltViewModel()
 
                         TermsAndConditions(
                             viewModel = regModel,
-                            user = it.arguments?.getString(NavArguments.fullName),
+                            user = args.fullName,
                             onDismiss = { regModel.hideUserExistDialog() },
                             onChangeEmail = { regModel.onChangeRegistrationEmailClick() },
                             onLogin = { regModel.onProceedToLoginClick() }
@@ -79,12 +85,12 @@ fun InitialScreen(
                     }
                 }
 
-                composable(destination = Route.LoggedOut.WaitingForValidation) {
+                composable<RouteCompose.LoggedOut.WaitingForValidation> {
                     val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
                     WaitingForVerification(viewModel = verificationModel, message = it.arguments?.getString(NavArguments.message))
                 }
 
-                composable(destination = Route.LoggedOut.LogIn) {
+                composable<RouteCompose.LoggedOut.LogIn> {
                     val loginModel: LoginViewModel = hiltViewModel()
 
                     LogIn(loginModel)

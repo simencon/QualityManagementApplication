@@ -15,18 +15,6 @@ class RouteTest {
     @Test
     fun `with args function returns proper link with arguments`() {
         /**
-         * Terms and conditions link check
-         * */
-        val termsAndConditions = Route.LoggedOut.Registration.TermsAndConditions.link
-        val termsAndConditionsWithArgs = termsAndConditions.withArgs("Roman Semenyshyn")
-        Truth.assertThat(termsAndConditionsWithArgs).isEqualTo("${NavRouteName.terms_and_conditions}/Roman Semenyshyn")
-        /**
-         * Waiting for validation link check
-         * */
-        val waitingForValidation = Route.LoggedOut.WaitingForValidation.link
-        val waitingForValidationWithArgs = waitingForValidation.withArgs("wait for validation")
-        Truth.assertThat(waitingForValidationWithArgs).isEqualTo("${NavRouteName.waiting_for_validation}/wait for validation")
-        /**
          * Employees link check
          * */
         val employees = Route.Main.Team.Employees.link

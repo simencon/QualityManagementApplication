@@ -17,8 +17,6 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 
-const val LOGGED_OUT_ROUTE = "logged_out"
-const val REGISTRATION_ROUTE = "registration"
 const val MAIN_ROUTE = "main"
 const val TEAM_ROUTE = "team"
 const val COMPANY_STRUCTURE_ROUTE = "company_structure"
@@ -28,14 +26,6 @@ const val SETTINGS_ROUTE = "settings"
 object NavRouteName {
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-    const val initial_screen = "initial_screen"
-
-    const val enter_details = "enter_details"
-    const val terms_and_conditions = "terms_and_conditions"
-
-    const val waiting_for_validation = "waiting_for_validation"
-
-    const val log_in = "log_in"
 
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
@@ -145,48 +135,6 @@ sealed class Route(
     val deepLinks: List<NavDeepLink> = emptyList(),
     val route: String = EmptyString.str
 ) {
-    data object LoggedOut : Route(link = LOGGED_OUT_ROUTE) {
-        data object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROUTE)
-        data object Registration : Route(link = REGISTRATION_ROUTE, route = LOGGED_OUT_ROUTE) {
-            data object EnterDetails : Route(
-                link = "${NavRouteName.enter_details}${arg(NavArguments.userEditMode)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userEditMode) {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
-                ),
-                route = REGISTRATION_ROUTE
-            )
-
-            data object TermsAndConditions : Route(
-                link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.fullName) {
-                        type = NavType.StringType
-                        defaultValue = "Roman"
-                        nullable = true
-                    }
-                ),
-                route = REGISTRATION_ROUTE
-            )
-        }
-
-        data object WaitingForValidation : Route(
-            link = "${NavRouteName.waiting_for_validation}/{${NavArguments.message}}",
-            arguments = listOf(
-                navArgument(NavArguments.message) {
-                    type = NavType.StringType
-                    defaultValue = "Verification link was sent to your email"
-                    nullable = true
-                }
-            ),
-            route = LOGGED_OUT_ROUTE
-        )
-
-        data object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROUTE)
-    }
-
     data object Main : Route(link = MAIN_ROUTE) {
         data object CompanyProfile : Route(link = NavRouteName.company_profile, route = MAIN_ROUTE)
         data object Team : Route(link = TEAM_ROUTE, route = MAIN_ROUTE) {
@@ -1009,15 +957,6 @@ sealed class Route(
             }
         }
     }
-}
-
-@Composable
-inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-    val navGraphRoute = destination.parent?.startDestinationRoute ?: return hiltViewModel()
-    val parentEntry = remember(this) {
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return hiltViewModel(parentEntry)
 }
 
 @Composable
