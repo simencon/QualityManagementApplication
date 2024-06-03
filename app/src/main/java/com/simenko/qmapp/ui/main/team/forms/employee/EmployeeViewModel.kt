@@ -50,7 +50,7 @@ class EmployeeViewModel @Inject constructor(
     private val repository: ManufacturingRepository,
     private val controller: NavHostController,
 ) : ViewModel() {
-    private var employeeId: ID = NoRecord.num
+    private val employeeId: ID get() = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.EmployeeAddEdit>()?.employeeId ?: NoRecord.num
 
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private fun loadEmployee(id: ID) {
@@ -63,11 +63,6 @@ class EmployeeViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        controller.currentBackStackEntry?.let {
-            if (it.destination.parent?.route == RouteCompose.Main.Team.EmployeeAddEdit::class.qualifiedName) {
-                employeeId = it.toRoute<RouteCompose.Main.Team.EmployeeAddEdit>().employeeId
-            }
-        }
         mainPageHandler = MainPageHandler.Builder(if (employeeId == NoRecord.num) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction { this.validateInput() }

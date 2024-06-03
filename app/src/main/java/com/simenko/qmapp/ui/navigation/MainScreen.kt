@@ -19,7 +19,7 @@ fun MainScreen(
     mainScreenPadding: PaddingValues
 ) {
     QMAppTheme {
-        NavHost(navController = mainViewModel.navHostController, startDestination = RouteCompose.Main.Settings, route = RouteCompose.Main::class) {
+        NavHost(navController = mainViewModel.navHostController, startDestination = RouteCompose.Main.Team, route = RouteCompose.Main::class) {
             teamNavigation<RouteCompose.Main.Team>()
             companyStructureNavigation<RouteCompose.Main.CompanyStructure>(mainScreenPadding)
             productsNavigation<RouteCompose.Main.ProductLines>(mainScreenPadding)

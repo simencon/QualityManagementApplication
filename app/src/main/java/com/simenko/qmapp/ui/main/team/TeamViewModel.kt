@@ -43,8 +43,12 @@ class TeamViewModel @Inject constructor(
     private val controller: NavHostController,
 ) : ViewModel() {
 
-    private var employeeId: ID = NoRecord.num
-    private var userId: String = NoRecordStr.str
+    private val employeeId: ID get() = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Employees>()?.employeeId ?: NoRecord.num
+    private val userId: String
+        get() {
+            val fromUsers = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Users>()?.userId ?: NoRecordStr.str
+            return if (fromUsers == NoRecordStr.str) controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Requests>()?.userId ?: NoRecordStr.str else fromUsers
+        }
 
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
     private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }.flowOn(Dispatchers.IO)
@@ -61,22 +65,6 @@ class TeamViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        controller.currentBackStackEntry?.let {
-            when (it.destination.parent?.route) {
-                RouteCompose.Main.Team.Employees::class.qualifiedName -> {
-                    employeeId = it.toRoute<RouteCompose.Main.Team.Employees>().employeeId
-                }
-
-                RouteCompose.Main.Team.Users::class.qualifiedName -> {
-                    userId = it.toRoute<RouteCompose.Main.Team.Users>().userId
-                }
-
-                RouteCompose.Main.Team.Requests::class.qualifiedName -> {
-                    userId = it.toRoute<RouteCompose.Main.Team.Requests>().userId
-                }
-            }
-        }
-
         mainPageHandler = MainPageHandler.Builder(Page.TEAM, mainPageState)
             .setOnSearchClickAction {
                 setEmployeesFilter(it)

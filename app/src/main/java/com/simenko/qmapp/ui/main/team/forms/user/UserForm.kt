@@ -43,7 +43,6 @@ import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserForm(
     modifier: Modifier = Modifier,

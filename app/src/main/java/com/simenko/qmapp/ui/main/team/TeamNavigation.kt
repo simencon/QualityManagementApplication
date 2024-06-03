@@ -14,7 +14,7 @@ import com.simenko.qmapp.ui.main.team.user.Users
 import com.simenko.qmapp.ui.navigation.RouteCompose
 
 inline fun <reified T : Any> NavGraphBuilder.teamNavigation() {
-    navigation<T>(startDestination = RouteCompose.Main.Team.Users()) {
+    navigation<T>(startDestination = RouteCompose.Main.Team.Requests()) {
         composable<RouteCompose.Main.Team.Employees> {
             val teamModel: TeamViewModel = hiltViewModel()
             Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeAddEdictClick(id) })

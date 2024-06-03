@@ -68,9 +68,7 @@ class UserViewModel @Inject constructor(
 
     init {
         controller.currentBackStackEntry?.let {
-            if (it.destination.parent?.route == RouteCompose.Main.Team.AuthorizeUser::class.qualifiedName) {
-                userId = it.toRoute<RouteCompose.Main.Team.AuthorizeUser>().userId
-            }
+            userId = it.toRoute<RouteCompose.Main.Team.AuthorizeUser>().userId
         }
 
         notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
