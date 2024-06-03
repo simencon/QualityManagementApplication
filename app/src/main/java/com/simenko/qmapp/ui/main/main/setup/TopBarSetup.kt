@@ -20,7 +20,7 @@ data class TopBarSetup(
         if (onNavMenuClick == null) onNavMenuClick = { this.setDrawerMenuState(it) }
     }
 
-    val link: String = page.link
+    val link: String = page.drawerLink
     val navIcon: ImageVector? = page.navIcon
     val title: String? = page.title
     val placeholderText: String? = page.titlePlaceholderText

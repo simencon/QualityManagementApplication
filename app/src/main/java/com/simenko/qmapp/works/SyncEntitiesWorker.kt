@@ -15,6 +15,7 @@ import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.createMainActivityIntent
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.StringUtils.concatThreeStrings
@@ -24,6 +25,8 @@ import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.Objects
 
 @HiltWorker
@@ -61,7 +64,8 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
-        val intent = createMainActivityIntent(context, Route.Main.Inv.withOpts(notificationData.orderId.toString(), notificationData.subOrderId.toString()))
+        val link = Json.encodeToString(RouteCompose.Main.AllInvestigations.AllInvestigationsList(notificationData.orderId, notificationData.subOrderId))
+        val intent = createMainActivityIntent(context, link)
 
         var title: String
         var msg: String

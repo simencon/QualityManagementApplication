@@ -1,14 +1,10 @@
 package com.simenko.qmapp.di
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
-import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

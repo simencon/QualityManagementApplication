@@ -37,7 +37,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -105,12 +105,12 @@ class MainActivity : BaseActivity() {
                 fun onDrawerItemClick(id: String) {
                     if (id != topBarSetup.link) {
                         when (id) {
-                            Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
-                            Route.Main.CompanyStructure.link -> viewModel.onDrawerMenuCompanyStructureSelected()
-                            Route.Main.Products.link -> viewModel.onDrawerMenuProductsSelected()
-                            Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
-                            Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
-                            Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
+                            RouteCompose.Main.Team::class.qualifiedName -> viewModel.onDrawerMenuTeamSelected()
+                            RouteCompose.Main.CompanyStructure::class.qualifiedName -> viewModel.onDrawerMenuCompanyStructureSelected()
+                            RouteCompose.Main.ProductLines::class.qualifiedName -> viewModel.onDrawerMenuProductsSelected()
+                            RouteCompose.Main.AllInvestigations::class.qualifiedName -> viewModel.onDrawerMenuInvSelected()
+                            RouteCompose.Main.ProcessControl::class.qualifiedName -> viewModel.onDrawerMenuProcessControlSelected()
+                            RouteCompose.Main.Settings::class.qualifiedName -> viewModel.onDrawerMenuSettingsSelected()
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }

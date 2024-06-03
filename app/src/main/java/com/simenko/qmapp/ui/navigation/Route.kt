@@ -67,14 +67,6 @@ object NavRouteName {
     const val product_line_char_sub_group_add_edit = "product_line_char_sub_group_add_edit"
 
 
-    const val all_investigations = "all_investigations"
-
-    const val process_control = "process_control"
-
-    const val order_add_edit = "order_add_edit"
-
-    const val sub_order_add_edit = "sub_order_add_edit"
-
     const val scrap_level = "scrap_level"
 
     //    const val settings = "settings"
@@ -124,7 +116,6 @@ object NavArguments {
     const val versionEditMode = "versionEditMode"
     const val toleranceId = "toleranceId"
 
-    const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"
     const val subOrderId = "subOrderId"
 }
@@ -823,74 +814,6 @@ sealed class Route(
                 route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
             )
         }
-
-        data object Inv : Route(
-            link = "${NavRouteName.all_investigations}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
-            arguments = listOf(
-                navArgument(NavArguments.isProcessControlOnly) {
-                    type = NavType.BoolType
-                    defaultValue = false
-                },
-                navArgument(NavArguments.orderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.subOrderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                }
-            ),
-            route = MAIN_ROUTE
-        )
-
-        data object ProcessControl : Route(
-            link = "${NavRouteName.process_control}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
-            arguments = listOf(
-                navArgument(NavArguments.isProcessControlOnly) {
-                    type = NavType.BoolType
-                    defaultValue = true
-                },
-                navArgument(NavArguments.orderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.subOrderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                }
-            ),
-            route = MAIN_ROUTE
-        )
-
-        data object OrderAddEdit : Route(
-            link = "${NavRouteName.order_add_edit}${arg(NavArguments.orderId)}",
-            arguments = listOf(
-                navArgument(NavArguments.orderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                }
-            ),
-            route = MAIN_ROUTE
-        )
-
-        data object SubOrderAddEdit : Route(
-            link = "${NavRouteName.sub_order_add_edit}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}${arg(NavArguments.isProcessControlOnly)}",
-            arguments = listOf(
-                navArgument(NavArguments.orderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.subOrderId) {
-                    type = NavType.LongType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.isProcessControlOnly) {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            ),
-            route = MAIN_ROUTE
-        )
 
         data object ScrapLevel : Route(link = NavRouteName.scrap_level, route = MAIN_ROUTE)
 

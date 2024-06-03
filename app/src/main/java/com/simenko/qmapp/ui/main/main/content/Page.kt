@@ -1,8 +1,8 @@
 package com.simenko.qmapp.ui.main.main.content
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -13,10 +13,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 enum class Page(
-    val link: String,
+    val drawerLink: String,
     val navIcon: ImageVector?,
     val title: String?,
     val titlePlaceholderText: String?,
@@ -30,7 +30,7 @@ enum class Page(
     EMPTY_PAGE(EmptyString.str, null, null, null, null, null, null, null, null, null),
 
     TEAM(
-        link = Route.Main.Team.link,
+        drawerLink = RouteCompose.Main.Team::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Company team",
         titlePlaceholderText = "Search by full name",
@@ -42,7 +42,7 @@ enum class Page(
         actionMenuItems = TeamActions.toList()
     ),
     COMPANY_STRUCTURE(
-        link = Route.Main.CompanyStructure.link,
+        drawerLink = RouteCompose.Main.CompanyStructure::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Company structure",
         titlePlaceholderText = null,
@@ -54,7 +54,7 @@ enum class Page(
         actionMenuItems = CompanyStructureActions.toList()
     ),
     PRODUCTS(
-        link = Route.Main.Products.link,
+        drawerLink = RouteCompose.Main.ProductLines::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Product lines",
         titlePlaceholderText = null,
@@ -66,8 +66,8 @@ enum class Page(
         actionMenuItems = CompanyProductsActions.toList()
     ),
     PRODUCT_LINE_CHARACTERISTICS(
-        link = Route.Main.Products.ProductLines.Characteristics.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "All characteristics",
         titlePlaceholderText = "Search by description",
         keyboardType = KeyboardType.Text,
@@ -78,8 +78,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_LINE_KEYS(
-        link = Route.Main.Products.ProductLines.ProductLineKeys.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Product line designations",
         titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
@@ -90,8 +90,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_KINDS(
-        link = Route.Main.Products.ProductLines.ProductKinds.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Products",
         titlePlaceholderText = "Search by description",
         keyboardType = KeyboardType.Text,
@@ -102,8 +102,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_KIND_KEYS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Product designations",
         titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
@@ -114,8 +114,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_KIND_CHARACTERISTICS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductKindCharacteristics.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Product characteristics",
         titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
@@ -126,8 +126,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_KIND_SPECIFICATION(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Product specification",
         titlePlaceholderText = "Search description",
         keyboardType = KeyboardType.Text,
@@ -138,8 +138,8 @@ enum class Page(
         actionMenuItems = null
     ),
     PRODUCT_KIND_LIST(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductList.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Product list",
         titlePlaceholderText = "Search by name",
         keyboardType = KeyboardType.Text,
@@ -150,8 +150,8 @@ enum class Page(
         actionMenuItems = null
     ),
     VERSION_TOLERANCES(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Version specification",
         titlePlaceholderText = "Search by name",
         keyboardType = KeyboardType.Text,
@@ -162,8 +162,8 @@ enum class Page(
         actionMenuItems = null
     ),
     COMPONENT_KIND_KEYS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Component designations",
         titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
@@ -174,8 +174,8 @@ enum class Page(
         actionMenuItems = null
     ),
     COMPONENT_KIND_CHARACTERISTICS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Comp. characteristics",
         titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
@@ -186,8 +186,8 @@ enum class Page(
         actionMenuItems = null
     ),
     COMPONENT_STAGE_KIND_KEYS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Comp. stage designations",
         titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
@@ -198,8 +198,8 @@ enum class Page(
         actionMenuItems = null
     ),
     COMPONENT_STAGE_KIND_CHARACTERISTICS(
-        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindCharacteristics.link,
-        navIcon = Icons.Filled.ArrowBack,
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
         title = "Comp. stage char.",
         titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
@@ -210,7 +210,7 @@ enum class Page(
         actionMenuItems = null
     ),
     INVESTIGATIONS(
-        link = Route.Main.Inv.link,
+        drawerLink = RouteCompose.Main.AllInvestigations::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "All investigations",
         titlePlaceholderText = "Search order by number",
@@ -222,7 +222,7 @@ enum class Page(
         actionMenuItems = InvestigationsActions.toList()
     ),
     PROCESS_CONTROL(
-        link = Route.Main.ProcessControl.link,
+        drawerLink = RouteCompose.Main.ProcessControl::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Process control",
         titlePlaceholderText = "Search order by number",
@@ -234,7 +234,7 @@ enum class Page(
         actionMenuItems = ProcessControlActions.toList()
     ),
     ACCOUNT_SETTINGS(
-        link = Route.Main.Settings.link,
+        drawerLink = RouteCompose.Main.Settings::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Account settings",
         titlePlaceholderText = null,
@@ -246,50 +246,50 @@ enum class Page(
         actionMenuItems = AccountSettingsActions.toList()
     ),
 
-    ADD_EMPLOYEE(Route.Main.Team.EmployeeAddEdit.link, Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_EMPLOYEE(Route.Main.Team.EmployeeAddEdit.link, Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, Icons.Filled.Save, null),
+    ADD_EMPLOYEE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new employee", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_EMPLOYEE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit employee", null, null, null, null, Icons.Filled.Save, null),
 
-    AUTHORIZE_USER(Route.Main.Team.AuthorizeUser.link, Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_USER(Route.Main.Team.EditUser.link, Icons.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
+    AUTHORIZE_USER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_USER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new department", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit department", null, null, null, null, Icons.Filled.Save, null),
+    ADD_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new department", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit department", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
+    ADD_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),
+    ADD_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
+    ADD_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
+    ADD_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new manufacturing project", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+    ADD_PRODUCT_PROJECT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_PROJECT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit manufacturing project", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component kind", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_COMPONENT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new component kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit component kind", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_PRODUCT_LINE_CHAR_SUB_GROUP(Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.link, Icons.Filled.ArrowBack, "Add new char. sub group", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_PRODUCT_LINE_CHAR_SUB_GROUP(Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.link, Icons.Filled.ArrowBack, "Edit char. sub group", null, null, null, null, Icons.Filled.Save, null),
+    ADD_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new char. sub group", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit char. sub group", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
-    ADD_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, Icons.Filled.Save, null),
-    ADD_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "New process control order", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, Icons.Filled.Save, null),
+    ADD_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
+    ADD_SUB_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new sub order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit sub order", null, null, null, null, Icons.Filled.Save, null),
+    ADD_SUB_ORDER_SA(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "New process control order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_ORDER_SA(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit process control order", null, null, null, null, Icons.Filled.Save, null),
 
-    ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null);
+    ACCOUNT_EDIT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null);
 
     fun withCustomFabIcon(icon: ImageVector): Page {
         fabIcon = icon

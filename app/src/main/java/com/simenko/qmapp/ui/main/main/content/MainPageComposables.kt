@@ -4,16 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TextFieldDefaults.colors
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
@@ -41,7 +40,7 @@ import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
     topBarSetup: TopBarSetup
@@ -134,7 +133,7 @@ fun AppBar(
                     onClick = { topBarSetup.setSearchBarState(false) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Hide search bar")
                 }
             else
                 if (topBarSetup.navIcon != null)
@@ -322,7 +321,7 @@ fun ActionsMenuTop(
         DropdownMenuItem(
             text = { Text(getWithSpaces(it)) },
             onClick = { onTopMenuItemClick(it) },
-            leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = getWithSpaces(it)) },
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = getWithSpaces(it)) },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }

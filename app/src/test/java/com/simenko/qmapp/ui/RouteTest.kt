@@ -50,51 +50,5 @@ class RouteTest {
         val authorizeUser = Route.Main.Team.AuthorizeUser.link
         val authorizeUserWithArgs = authorizeUser.withArgs(NoRecordStr.str)
         Truth.assertThat(authorizeUserWithArgs).isEqualTo("${NavRouteName.authorize_user}/${NoRecordStr.str}")
-        /**
-         * Order add/edit link check
-         * */
-        val orderAddEdit = Route.Main.OrderAddEdit.link
-        val orderAddEditWithArgs = orderAddEdit.withArgs(NoRecordStr.str)
-        Truth.assertThat(orderAddEditWithArgs).isEqualTo("${NavRouteName.order_add_edit}/${NoRecordStr.str}")
-        /**
-         * Sub order add/edit link check
-         * */
-        val subOrderAddEdit = Route.Main.SubOrderAddEdit.link
-        val subOrderAddEditWithArgs = subOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, FalseStr.str)
-        Truth.assertThat(subOrderAddEditWithArgs).isEqualTo("${NavRouteName.sub_order_add_edit}/${NoRecordStr.str}/${NoRecordStr.str}/${FalseStr.str}")
-    }
-
-    @Test
-    fun `with opts function returns link with optional arguments`() {
-        /**
-         * All investigations link check
-         * */
-        val invAll = Route.Main.Inv.link
-        var invAllWithOptArgs = invAll.withOpts(FalseStr.str, NoRecordStr.str, NoRecordStr.str)
-
-        Truth.assertThat(invAllWithOptArgs)
-            .isEqualTo(
-                "${NavRouteName.all_investigations}?" +
-                        "${NavArguments.isProcessControlOnly}=${FalseStr.str}&" +
-                        "${NavArguments.orderId}=${NoRecordStr.str}&" +
-                        "${NavArguments.subOrderId}=${NoRecordStr.str}"
-            )
-
-        invAllWithOptArgs = invAll.withOpts()
-        Truth.assertThat(invAllWithOptArgs).isEqualTo(NavRouteName.all_investigations)
-        /**
-         * Process control link check
-         * */
-        val processControl = Route.Main.ProcessControl.link
-        var processControlWithOptArgs = processControl.withOpts(TrueStr.str, NoRecordStr.str, NoRecordStr.str)
-
-        Truth.assertThat(processControlWithOptArgs)
-            .isEqualTo("${NavRouteName.process_control}?" +
-                    "${NavArguments.isProcessControlOnly}=${TrueStr.str}&" +
-                    "${NavArguments.orderId}=${NoRecordStr.str}&" +
-                    "${NavArguments.subOrderId}=${NoRecordStr.str}")
-
-        processControlWithOptArgs = processControl.withOpts()
-        Truth.assertThat(processControlWithOptArgs).isEqualTo(NavRouteName.process_control)
     }
 }
