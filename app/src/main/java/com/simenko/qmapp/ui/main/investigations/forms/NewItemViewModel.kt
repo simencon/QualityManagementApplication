@@ -15,7 +15,6 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvStatuses
@@ -71,9 +70,6 @@ class NewItemViewModel @Inject constructor(
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                println("NewItemViewModel - init - isPcOnly: $isPcOnly")
-                println("NewItemViewModel - init - orderId: $orderId")
-                println("NewItemViewModel - init - subOrderId: $subOrderId")
                 val pageWithMakeAction = if (isPcOnly) {
                     if (subOrderId == NoRecord.num) {
                         setNewOrderForProcessControl()
@@ -151,7 +147,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectOrderReason(id: ID) {
-        if (_order.value.reasonId != id && isPcOnly != true)
+        if (_order.value.reasonId != id && !isPcOnly)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
         else if (_order.value.reasonId != id)
             _order.value = _order.value.copy(reasonId = id)
@@ -578,8 +574,8 @@ class NewItemViewModel @Inject constructor(
                                 mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
-                                        route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str),
-                                        popUpToRoute = Route.Main.Inv.route,
+                                        route = RouteCompose.Main.AllInvestigations.AllInvestigationsList(resource.data?.id ?: NoRecord.num, NoRecord.num),
+                                        popUpToRoute = RouteCompose.Main.AllInvestigations,
                                         inclusive = true
                                     )
                                 }
@@ -637,14 +633,14 @@ class NewItemViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
-                                                route = Route.Main.ProcessControl.withOpts(TrueStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
-                                                popUpToRoute = Route.Main.ProcessControl.route,
+                                                route = RouteCompose.Main.ProcessControl.ProcessControlList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
+                                                popUpToRoute = RouteCompose.Main.ProcessControl,
                                                 inclusive = true
                                             )
                                         else
                                             appNavigator.tryNavigateTo(
-                                                route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
-                                                popUpToRoute = Route.Main.Inv.route,
+                                                route = RouteCompose.Main.AllInvestigations.AllInvestigationsList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
+                                                popUpToRoute = RouteCompose.Main.AllInvestigations,
                                                 inclusive = true
                                             )
                                     }
