@@ -50,14 +50,14 @@ class InvestigationsViewModel @Inject constructor(
     private val controller: NavHostController,
 ) : ViewModel() {
     var isPcOnly by Delegates.notNull<Boolean>()
-    var subOrderId by Delegates.notNull<ID>()
-    val orderId: ID
+    private var subOrderId by Delegates.notNull<ID>()
+    private val orderId: ID
         get() = controller.currentBackStackEntry?.let {
             if(it.destination.parent?.route == RouteCompose.Main.AllInvestigations::class.qualifiedName) {
-                val route = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
+                val args = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
                 isPcOnly = false
-                subOrderId = route.subOrderId
-                route.orderId
+                subOrderId = args.subOrderId
+                args.orderId
             } else {
                 val route = it.toRoute<RouteCompose.Main.ProcessControl.ProcessControlList>()
                 isPcOnly = true

@@ -4,8 +4,8 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
-import com.simenko.qmapp.di.EmployeeIdParameter
-import com.simenko.qmapp.di.UserIdParameter
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -17,8 +17,8 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
@@ -40,9 +40,12 @@ class TeamViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sRepository: SystemRepository,
     private val mRepository: ManufacturingRepository,
-    @EmployeeIdParameter private val employeeId: ID,
-    @UserIdParameter private val userId: String
+    private val controller: NavHostController,
 ) : ViewModel() {
+
+    private var employeeId: ID = NoRecord.num
+    private var userId: String = NoRecordStr.str
+
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
     private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }.flowOn(Dispatchers.IO)
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
@@ -58,6 +61,22 @@ class TeamViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
+        controller.currentBackStackEntry?.let {
+            when (it.destination.parent?.route) {
+                RouteCompose.Main.Team.Employees::class.qualifiedName -> {
+                    employeeId = it.toRoute<RouteCompose.Main.Team.Employees>().employeeId
+                }
+
+                RouteCompose.Main.Team.Users::class.qualifiedName -> {
+                    userId = it.toRoute<RouteCompose.Main.Team.Users>().userId
+                }
+
+                RouteCompose.Main.Team.Requests::class.qualifiedName -> {
+                    userId = it.toRoute<RouteCompose.Main.Team.Requests>().userId
+                }
+            }
+        }
+
         mainPageHandler = MainPageHandler.Builder(Page.TEAM, mainPageState)
             .setOnSearchClickAction {
                 setEmployeesFilter(it)
@@ -192,30 +211,30 @@ class TeamViewModel @Inject constructor(
 
     private fun navigateByTopTabs(tag: SelectedNumber) {
         when (tag) {
-            FirstTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Employees.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true)
-            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Users.route, inclusive = true)
-            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Requests.route, inclusive = true)
+            FirstTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Employees(NoRecord.num), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
+            SecondTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Users(NoRecordStr.str), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
+            ThirdTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Requests(NoRecordStr.str), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
         }
     }
 
     fun onEmployeeAddEdictClick(employeeId: ID) {
-        appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit.withArgs(employeeId.toString()))
+        appNavigator.tryNavigateTo(RouteCompose.Main.Team.EmployeeAddEdit(employeeId))
     }
 
     fun onUserEditClick(userId: String) {
         if (isOwnAccount(userId)) return
-        appNavigator.tryNavigateTo(Route.Main.Team.EditUser.withArgs(userId))
+        appNavigator.tryNavigateTo(RouteCompose.Main.Team.EditUser(userId))
     }
 
     fun onUserAuthorizeClick(userId: String) {
         if (isOwnAccount(userId)) return
-        appNavigator.tryNavigateTo(Route.Main.Team.AuthorizeUser.withArgs(userId))
+        appNavigator.tryNavigateTo(RouteCompose.Main.Team.AuthorizeUser(userId))
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
         mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Requests.route, inclusive = true) }
+            id?.let { appNavigator.tryNavigateTo(RouteCompose.Main.Team.Requests(it), RouteCompose.Main.Team, inclusive = true) }
         }
     }
 

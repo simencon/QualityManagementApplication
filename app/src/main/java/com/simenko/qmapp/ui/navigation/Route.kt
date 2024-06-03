@@ -2,13 +2,10 @@ package com.simenko.qmapp.ui.navigation
 
 import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -29,12 +26,6 @@ object NavRouteName {
 
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-    const val company_profile = "company_profile"
-
-    const val employees = "employees"
-    const val employee_add_edit = "employee_add_edit"
-    const val users = "users"
-    const val edit_user = "edit_user"
     const val requests = "requests"
     const val authorize_user = "authorize_user"
 
@@ -127,69 +118,7 @@ sealed class Route(
     val route: String = EmptyString.str
 ) {
     data object Main : Route(link = MAIN_ROUTE) {
-        data object CompanyProfile : Route(link = NavRouteName.company_profile, route = MAIN_ROUTE)
         data object Team : Route(link = TEAM_ROUTE, route = MAIN_ROUTE) {
-            data object Employees : Route(
-                link = "${NavRouteName.employees}${arg(NavArguments.employeeId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.employeeId) {
-                        type = NavType.LongType
-                        defaultValue = NoRecord.num
-                    }
-                ),
-                route = TEAM_ROUTE
-            )
-
-            data object EmployeeAddEdit : Route(
-                link = "${NavRouteName.employee_add_edit}${arg(NavArguments.employeeId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.employeeId) {
-                        type = NavType.LongType
-                        defaultValue = NoRecord.num
-                    }
-                ),
-                route = TEAM_ROUTE
-            )
-
-            data object Users : Route(
-                link = "${NavRouteName.users}${arg(NavArguments.userId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userId) {
-                        type = NavType.StringType
-                        defaultValue = NoRecordStr.str
-                    }
-                ),
-                route = TEAM_ROUTE
-            )
-
-            data object EditUser : Route(
-                link = "${NavRouteName.edit_user}${arg(NavArguments.userId)}",
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.users}/${NavRouteName.edit_user}${arg(NavArguments.userId)}"
-                        action = Intent.ACTION_VIEW
-                    }
-                ),
-                arguments = listOf(
-                    navArgument(name = NavArguments.userId) {
-                        type = NavType.StringType
-                        defaultValue = NoRecordStr.str
-                    }
-                ),
-                route = TEAM_ROUTE
-            )
-
-            data object Requests : Route(
-                link = "${NavRouteName.requests}${arg(NavArguments.userId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userId) {
-                        type = NavType.StringType
-                        defaultValue = NoRecordStr.str
-                    }
-                ),
-                route = TEAM_ROUTE
-            )
-
             data object AuthorizeUser : Route(
                 link = "${NavRouteName.authorize_user}${arg(NavArguments.userId)}",
                 deepLinks = listOf(
@@ -814,8 +743,6 @@ sealed class Route(
                 route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
             )
         }
-
-        data object ScrapLevel : Route(link = NavRouteName.scrap_level, route = MAIN_ROUTE)
 
         data object Settings : Route(link = SETTINGS_ROUTE, route = MAIN_ROUTE) {
             data object UserDetails : Route(link = NavRouteName.user_details, route = SETTINGS_ROUTE)

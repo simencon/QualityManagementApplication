@@ -14,14 +14,6 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class EmployeeIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class UserIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class CompanyIdParameter
 
 @Qualifier
@@ -119,18 +111,6 @@ annotation class ToleranceIdParameter
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelsModule {
-    @Provides
-    @EmployeeIdParameter
-    @ViewModelScoped
-    fun provideEmployeeIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.employeeId] ?: NoRecord.num
-
-    @Provides
-    @UserIdParameter
-    @ViewModelScoped
-    fun provideUserIdParameter(savedStateHandle: SavedStateHandle): String =
-        savedStateHandle[NavArguments.userId] ?: NoRecordStr.str
-
     @Provides
     @CompanyIdParameter
     @ViewModelScoped

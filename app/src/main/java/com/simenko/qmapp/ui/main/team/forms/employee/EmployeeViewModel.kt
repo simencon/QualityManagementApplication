@@ -2,7 +2,8 @@ package com.simenko.qmapp.ui.main.team.forms.employee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.EmployeeIdParameter
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
@@ -21,8 +22,8 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,8 +48,10 @@ class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @EmployeeIdParameter private val employeeId: ID
+    private val controller: NavHostController,
 ) : ViewModel() {
+    private var employeeId: ID = NoRecord.num
+
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private fun loadEmployee(id: ID) {
         _employee.value = repository.employeeById(id)
@@ -60,6 +63,11 @@ class EmployeeViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
+        controller.currentBackStackEntry?.let {
+            if (it.destination.parent?.route == RouteCompose.Main.Team.EmployeeAddEdit::class.qualifiedName) {
+                employeeId = it.toRoute<RouteCompose.Main.Team.EmployeeAddEdit>().employeeId
+            }
+        }
         mainPageHandler = MainPageHandler.Builder(if (employeeId == NoRecord.num) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction { this.validateInput() }
@@ -238,7 +246,9 @@ class EmployeeViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Employees.withArgs(it.toString()), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true) }
+            id?.let {
+                appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Employees(it), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
+            }
         }
     }
 

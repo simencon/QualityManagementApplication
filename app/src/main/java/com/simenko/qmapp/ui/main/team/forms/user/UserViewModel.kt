@@ -3,7 +3,8 @@ package com.simenko.qmapp.ui.main.team.forms.user
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.UserIdParameter
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -21,8 +22,8 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,8 +52,10 @@ class UserViewModel @Inject constructor(
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val notificationManager: NotificationManagerCompat,
-    @UserIdParameter private val userId: String
+    private val controller: NavHostController,
 ) : ViewModel() {
+    private var userId: String = NoRecordStr.str
+
     private val _user = MutableStateFlow(DomainUser())
     val user get() = _user.asStateFlow()
     private var _isUserToAuthorize = false
@@ -64,6 +67,12 @@ class UserViewModel @Inject constructor(
         private set
 
     init {
+        controller.currentBackStackEntry?.let {
+            if (it.destination.parent?.route == RouteCompose.Main.Team.AuthorizeUser::class.qualifiedName) {
+                userId = it.toRoute<RouteCompose.Main.Team.AuthorizeUser>().userId
+            }
+        }
+
         notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
         if (userId != NoRecordStr.str)
             viewModelScope.launch {
@@ -196,7 +205,7 @@ class UserViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: String?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Users.route, inclusive = true) }
+            id?.let { appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Users(it), popUpToRoute = RouteCompose.Main.Team, inclusive = true) }
         }
     }
 }
