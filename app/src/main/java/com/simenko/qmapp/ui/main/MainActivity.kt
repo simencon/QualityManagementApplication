@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -81,6 +82,7 @@ class MainActivity : BaseActivity() {
             val pullRefreshSetup by viewModel.pullRefreshSetup.collectAsStateWithLifecycle()
 
             QMAppTheme {
+                val navController = rememberNavController()
                 val scope = rememberCoroutineScope()
 
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
@@ -160,7 +162,7 @@ class MainActivity : BaseActivity() {
                                         .padding(it)
                                 ) {
                                     TopTabs(topTabsSetup)
-                                    MainScreen(viewModel, it)
+                                    MainScreen(navController, it)
                                 }
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,

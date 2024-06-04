@@ -3,8 +3,6 @@ package com.simenko.qmapp.ui.main.team.forms.user
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -52,9 +50,7 @@ class UserViewModel @Inject constructor(
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val notificationManager: NotificationManagerCompat,
-    private val controller: NavHostController,
 ) : ViewModel() {
-    private var userId: String = NoRecordStr.str
 
     private val _user = MutableStateFlow(DomainUser())
     val user get() = _user.asStateFlow()
@@ -66,11 +62,7 @@ class UserViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    init {
-        controller.currentBackStackEntry?.let {
-            userId = it.toRoute<RouteCompose.Main.Team.AuthorizeUser>().userId
-        }
-
+    fun onEntered(userId: String) {
         notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
         if (userId != NoRecordStr.str)
             viewModelScope.launch {

@@ -1,8 +1,5 @@
 package com.simenko.qmapp.ui.navigation
 
-import android.content.Intent
-import androidx.navigation.NavDeepLink
-import androidx.navigation.navDeepLink
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
@@ -10,9 +7,6 @@ import com.simenko.qmapp.domain.NoRecordStr
 import kotlinx.serialization.Serializable
 
 sealed interface RouteCompose {
-
-    val deepLinks: List<NavDeepLink> get() = emptyList()
-
     @Serializable
     data object LoggedOut : RouteCompose {
         @Serializable
@@ -57,15 +51,7 @@ sealed interface RouteCompose {
             data class Requests(val userId: String = NoRecordStr.str) : RouteCompose
 
             @Serializable
-            data class AuthorizeUser(val userId: String = NoRecordStr.str) : RouteCompose {
-                override val deepLinks: List<NavDeepLink>
-                    get() = listOf(
-                        navDeepLink {
-                            uriPattern = "${NavArguments.domain}/${AuthorizeUser::class.simpleName}}/{userId}"
-                            action = Intent.ACTION_VIEW
-                        }
-                    )
-            }
+            data class AuthorizeUser(val userId: String) : RouteCompose
         }
 
         @Serializable
@@ -228,28 +214,17 @@ sealed interface RouteCompose {
     }
 
     companion object {
-        fun opt(p: String) = "$p={$p}"
-        fun arg(p: String) = "/{$p}"
+
+        const val DOMAIN = "https://qm.simple.com"
 
         fun String.withArgs(vararg args: String): String {
             val link = this
             return buildString {
-                append(link.split("/")[0])
+                append(link.split("/{")[0])
                 args.forEach { arg ->
                     append("/$arg")
                 }
             }
-        }
-
-        private fun String.getParamsNames(): List<String> {
-            val list = mutableListOf<String>()
-            val rawList = this.split('?')[1].split('&')
-            rawList.forEach { item ->
-                if (item.find { it == '{' } != null) {
-                    list.add(item.substringAfter('{').substringBefore('}'))
-                }
-            }
-            return list.toList()
         }
 
         fun String.withOpts(vararg args: String): String {
@@ -269,6 +244,17 @@ sealed interface RouteCompose {
                     }
                 }
             }
+        }
+
+        private fun String.getParamsNames(): List<String> {
+            val list = mutableListOf<String>()
+            val rawList = this.split('?')[1].split('&')
+            rawList.forEach { item ->
+                if (item.find { it == '{' } != null) {
+                    list.add(item.substringAfter('{').substringBefore('}'))
+                }
+            }
+            return list.toList()
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getString
 import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
+import androidx.navigation.navDeepLink
 import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
@@ -22,6 +23,8 @@ import com.simenko.qmapp.services.MessagingService
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.RouteCompose.Companion.DOMAIN
+import com.simenko.qmapp.ui.navigation.RouteCompose.Companion.withArgs
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY
 import com.simenko.qmapp.works.WorkerKeys.EMAIL
@@ -29,6 +32,9 @@ import com.simenko.qmapp.works.WorkerKeys.ERROR_MSG
 import com.simenko.qmapp.works.WorkerKeys.TITLE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.encodeToString
 import java.util.Objects
 
 @HiltWorker
@@ -75,8 +81,7 @@ class NewNotificationWorker @AssistedInject constructor(
 
                     val intent = Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
-                        val link = "${with(RouteCompose) { RouteCompose.Main.Team.AuthorizeUser::class.simpleName?.withArgs(it) }}"
-                        data = "${NavArguments.domain}/$link".toUri()
+                        data = (navDeepLink<RouteCompose.Main.Team.AuthorizeUser>(DOMAIN).uriPattern?.withArgs(it) ?: EmptyString.str).toUri()
                     }
 
                     val pendingIntent = TaskStackBuilder.create(context).run {
