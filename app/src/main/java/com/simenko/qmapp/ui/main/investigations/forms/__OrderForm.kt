@@ -33,18 +33,17 @@ import java.util.Locale
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
-    viewModel: NewItemViewModel = hiltViewModel()
+    viewModel: NewItemViewModel = hiltViewModel(),
+    isPcOnly: Boolean, orderId: ID, subOrderId: ID
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(isPcOnly, orderId, subOrderId) }
 
     Box {
         Column(
             modifier.verticalScroll(rememberScrollState())
         ) {
             ButtonsSection(title = R.string.select_type) { TypesSelection(modifier = Modifier.padding(top = 0.dp)) }
-            ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp), isPcOnly = isPcOnly) }
             ButtonsSection(title = R.string.select_customer) { CustomersSelection(modifier = Modifier.padding(top = 0.dp)) }
 
             ButtonsSection(title = R.string.select_placer) {

@@ -22,6 +22,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,10 +37,15 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.main.main.content.*
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.AppNavigatorImpl.Companion.subscribeNavigationEvents
 import com.simenko.qmapp.ui.navigation.MainScreen
+import com.simenko.qmapp.ui.navigation.NavigationIntent
 import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.channels.consume
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,6 +60,10 @@ class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var remoteConfig: FirebaseRemoteConfig
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
+
     private lateinit var analytics: FirebaseAnalytics
 
     val viewModel: MainActivityViewModel by viewModels()
@@ -84,6 +94,10 @@ class MainActivity : BaseActivity() {
             QMAppTheme {
                 val navController = rememberNavController()
                 val scope = rememberCoroutineScope()
+
+                LaunchedEffect(key1 = Unit) {
+                    appNavigator.navigationChannel.subscribeNavigationEvents(this, navController)
+                }
 
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()

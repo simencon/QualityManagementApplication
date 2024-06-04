@@ -20,7 +20,6 @@ import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.main.main.content.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.RouteCompose
-import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +40,6 @@ class MainActivityViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    val navHostController: NavHostController
 ) : ViewModel() {
     val userInfo get() = userRepository.user
 
@@ -74,7 +72,6 @@ class MainActivityViewModel @Inject constructor(
      * */
     init {
         subscribeMainScreenSetupEvents(mainPageState.topScreenChannel.receiveAsFlow())
-        appNavigator.navigationChannel.receiveAsFlow().subscribeNavigationEvents(viewModelScope, navHostController)
     }
 
     private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {

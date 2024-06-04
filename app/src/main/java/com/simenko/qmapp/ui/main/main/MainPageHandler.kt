@@ -73,3 +73,16 @@ class MainPageHandler private constructor(
     }
     val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

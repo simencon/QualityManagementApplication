@@ -1,10 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import android.content.Context
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
-import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
@@ -28,7 +24,6 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -36,7 +31,6 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -46,31 +40,13 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    @ApplicationContext context: Context,
-    private val controller: NavHostController,
 ) : ViewModel() {
-    var isPcOnly by Delegates.notNull<Boolean>()
-    private var subOrderId by Delegates.notNull<ID>()
-    private val orderId: ID
-        get() = controller.currentBackStackEntry?.let {
-            if(it.destination.parent?.route == RouteCompose.Main.AllInvestigations::class.qualifiedName) {
-                val args = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
-                isPcOnly = false
-                subOrderId = args.subOrderId
-                args.orderId
-            } else {
-                val route = it.toRoute<RouteCompose.Main.ProcessControl.ProcessControlList>()
-                isPcOnly = true
-                subOrderId = route.subOrderId
-                route.orderId
-            }
-        } ?: NoRecord.num // Not possible case here
 
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<ID>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
+    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<ID>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
-    private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(orderId), NoRecord))
-    private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(subOrderId), NoRecord))
+    private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _tasksVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _samplesVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _resultsVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
@@ -80,7 +56,7 @@ class InvestigationsViewModel @Inject constructor(
      * */
     var mainPageHandler: MainPageHandler? = null
 
-    init {
+    fun onEntered(isPcOnly: Boolean, orderId: ID, subOrderId: ID) {
         viewModelScope.launch(Dispatchers.IO) {
             setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
             mainPageHandler = MainPageHandler.Builder(if (isPcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
@@ -90,16 +66,24 @@ class InvestigationsViewModel @Inject constructor(
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
                 .setOnActionItemClickAction {
-                    if (it == InvestigationsActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
-                    if (it == ProcessControlActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                    if (it == InvestigationsActions.SYNC_INVESTIGATIONS || it == ProcessControlActions.SYNC_INVESTIGATIONS) _syncInvestigationsEvent.value = Event(true)
                 }
                 .build()
+                .apply {
+                    val selectedTabIndex = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
+                    setupMainPage.invoke(selectedTabIndex, true)
+                }
+
+            _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
+            _ordersVisibility.value = Pair(SelectedNumber(orderId), NoRecord)
+            _subOrdersVisibility.value = Pair(SelectedNumber(subOrderId), NoRecord)
         }
     }
 
+    private var _syncInvestigationsEvent: MutableStateFlow<Event<Boolean>> = MutableStateFlow(Event(false))
+    val syncInvestigationsEvent: StateFlow<Event<Boolean>> get() = _syncInvestigationsEvent
+
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
-    val selectedTabIndex
-        get() = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
 
     /**
      * Navigation -------------------------------------------------------------------------------------------------------------------------------

@@ -49,10 +49,7 @@ fun UserForm(
     viewModel: UserViewModel = hiltViewModel(),
     userId: String,
 ) {
-    LaunchedEffect(key1 = Unit) {
-        viewModel.onEntered(userId)
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(key1 = Unit) { viewModel.onEntered(userId) }
 
     val user by viewModel.user.collectAsStateWithLifecycle()
 

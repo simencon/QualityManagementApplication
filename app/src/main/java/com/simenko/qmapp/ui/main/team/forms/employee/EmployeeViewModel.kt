@@ -48,9 +48,7 @@ class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    private val controller: NavHostController,
 ) : ViewModel() {
-    private val employeeId: ID get() = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.EmployeeAddEdit>()?.employeeId ?: NoRecord.num
 
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private fun loadEmployee(id: ID) {
@@ -60,14 +58,16 @@ class EmployeeViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(if (employeeId == NoRecord.num) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE, mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { this.validateInput() }
-            .build()
+
+    fun onEntered(employeeId: ID) {
         viewModelScope.launch {
+            mainPageHandler = MainPageHandler.Builder(if (employeeId == NoRecord.num) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { validateInput() }
+                .build()
+                .apply { setupMainPage(0, true) }
             if (employeeId != NoRecord.num) withContext(Dispatchers.Default) { loadEmployee(employeeId) }
         }
     }
@@ -221,15 +221,15 @@ class EmployeeViewModel @Inject constructor(
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
     fun makeEmployee() = viewModelScope.launch {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (employeeId == NoRecord.num) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->
+            repository.run { if (_employee.value.id == NoRecord.num) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.id)
                         Status.ERROR -> {
-                            mainPageHandler.updateLoadingState(Pair(true, resource.message))
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -239,7 +239,7 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler.updateLoadingState(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Employees(it), popUpToRoute = RouteCompose.Main.Team, inclusive = true)

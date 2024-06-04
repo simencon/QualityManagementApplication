@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -35,7 +36,8 @@ import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 
 @Composable
 fun InitialScreen(
-    userViewModel: UserViewModel = hiltViewModel()
+    navController: NavHostController,
+    userViewModel: UserViewModel
 ) {
     QMAppTheme {
         Surface(
@@ -59,16 +61,17 @@ fun InitialScreen(
                 }
             }
 
-            NavHost(navController = userViewModel.navHostController, startDestination = RouteCompose.LoggedOut.InitialScreen, route = RouteCompose.LoggedOut::class) {
+            NavHost(navController = navController, startDestination = RouteCompose.LoggedOut.InitialScreen, route = RouteCompose.LoggedOut::class) {
 
                 composable<RouteCompose.LoggedOut.InitialScreen> {
                     LoadingScreen()
                 }
 
                 navigation<RouteCompose.LoggedOut.Registration>(startDestination = RouteCompose.LoggedOut.Registration.EnterDetails()) {
-                    composable<RouteCompose.LoggedOut.Registration.EnterDetails> {
+                    composable<RouteCompose.LoggedOut.Registration.EnterDetails> { backStackEntry ->
+                        val isUserEditMode = backStackEntry.toRoute<RouteCompose.Main.Settings.EditUserDetails>().userEditMode
                         val enterDetModel: EnterDetailsViewModel = hiltViewModel()
-                        EnterDetails(viewModel = enterDetModel)
+                        EnterDetails(viewModel = enterDetModel, editMode = isUserEditMode)
                     }
 
                     composable<RouteCompose.LoggedOut.Registration.TermsAndConditions> {

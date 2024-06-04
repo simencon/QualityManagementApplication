@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ButtonsSectionQuantity
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ChannelsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.CharacteristicsSelection
@@ -24,18 +25,17 @@ import com.simenko.qmapp.ui.main.investigations.forms.steps.VersionsSelection
 @Composable
 fun SubOrderForm(
     modifier: Modifier = Modifier,
-    viewModel: NewItemViewModel = hiltViewModel()
+    viewModel: NewItemViewModel = hiltViewModel(),
+    isPcOnly: Boolean, orderId: ID, subOrderId: ID
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(isPcOnly, orderId, subOrderId) }
 
     Box {
         Column(
             modifier.verticalScroll(rememberScrollState())
         ) {
-            if (viewModel.isPcOnly == true) {
-                ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            if (isPcOnly) {
+                ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp), isPcOnly = isPcOnly) }
             }
             ButtonsSection(title = R.string.select_department) { DepartmentsSelection(modifier = Modifier.padding(top = 0.dp)) }
             ButtonsSection(title = R.string.select_sub_department) { SubDepartmentsSelection(modifier = Modifier.padding(top = 0.dp)) }

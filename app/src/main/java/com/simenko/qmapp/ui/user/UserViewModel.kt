@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.MainActivity.Companion.createMainActivityIntent
@@ -12,7 +11,6 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.RouteCompose
-import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -24,17 +22,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
+    private val userRepository: UserRepository,
     private val mainPageState: MainPageState,
-    val navHostController: NavHostController
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     init {
         subscribeMainScreenSetupEvents(mainPageState.topScreenChannel.receiveAsFlow())
-        appNavigator.navigationChannel.receiveAsFlow().subscribeNavigationEvents(viewModelScope, navHostController)
     }
 
     private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {

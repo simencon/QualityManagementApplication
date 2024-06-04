@@ -55,7 +55,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 @Composable
 fun EnterDetails(
     viewModel: EnterDetailsViewModel,
-    editMode: Boolean = false
+    editMode: Boolean
 ) {
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
@@ -94,7 +94,7 @@ fun EnterDetails(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
-        viewModel.mainPageHandler.setupMainPage(0, editMode)
+        viewModel.onEntered(editMode)
         focusRequesterUserName.requestFocus()
     }
 

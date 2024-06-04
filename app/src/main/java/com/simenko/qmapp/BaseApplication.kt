@@ -3,6 +3,7 @@ package com.simenko.qmapp
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
@@ -41,22 +42,25 @@ class BaseApplication : Application(), Configuration.Provider {
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    fun setupOneTimeSync() {
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_HOUR, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_DAY, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_WEEK, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_MONTH, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.LAST_YEAR, Duration.ofSeconds(0L))
-        scheduleOneTimeSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofSeconds(0L))
-    }
-
-    private fun scheduleOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration) {
-        WorkManager.getInstance(applicationContext)
-            .enqueueUniqueWork("${syncPeriod.name}_oneTime", ExistingWorkPolicy.KEEP, prepareOneTimeSyncWork(syncPeriod, initialDelay))
-    }
-
     companion object {
+        fun setupOneTimeSync(context: Context) {
+            with(context) {
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_HOUR, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_DAY, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_WEEK, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_MONTH, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.LAST_YEAR, Duration.ofSeconds(0L))
+                scheduleOneTimeSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofSeconds(0L))
+            }
+        }
+
+        private fun Context.scheduleOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration) {
+            WorkManager.getInstance(applicationContext)
+                .enqueueUniqueWork("${syncPeriod.name}_oneTime", ExistingWorkPolicy.KEEP, prepareOneTimeSyncWork(syncPeriod, initialDelay))
+        }
+
+
         private fun prepareOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration): OneTimeWorkRequest {
             return OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
                 .setInputData(

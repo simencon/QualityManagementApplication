@@ -14,10 +14,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
@@ -28,8 +31,10 @@ import com.simenko.qmapp.utils.dp
 @Composable
 fun InvestigationsMainComposition(
     mainScreenPadding: PaddingValues,
-    invModel: InvestigationsViewModel = hiltViewModel()
+    invModel: InvestigationsViewModel = hiltViewModel(),
+    isPcOnly: Boolean, orderId: ID, subOrderId: ID,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -47,9 +52,18 @@ fun InvestigationsMainComposition(
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
      * */
+
     var screenSizes: Triple<Dp, Dp, Dp> by remember { mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp)) }
 
-    LaunchedEffect(Unit) { invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true) }
+    LaunchedEffect(Unit) {
+        invModel.onEntered(isPcOnly, orderId, subOrderId)
+
+        invModel.syncInvestigationsEvent.collect { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it) BaseApplication.setupOneTimeSync(context)
+            }
+        }
+    }
 
     LaunchedEffect(isSecondRowVisible) {
         if (isSecondRowVisible) {
@@ -69,7 +83,7 @@ fun InvestigationsMainComposition(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            if (invModel.isPcOnly == true)
+            if (isPcOnly)
                 SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
             else
                 Orders(modifier = Modifier.width(screenSizes.second), viewModel = invModel)

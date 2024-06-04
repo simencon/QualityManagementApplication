@@ -41,33 +41,14 @@ class NewItemViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    private val controller: NavHostController,
 ) : ViewModel() {
-    var isPcOnly by Delegates.notNull<Boolean>()
-    var orderId by Delegates.notNull<ID>()
-    var subOrderId by Delegates.notNull<ID>()
-
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    init {
-        controller.currentBackStackEntry?.let {
-            if (it.destination.parent?.route == RouteCompose.Main.AllInvestigations::class.qualifiedName) {
-                val route = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
-                isPcOnly = false
-                subOrderId = route.subOrderId
-                orderId = route.orderId
-            } else {
-                val route = it.toRoute<RouteCompose.Main.ProcessControl.ProcessControlList>()
-                isPcOnly = true
-                subOrderId = route.subOrderId
-                orderId = route.orderId
-            }
-        }
-
+    fun onEntered(isPcOnly: Boolean, orderId: ID, subOrderId: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val pageWithMakeAction = if (isPcOnly) {
@@ -97,6 +78,7 @@ class NewItemViewModel @Inject constructor(
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { pageWithMakeAction.second() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -146,7 +128,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectOrderReason(id: ID) {
+    fun selectOrderReason(id: ID, isPcOnly: Boolean) {
         if (_order.value.reasonId != id && !isPcOnly)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
         else if (_order.value.reasonId != id)

@@ -21,7 +21,8 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 
 @Composable
 fun ReasonsSelection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isPcOnly: Boolean,
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
@@ -29,7 +30,7 @@ fun ReasonsSelection(
     val items by viewModel.orderReasons.collectAsStateWithLifecycle()
     val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(ID) -> Unit> { { viewModel.selectOrderReason(it) } }
+    val onSelectLambda = remember<(ID) -> Unit> { { viewModel.selectOrderReason(it, isPcOnly) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(

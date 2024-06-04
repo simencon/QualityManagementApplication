@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -47,18 +46,20 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeForm(
     modifier: Modifier = Modifier,
-    viewModel: EmployeeViewModel = hiltViewModel()
+    viewModel: EmployeeViewModel = hiltViewModel(),
+    employeeId: ID,
 ) {
     LaunchedEffect(Unit) {
-        viewModel.mainPageHandler.setupMainPage(0, true)
+        viewModel.onEntered(employeeId)
+        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
     val employee by viewModel.employee.collectAsStateWithLifecycle()
@@ -190,7 +191,9 @@ fun EmployeeForm(
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
             Text(
-                modifier = Modifier.padding(all = 5.dp).width(320.dp),
+                modifier = Modifier
+                    .padding(all = 5.dp)
+                    .width(320.dp),
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                 textAlign = TextAlign.Center

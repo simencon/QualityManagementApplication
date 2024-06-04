@@ -3,8 +3,7 @@ package com.simenko.qmapp.ui.navigation
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
 interface AppNavigator {
@@ -66,42 +65,4 @@ sealed class NavigationIntent {
         val inclusive: Boolean = false,
         val isSingleTop: Boolean = false,
     ) : NavigationIntent()
-}
-
-fun Flow<NavigationIntent>.subscribeNavigationEvents(viewModelScope: CoroutineScope, navHostController: NavHostController) {
-    viewModelScope.launch {
-        collectLatest { intent ->
-            when (intent) {
-                is NavigationIntent.NavigateBack -> {
-                    if (intent.route != null) {
-                        navHostController.popBackStack(intent.route, intent.inclusive)
-                    } else {
-                        navHostController.popBackStack()
-                    }
-                }
-
-                is NavigationIntent.NavigateTo -> {
-                    navHostController.navigate(intent.route) {
-                        launchSingleTop = intent.isSingleTop
-                        if (intent.popUpToRoute != null) {
-                            popUpTo(intent.popUpToRoute) { inclusive = intent.inclusive }
-                        } else if (intent.popUpToId != null) {
-                            popUpTo(intent.popUpToId) { inclusive = intent.inclusive }
-                        }
-                    }
-                }
-
-                is NavigationIntent.NavigateToRoute -> {
-                    navHostController.navigate(intent.route) {
-                        launchSingleTop = intent.isSingleTop
-                        if (intent.popUpToRoute != null) {
-                            popUpTo(intent.popUpToRoute) { inclusive = intent.inclusive }
-                        } else if (intent.popUpToId != null) {
-                            popUpTo(intent.popUpToId) { inclusive = intent.inclusive }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

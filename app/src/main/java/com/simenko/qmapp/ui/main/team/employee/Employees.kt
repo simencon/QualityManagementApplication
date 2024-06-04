@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
@@ -48,12 +49,13 @@ import kotlin.math.roundToInt
 @Composable
 fun Employees(
     viewModel: TeamViewModel = hiltViewModel(),
-    onClickEdit: (ID) -> Unit
+    employeeId: ID,
+    onClickEdit: (ID) -> Unit,
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
     val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(employeeId = employeeId, userId = NoRecordStr.str, selectedTabIndex = 0, isFabVisible = true) }
 
     val onClickDetailsLambda: (ID) -> Unit = { viewModel.setEmployeesVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
@@ -63,7 +65,7 @@ fun Employees(
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        when(lifecycleState.value) {
+        when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
             else -> {}
@@ -80,9 +82,7 @@ fun Employees(
     }
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
-    LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) viewModel.mainPageHandler.onListEnd(true) else viewModel.mainPageHandler.onListEnd(false)
-    }
+    LaunchedEffect(lastItemIsVisible) { viewModel.onEndOfList(lastItemIsVisible) }
 
     LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
         items(items = items, key = { it.teamMember.id }) { teamMember ->

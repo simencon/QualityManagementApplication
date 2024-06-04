@@ -19,18 +19,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.BaseActivity
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.AppNavigatorImpl.Companion.subscribeNavigationEvents
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.channels.consumeEach
 import java.util.Locale
+import javax.inject.Inject
 
 fun createLoginActivityIntent(
     context: Context
@@ -43,6 +49,9 @@ fun createLoginActivityIntent(
 @OptIn(ExperimentalMaterialApi::class)
 @AndroidEntryPoint
 class UserActivity : BaseActivity() {
+    @Inject
+    lateinit var appNavigator: AppNavigator
+
     private val userViewModel: UserViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +64,12 @@ class UserActivity : BaseActivity() {
 
         setContent {
             QMAppTheme {
+                val navController = rememberNavController()
+
+                LaunchedEffect(key1 = Unit) {
+                    appNavigator.navigationChannel.subscribeNavigationEvents(this, navController)
+                }
+
                 val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
 
                 Scaffold(
@@ -86,7 +101,7 @@ class UserActivity : BaseActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            InitialScreen(userViewModel = userViewModel)
+                            InitialScreen(navController = navController, userViewModel = userViewModel)
                         }
                         PullRefreshIndicator(
                             refreshing = observerLoadingProcess,

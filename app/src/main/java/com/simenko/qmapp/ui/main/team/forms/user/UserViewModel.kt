@@ -59,8 +59,7 @@ class UserViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    var mainPageHandler: MainPageHandler? = null
-        private set
+    private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(userId: String) {
         notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
@@ -74,6 +73,7 @@ class UserViewModel @Inject constructor(
                             .setOnNavMenuClickAction { appNavigator.navigateBack() }
                             .setOnFabClickAction { validateInput() }
                             .build()
+                            .apply { setupMainPage(0, true) }
                     }
                 }
             }

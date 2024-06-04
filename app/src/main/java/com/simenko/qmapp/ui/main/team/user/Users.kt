@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -51,14 +52,15 @@ import kotlin.math.roundToInt
 @Composable
 fun Users(
     viewModel: TeamViewModel = hiltViewModel(),
+    userId: String,
     isUsersPage: Boolean
 ) {
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
     val currentUserVisibility by viewModel.currentUserVisibility.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
+        viewModel.onEntered(employeeId = NoRecord.num, userId = userId, selectedTabIndex = if (isUsersPage) 1 else 2, isFabVisible = false)
         viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
-        viewModel.mainPageHandler.setupMainPage(if (isUsersPage) 1 else 2, false)
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
@@ -73,7 +75,7 @@ fun Users(
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        when(lifecycleState.value) {
+        when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
             else -> {}

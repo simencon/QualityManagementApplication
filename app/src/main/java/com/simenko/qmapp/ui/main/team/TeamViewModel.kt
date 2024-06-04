@@ -4,8 +4,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -40,53 +38,58 @@ class TeamViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sRepository: SystemRepository,
     private val mRepository: ManufacturingRepository,
-    private val controller: NavHostController,
 ) : ViewModel() {
-
-    private val employeeId: ID get() = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Employees>()?.employeeId ?: NoRecord.num
-    private val userId: String
-        get() {
-            val fromUsers = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Users>()?.userId ?: NoRecordStr.str
-            return if (fromUsers == NoRecordStr.str) controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Team.Requests>()?.userId ?: NoRecordStr.str else fromUsers
-        }
 
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
     private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }.flowOn(Dispatchers.IO)
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
     private val _users: Flow<List<DomainUser>> = _currentUsersFilter.flatMapLatest { filter -> sRepository.users(filter) }.flowOn(Dispatchers.IO)
-    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
-    private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(employeeId), NoRecord))
-    private val _usersVisibility = MutableStateFlow(Pair(SelectedString(userId), NoRecordStr))
+    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<String>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecordStr.str)))
+    private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _usersVisibility = MutableStateFlow(Pair(SelectedString(NoRecordStr.str), NoRecordStr))
     val currentUserVisibility = _usersVisibility.asStateFlow()
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.TEAM, mainPageState)
-            .setOnSearchClickAction {
-                setEmployeesFilter(it)
-                setUsersFilter(it)
-            }
-            .setOnTabSelectAction { navigateByTopTabs(it) }
-            .setOnFabClickAction { onEmployeeAddEdictClick(NoRecord.num) }
-            .setOnPullRefreshAction { updateEmployeesData() }
-            .setTabBadgesFlow(
-                combine(
-                    mRepository.employeesComplete(EmployeesFilter()),
-                    sRepository.users(UsersFilter(newUsers = false)),
-                    sRepository.users(UsersFilter(newUsers = true))
-                ) { employees, users, requests ->
-                    listOf(
-                        Triple(employees.size, Color.Green, Color.Black),
-                        Triple(users.size, Color.Green, Color.Black),
-                        Triple(requests.size, Color.Red, Color.White)
-                    )
-                }.flowOn(Dispatchers.IO)
-            )
-            .build()
+    fun onEntered(employeeId: ID, userId: String, selectedTabIndex: Int, isFabVisible: Boolean) {
+        viewModelScope.launch {
+            mainPageHandler = MainPageHandler.Builder(Page.TEAM, mainPageState)
+                .setOnSearchClickAction {
+                    setEmployeesFilter(it)
+                    setUsersFilter(it)
+                }
+                .setOnTabSelectAction { navigateByTopTabs(it) }
+                .setOnFabClickAction { onEmployeeAddEdictClick(NoRecord.num) }
+                .setOnPullRefreshAction { updateEmployeesData() }
+                .setTabBadgesFlow(
+                    combine(
+                        mRepository.employeesComplete(EmployeesFilter()),
+                        sRepository.users(UsersFilter(newUsers = false)),
+                        sRepository.users(UsersFilter(newUsers = true))
+                    ) { employees, users, requests ->
+                        listOf(
+                            Triple(employees.size, Color.Green, Color.Black),
+                            Triple(users.size, Color.Green, Color.Black),
+                            Triple(requests.size, Color.Red, Color.White)
+                        )
+                    }.flowOn(Dispatchers.IO)
+                )
+                .build()
+                .apply { setupMainPage(selectedTabIndex, isFabVisible) }
+
+            _createdRecord.value = Pair(Event(employeeId), Event(userId))
+            _employeesVisibility.value = Pair(SelectedNumber(employeeId), NoRecord)
+            _usersVisibility.value = Pair(SelectedString(userId), NoRecordStr)
+        }
+    }
+
+    fun onEndOfList(isEndOfList: Boolean) {
+        viewModelScope.launch {
+            mainPageHandler?.onListEnd?.invoke(isEndOfList)
+        }
     }
 
     /**
@@ -129,15 +132,15 @@ class TeamViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     fun deleteEmployee(teamMemberId: ID) = viewModelScope.launch {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
             mRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         }
                     }
                 }
@@ -176,20 +179,20 @@ class TeamViewModel @Inject constructor(
     }
 
     fun removeUser(userId: String) = viewModelScope.launch {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
             sRepository.run {
                 removeUser(userId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                             Status.SUCCESS -> {
-                                mainPageHandler.updateLoadingState(Pair(false, null))
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 setRemoveUserDialogVisibility(false)
                                 navToRemovedRecord(resource.data?.email)
                             }
 
-                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         }
                     }
                 }
@@ -220,7 +223,7 @@ class TeamViewModel @Inject constructor(
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
-        mainPageHandler.updateLoadingState(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let { appNavigator.tryNavigateTo(RouteCompose.Main.Team.Requests(it), RouteCompose.Main.Team, inclusive = true) }
         }
@@ -228,7 +231,7 @@ class TeamViewModel @Inject constructor(
 
     private fun updateEmployeesData() = viewModelScope.launch {
         try {
-            mainPageHandler.updateLoadingState(Pair(true, null))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
             sRepository.syncUserRoles()
             sRepository.syncUsers()
@@ -238,9 +241,9 @@ class TeamViewModel @Inject constructor(
             mRepository.syncDepartments()
             mRepository.syncTeamMembers()
 
-            mainPageHandler.updateLoadingState(Pair(false, null))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         } catch (e: Exception) {
-            mainPageHandler.updateLoadingState(Pair(false, e.message))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
         }
     }
 }

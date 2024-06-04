@@ -1,8 +1,7 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
+import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
@@ -19,6 +18,7 @@ import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val MIN_LENGTH = 6
@@ -28,23 +28,23 @@ class EnterDetailsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
-    private val controller: NavHostController,
 ) : ViewModel() {
-    private val userEditMode: Boolean = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Settings.EditUserDetails>()?.userEditMode ?: false
-
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(if (userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
-            .setOnNavMenuClickAction {
-                appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main.Settings.UserDetails, inclusive = true)
-            }
-            .setOnFabClickAction { this.validateInput() }
-            .setOnPullRefreshAction { this.updateUserData() }
-            .build()
+    fun onEntered(isUserEditMode: Boolean) {
+        viewModelScope.launch {
+            mainPageHandler = MainPageHandler.Builder(if (isUserEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
+                .setOnNavMenuClickAction {
+                    appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main.Settings.UserDetails, inclusive = true)
+                }
+                .setOnFabClickAction { validateInput() }
+                .setOnPullRefreshAction { updateUserData() }
+                .build()
+                .apply { setupMainPage(0, isUserEditMode) }
+        }
     }
 
     /**
@@ -146,13 +146,13 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            mainPageHandler.updateLoadingState(Pair(true, null))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    mainPageHandler.updateLoadingState(Pair(false, null))
+                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                     appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main, inclusive = true)
                 } else {
-                    mainPageHandler.updateLoadingState(Pair(false, task.exception?.message))
+                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, task.exception?.message))
                 }
             }
         }
