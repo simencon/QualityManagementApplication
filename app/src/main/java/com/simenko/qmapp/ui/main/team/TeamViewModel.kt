@@ -16,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
@@ -202,30 +202,30 @@ class TeamViewModel @Inject constructor(
 
     private fun navigateByTopTabs(tag: SelectedNumber) {
         when (tag) {
-            FirstTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Employees(NoRecord.num), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
-            SecondTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Users(NoRecordStr.str), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
-            ThirdTabId -> appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Requests(NoRecordStr.str), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
+            FirstTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Employees(NoRecord.num), popUpToRoute = Route.Main.Team, inclusive = true)
+            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users(NoRecordStr.str), popUpToRoute = Route.Main.Team, inclusive = true)
+            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests(NoRecordStr.str), popUpToRoute = Route.Main.Team, inclusive = true)
         }
     }
 
     fun onEmployeeAddEdictClick(employeeId: ID) {
-        appNavigator.tryNavigateTo(RouteCompose.Main.Team.EmployeeAddEdit(employeeId))
+        appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit(employeeId))
     }
 
     fun onUserEditClick(userId: String) {
         if (isOwnAccount(userId)) return
-        appNavigator.tryNavigateTo(RouteCompose.Main.Team.EditUser(userId))
+        appNavigator.tryNavigateTo(Route.Main.Team.EditUser(userId))
     }
 
     fun onUserAuthorizeClick(userId: String) {
         if (isOwnAccount(userId)) return
-        appNavigator.tryNavigateTo(RouteCompose.Main.Team.AuthorizeUser(userId))
+        appNavigator.tryNavigateTo(Route.Main.Team.AuthorizeUser(userId))
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(RouteCompose.Main.Team.Requests(it), RouteCompose.Main.Team, inclusive = true) }
+            id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests(it), Route.Main.Team, inclusive = true) }
         }
     }
 

@@ -17,14 +17,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 
 inline fun <reified T : Any> NavGraphBuilder.settingsNavigation() {
-    navigation<T>(startDestination = RouteCompose.Main.Settings.UserDetails) {
-        composable<RouteCompose.Main.Settings.UserDetails> {
+    navigation<T>(startDestination = Route.Main.Settings.UserDetails) {
+        composable<Route.Main.Settings.UserDetails> {
             val settingsModel: SettingsViewModel = hiltViewModel()
             val context = LocalContext.current
 
@@ -37,8 +37,8 @@ inline fun <reified T : Any> NavGraphBuilder.settingsNavigation() {
                 onEditUserData = { settingsModel.onUserDataEditClick() }
             )
         }
-        composable<RouteCompose.Main.Settings.EditUserDetails> { backStackEntry ->
-            val isUserEditMode = backStackEntry.toRoute<RouteCompose.Main.Settings.EditUserDetails>().userEditMode
+        composable<Route.Main.Settings.EditUserDetails> { backStackEntry ->
+            val isUserEditMode = backStackEntry.toRoute<Route.Main.Settings.EditUserDetails>().userEditMode
             val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
             Column(
                 verticalArrangement = Arrangement.Top,

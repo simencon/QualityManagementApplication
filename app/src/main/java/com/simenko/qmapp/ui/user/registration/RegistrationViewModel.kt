@@ -5,7 +5,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,6 +48,6 @@ class RegistrationViewModel @Inject constructor(
 
     fun onProceedToLoginClick() {
         hideUserExistDialog()
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.LogIn)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn)
     }
 }

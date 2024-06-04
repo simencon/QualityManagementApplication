@@ -18,7 +18,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +47,7 @@ class OperationViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    fun onEntered(route: RouteCompose.Main.CompanyStructure.OperationAddEdit) {
+    fun onEntered(route: Route.Main.CompanyStructure.OperationAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (route.operationId == NoRecord.num) prepareOperation(route.lineId) else _operation.value = repository.operationById(route.operationId)
@@ -248,8 +248,8 @@ class OperationViewModel @Inject constructor(
                 val chId = _operation.value.lineWithParents.channelId
                 val lineId = _operation.value.lineWithParents.id
                 appNavigator.tryNavigateTo(
-                    route = RouteCompose.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, lineId, it),
-                    popUpToRoute = RouteCompose.Main.CompanyStructure,
+                    route = Route.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, lineId, it),
+                    popUpToRoute = Route.Main.CompanyStructure,
                     inclusive = true
                 )
             }

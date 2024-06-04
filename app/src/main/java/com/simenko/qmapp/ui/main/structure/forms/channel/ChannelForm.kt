@@ -40,14 +40,14 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @Composable
 fun ChannelForm(
     modifier: Modifier = Modifier,
     viewModel: ChannelViewModel,
-    route: RouteCompose.Main.CompanyStructure.ChannelAddEdit,
+    route: Route.Main.CompanyStructure.ChannelAddEdit,
 ) {
     val cnComplete by viewModel.channel.collectAsStateWithLifecycle(DomainManufacturingChannel.DomainManufacturingChannelComplete())
     LaunchedEffect(Unit) { viewModel.onEntered(route) }

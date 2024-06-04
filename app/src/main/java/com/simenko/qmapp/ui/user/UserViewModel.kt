@@ -10,7 +10,7 @@ import com.simenko.qmapp.ui.main.MainActivity.Companion.createMainActivityIntent
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -78,32 +78,32 @@ class UserViewModel @Inject constructor(
      * */
     fun onStateIsNoState() {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.InitialScreen, popUpToRoute = RouteCompose.LoggedOut, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen, popUpToRoute = Route.LoggedOut, inclusive = true)
         updateCurrentUserState()
     }
 
     fun onStateIsUnregisteredState() {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.Registration, popUpToRoute = RouteCompose.LoggedOut, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.Registration, popUpToRoute = Route.LoggedOut, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.WaitingForValidation(msg), RouteCompose.LoggedOut, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation(msg), Route.LoggedOut, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     suspend fun onStateIsUserAuthoritiesNotVerifiedState(msg: String) {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.WaitingForValidation(msg), RouteCompose.LoggedOut, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation(msg), Route.LoggedOut, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     fun onStateIsUserLoggedOutState() {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = RouteCompose.LoggedOut.LogIn, popUpToRoute = RouteCompose.LoggedOut, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn, popUpToRoute = Route.LoggedOut, inclusive = true)
     }
 
     fun onStateIsUserLoggedInState(context: Context) {

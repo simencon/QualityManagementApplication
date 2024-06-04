@@ -21,7 +21,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -195,7 +195,7 @@ class UserViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: String?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Users(it), popUpToRoute = RouteCompose.Main.Team, inclusive = true) }
+            id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Users(it), popUpToRoute = Route.Main.Team, inclusive = true) }
         }
     }
 }

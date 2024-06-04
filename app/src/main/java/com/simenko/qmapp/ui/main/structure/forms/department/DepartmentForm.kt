@@ -43,14 +43,14 @@ import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 
 @Composable
 fun DepartmentForm(
     modifier: Modifier = Modifier,
     viewModel: DepartmentViewModel,
-    route: RouteCompose.Main.CompanyStructure.DepartmentAddEdit,
+    route: Route.Main.CompanyStructure.DepartmentAddEdit,
 ) {
     val dComplete by viewModel.department.collectAsStateWithLifecycle(DomainDepartment.DomainDepartmentComplete())
     val companyEmployees by viewModel.companyEmployees.collectAsStateWithLifecycle()

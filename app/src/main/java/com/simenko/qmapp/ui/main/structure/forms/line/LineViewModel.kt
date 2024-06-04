@@ -16,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
@@ -40,7 +40,7 @@ class LineViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    fun onEntered(route: RouteCompose.Main.CompanyStructure.LineAddEdit) {
+    fun onEntered(route: Route.Main.CompanyStructure.LineAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (route.lineId == NoRecord.num) prepareLine(route.channelId) else _line.value = repository.lineById(route.lineId)
@@ -136,8 +136,8 @@ class LineViewModel @Inject constructor(
                 val subDepId = _line.value.channelWithParents.subDepartmentId
                 val chId = _line.value.channelWithParents.id
                 appNavigator.tryNavigateTo(
-                    route = RouteCompose.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, it),
-                    popUpToRoute = RouteCompose.Main.CompanyStructure,
+                    route = Route.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, it),
+                    popUpToRoute = Route.Main.CompanyStructure,
                     inclusive = true
                 )
             }

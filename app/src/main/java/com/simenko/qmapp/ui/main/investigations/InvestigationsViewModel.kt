@@ -15,7 +15,7 @@ import com.simenko.qmapp.ui.main.main.content.InvestigationsActions
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvStatuses
@@ -92,27 +92,27 @@ class InvestigationsViewModel @Inject constructor(
      * Navigation -------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddInvClick() {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.AllInvestigations.OrderAddEdit(NoRecord.num))
+        appNavigator.tryNavigateTo(route = Route.Main.AllInvestigations.OrderAddEdit(NoRecord.num))
     }
 
     fun onEditInvClick(orderId: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.AllInvestigations.OrderAddEdit(orderId))
+        appNavigator.tryNavigateTo(route = Route.Main.AllInvestigations.OrderAddEdit(orderId))
     }
 
     fun onAddSubOrderClick(orderId: ID) {
-        appNavigator.tryNavigateTo(RouteCompose.Main.AllInvestigations.SubOrderAddEdit(orderId = orderId, subOrderId = NoRecord.num))
+        appNavigator.tryNavigateTo(Route.Main.AllInvestigations.SubOrderAddEdit(orderId = orderId, subOrderId = NoRecord.num))
     }
 
     fun onEditSubOrderClick(record: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(RouteCompose.Main.AllInvestigations.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
+        appNavigator.tryNavigateTo(Route.Main.AllInvestigations.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
     }
 
     private fun onAddProcessControlClick() {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProcessControl.SubOrderAddEdit(orderId = NoRecord.num, subOrderId = NoRecord.num))
+        appNavigator.tryNavigateTo(route = Route.Main.ProcessControl.SubOrderAddEdit(orderId = NoRecord.num, subOrderId = NoRecord.num))
     }
 
     fun onEditProcessControlClick(record: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(RouteCompose.Main.ProcessControl.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
+        appNavigator.tryNavigateTo(Route.Main.ProcessControl.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
     }
 
     private val _isStatusUpdateDialogVisible = MutableLiveData(false)

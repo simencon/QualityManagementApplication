@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 enum class Page(
     val drawerLink: String,
@@ -30,7 +30,7 @@ enum class Page(
     EMPTY_PAGE(EmptyString.str, null, null, null, null, null, null, null, null, null),
 
     TEAM(
-        drawerLink = RouteCompose.Main.Team::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.Team::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Company team",
         titlePlaceholderText = "Search by full name",
@@ -42,7 +42,7 @@ enum class Page(
         actionMenuItems = TeamActions.toList()
     ),
     COMPANY_STRUCTURE(
-        drawerLink = RouteCompose.Main.CompanyStructure::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.CompanyStructure::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Company structure",
         titlePlaceholderText = null,
@@ -54,7 +54,7 @@ enum class Page(
         actionMenuItems = CompanyStructureActions.toList()
     ),
     PRODUCTS(
-        drawerLink = RouteCompose.Main.ProductLines::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.ProductLines::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Product lines",
         titlePlaceholderText = null,
@@ -210,7 +210,7 @@ enum class Page(
         actionMenuItems = null
     ),
     INVESTIGATIONS(
-        drawerLink = RouteCompose.Main.AllInvestigations::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.AllInvestigations::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "All investigations",
         titlePlaceholderText = "Search order by number",
@@ -222,7 +222,7 @@ enum class Page(
         actionMenuItems = InvestigationsActions.toList()
     ),
     PROCESS_CONTROL(
-        drawerLink = RouteCompose.Main.ProcessControl::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.ProcessControl::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Process control",
         titlePlaceholderText = "Search order by number",
@@ -234,7 +234,7 @@ enum class Page(
         actionMenuItems = ProcessControlActions.toList()
     ),
     ACCOUNT_SETTINGS(
-        drawerLink = RouteCompose.Main.Settings::class.qualifiedName ?: EmptyString.str,
+        drawerLink = Route.Main.Settings::class.qualifiedName ?: EmptyString.str,
         navIcon = Icons.Filled.Menu,
         title = "Account settings",
         titlePlaceholderText = null,

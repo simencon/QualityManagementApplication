@@ -1,8 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -16,7 +14,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -31,7 +29,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -556,8 +553,8 @@ class NewItemViewModel @Inject constructor(
                                 mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
-                                        route = RouteCompose.Main.AllInvestigations.AllInvestigationsList(resource.data?.id ?: NoRecord.num, NoRecord.num),
-                                        popUpToRoute = RouteCompose.Main.AllInvestigations,
+                                        route = Route.Main.AllInvestigations.AllInvestigationsList(resource.data?.id ?: NoRecord.num, NoRecord.num),
+                                        popUpToRoute = Route.Main.AllInvestigations,
                                         inclusive = true
                                     )
                                 }
@@ -615,14 +612,14 @@ class NewItemViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
-                                                route = RouteCompose.Main.ProcessControl.ProcessControlList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
-                                                popUpToRoute = RouteCompose.Main.ProcessControl,
+                                                route = Route.Main.ProcessControl.ProcessControlList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
+                                                popUpToRoute = Route.Main.ProcessControl,
                                                 inclusive = true
                                             )
                                         else
                                             appNavigator.tryNavigateTo(
-                                                route = RouteCompose.Main.AllInvestigations.AllInvestigationsList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
-                                                popUpToRoute = RouteCompose.Main.AllInvestigations,
+                                                route = Route.Main.AllInvestigations.AllInvestigationsList(resource.data?.orderId ?: NoRecord.num, resource.data?.id ?: NoRecord.num),
+                                                popUpToRoute = Route.Main.AllInvestigations,
                                                 inclusive = true
                                             )
                                     }

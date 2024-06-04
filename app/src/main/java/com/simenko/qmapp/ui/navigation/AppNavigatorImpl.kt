@@ -14,7 +14,7 @@ class AppNavigatorImpl @Inject constructor() : AppNavigator {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override suspend fun navigateBack(route: String?, inclusive: Boolean) {
+    override suspend fun navigateBack(route: Route?, inclusive: Boolean) {
         navigationChannel.send(
             NavigationIntent.NavigateBack(
                 route = route,
@@ -23,7 +23,7 @@ class AppNavigatorImpl @Inject constructor() : AppNavigator {
         )
     }
 
-    override fun tryNavigateBack(route: String?, inclusive: Boolean) {
+    override fun tryNavigateBack(route: Route?, inclusive: Boolean) {
         navigationChannel.trySend(
             NavigationIntent.NavigateBack(
                 route = route,
@@ -33,14 +33,14 @@ class AppNavigatorImpl @Inject constructor() : AppNavigator {
     }
 
     override suspend fun navigateTo(
-        route: String,
-        popUpToRoute: String?,
+        route: Route,
+        popUpToRoute: Route?,
         popUpToId: Int?,
         inclusive: Boolean,
         isSingleTop: Boolean
     ) {
         navigationChannel.send(
-            NavigationIntent.NavigateTo(
+            NavigationIntent.NavigateToRoute(
                 route = route,
                 popUpToRoute = popUpToRoute,
                 popUpToId = popUpToId,
@@ -50,25 +50,7 @@ class AppNavigatorImpl @Inject constructor() : AppNavigator {
         )
     }
 
-    override fun tryNavigateTo(
-        route: String,
-        popUpToRoute: String?,
-        popUpToId: Int?,
-        inclusive: Boolean,
-        isSingleTop: Boolean
-    ) {
-        navigationChannel.trySend(
-            NavigationIntent.NavigateTo(
-                route = route,
-                popUpToRoute = popUpToRoute,
-                popUpToId = popUpToId,
-                inclusive = inclusive,
-                isSingleTop = isSingleTop,
-            )
-        )
-    }
-
-    override fun tryNavigateTo(route: RouteCompose, popUpToRoute: RouteCompose?, popUpToId: Int?, inclusive: Boolean, isSingleTop: Boolean) {
+    override fun tryNavigateTo(route: Route, popUpToRoute: Route?, popUpToId: Int?, inclusive: Boolean, isSingleTop: Boolean) {
         navigationChannel.trySend(
             NavigationIntent.NavigateToRoute(
                 route = route,

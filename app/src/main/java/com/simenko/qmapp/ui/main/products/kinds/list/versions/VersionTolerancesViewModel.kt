@@ -6,16 +6,11 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.CharGroupIdParameter
-import com.simenko.qmapp.di.CharSubGroupIdParameter
-import com.simenko.qmapp.di.CharacteristicIdParameter
-import com.simenko.qmapp.di.ToleranceIdParameter
-import com.simenko.qmapp.di.VersionEditMode
-import com.simenko.qmapp.di.VersionFIdParameter
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
@@ -32,6 +27,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -56,37 +52,41 @@ class VersionTolerancesViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @VersionFIdParameter private val versionFId: String,
-    @VersionEditMode private val editMode: Boolean,
-    @CharGroupIdParameter private val characteristicGroupId: ID,
-    @CharSubGroupIdParameter private val characteristicSubGroupId: ID,
-    @CharacteristicIdParameter private val characteristicId: ID,
-    @ToleranceIdParameter private val toleranceId: ID
 ) : ViewModel() {
-    private val _characteristicGroupVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicGroupId), NoRecord))
-    private val _characteristicSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicSubGroupId), NoRecord))
-    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
-    private val _toleranceVisibility = MutableStateFlow(Pair(SelectedNumber(toleranceId), NoRecord))
+    private val _versionFId = MutableStateFlow(NoRecordStr.str)
+    private val _characteristicGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _characteristicSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _toleranceVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
 
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
-    private val _versionEditMode = MutableStateFlow(editMode)
+    private val _versionEditMode = MutableStateFlow(false)
     private val _itemVersionTolerances = MutableStateFlow(listOf<DomainItemTolerance.DomainItemToleranceComplete>())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    private var mainPageHandler: MainPageHandler? = null
     private val page = mutableStateOf(Page.VERSION_TOLERANCES)
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(page.value.withCustomFabIcon(if (_versionEditMode.value) Icons.Filled.Save else Icons.Filled.Edit), mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onFabClick() }
-            .setOnPullRefreshAction { updateTolerancesData() }
-            .build()
-        viewModelScope.launch(Dispatchers.IO) {
-            _itemVersion.value = repository.itemVersionComplete(versionFId)
-            repository.versionTolerancesComplete(versionFId).collect {
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails) {
+        viewModelScope.launch {
+            _versionFId.value = route.versionFId
+            _characteristicGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
+            _characteristicSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
+            _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+            _toleranceVisibility.value = Pair(SelectedNumber(route.toleranceId), NoRecord)
+            _itemVersion.value = repository.itemVersionComplete(route.versionFId)
+            _versionEditMode.value = route.versionEditMode
+
+            mainPageHandler = MainPageHandler.Builder(page.value.withCustomFabIcon(if (_versionEditMode.value) Icons.Filled.Save else Icons.Filled.Edit), mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { onFabClick() }
+                .setOnPullRefreshAction { updateTolerancesData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+
+            repository.versionTolerancesComplete(route.versionFId).collect {
                 _itemVersionTolerances.value = it
             }
         }
@@ -303,8 +303,8 @@ class VersionTolerancesViewModel @Inject constructor(
             _secondListIsInitialized.flatMapLatest { secondListState ->
                 if (viewState)
                     flow {
-                        if (characteristicGroupId != NoRecord.num) {
-                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(characteristicGroupId).toLong())
+                        if (_characteristicGroupVisibility.value.first.num != NoRecord.num) {
+                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(_characteristicGroupVisibility.value.first.num).toLong())
                             storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.offsetKey, ZeroValue.num)
                             emit(Pair(true, secondListState))
                         } else {
@@ -321,8 +321,8 @@ class VersionTolerancesViewModel @Inject constructor(
 
     private val _secondListIsInitialized: Flow<Boolean> = tolerances.flatMapLatest { secondList ->
         flow {
-            if (toleranceId != NoRecord.num) {
-                storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.first.id }.indexOf(toleranceId).toLong())
+            if (_toleranceVisibility.value.first.num != NoRecord.num) {
+                storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.first.id }.indexOf(_toleranceVisibility.value.first.num).toLong())
                 storage.setLong(ScrollStates.VERSION_TOLERANCES.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
@@ -356,6 +356,7 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
+
     /**
      * PRE REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -384,7 +385,7 @@ class VersionTolerancesViewModel @Inject constructor(
         }
         _versionEditMode.value = !_versionEditMode.value
         page.value = page.value.withCustomFabIcon(fabIcon)
-        viewModelScope.launch { mainPageHandler.setFabIcon(fabIcon) }
+        viewModelScope.launch { mainPageHandler?.setFabIcon?.invoke(fabIcon) }
     }
 
     /**

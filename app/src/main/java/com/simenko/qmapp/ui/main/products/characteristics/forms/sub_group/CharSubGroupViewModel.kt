@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.CharGroupIdParameter
-import com.simenko.qmapp.di.CharSubGroupIdParameter
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
@@ -11,7 +9,6 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.other.Status
@@ -43,25 +40,23 @@ class CharSubGroupViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
-    @CharGroupIdParameter private val charGroupId: ID,
-    @CharSubGroupIdParameter private val charSubGroupId: ID
 ) : ViewModel() {
     private val _charSubGroup = MutableStateFlow(DomainCharSubGroup.DomainCharSubGroupComplete())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    var mainPageHandler: MainPageHandler? = null
-        private set
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
+    fun onEntered(route: Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (charSubGroupId == NoRecord.num) prepareCharSubGroup(charGroupId) else _charSubGroup.value = repository.charSubGroupById(charSubGroupId)
-                mainPageHandler = MainPageHandler.Builder(if (charSubGroupId == NoRecord.num) Page.ADD_PRODUCT_LINE_CHAR_SUB_GROUP else Page.EDIT_PRODUCT_LINE_CHAR_SUB_GROUP, mainPageState)
+                if (route.charSubGroupId == NoRecord.num) prepareCharSubGroup(route.charGroupId) else _charSubGroup.value = repository.charSubGroupById(route.charSubGroupId)
+                mainPageHandler = MainPageHandler.Builder(if (route.charSubGroupId == NoRecord.num) Page.ADD_PRODUCT_LINE_CHAR_SUB_GROUP else Page.EDIT_PRODUCT_LINE_CHAR_SUB_GROUP, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -149,10 +144,10 @@ class CharSubGroupViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (charSubGroupId == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup) }
+            repository.run { if (_charSubGroup.value.charSubGroup.id == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup) }
                 .consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
-                        when(resource.status) {
+                        when (resource.status) {
                             Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                             Status.SUCCESS -> navBackToRecord(resource.data?.id)
                             Status.ERROR -> {
@@ -168,15 +163,15 @@ class CharSubGroupViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(
-                route = Route.Main.Products.ProductLines.Characteristics.withOpts(
-                    _charSubGroup.value.charGroup.productLine.manufacturingProject.id.toString(),
-                    _charSubGroup.value.charGroup.charGroup.id.toString(),
-                    it.toString()
-                ),
-                popUpToRoute = Route.Main.Products.ProductLines.Characteristics.route,
-                inclusive = true
-            ) }
+            id?.let {
+                val productLine = _charSubGroup.value.charGroup.productLine.manufacturingProject.id
+                val charGroupId = _charSubGroup.value.charGroup.charGroup.id
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.Characteristics.CharacteristicsList(productLineId = productLine, charGroupId = charGroupId, charSubGroupId = it),
+                    popUpToRoute = Route.Main.ProductLines.Characteristics,
+                    inclusive = true
+                )
+            }
         }
     }
 }

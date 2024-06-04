@@ -16,8 +16,8 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.navigation.NavArguments
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.Route.Companion.DOMAIN
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.StringUtils.concatThreeStrings
@@ -66,8 +66,8 @@ class SyncEntitiesWorker @AssistedInject constructor(
     fun makeNotification(nData: NotificationData) {
         val intent = Intent(context, MainActivity::class.java).apply {
             action = Intent.ACTION_VIEW
-            val link = "${with(RouteCompose) { RouteCompose.Main.AllInvestigations.AllInvestigationsList::class.simpleName?.withArgs(nData.orderId.toString(), nData.subOrderId.toString()) }}"
-            data = "${NavArguments.domain}/$link".toUri()
+            val link = "${with(Route) { Route.Main.AllInvestigations.AllInvestigationsList::class.simpleName?.withArgs(nData.orderId.toString(), nData.subOrderId.toString()) }}"
+            data = "${DOMAIN}/$link".toUri()
         }
 
         var title: String

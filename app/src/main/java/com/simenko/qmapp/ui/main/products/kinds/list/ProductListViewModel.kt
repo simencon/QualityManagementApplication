@@ -2,21 +2,12 @@ package com.simenko.qmapp.ui.main.products.kinds.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ComponentIdParameter
-import com.simenko.qmapp.di.ComponentKindIdParameter
-import com.simenko.qmapp.di.ComponentStageIdParameter
-import com.simenko.qmapp.di.ComponentStageKindIdParameter
-import com.simenko.qmapp.di.ProductIdParameter
-import com.simenko.qmapp.di.ProductKindIdParameter
-import com.simenko.qmapp.di.VersionFIdParameter
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -49,24 +40,16 @@ class ProductListViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ProductKindIdParameter private val productKindId: ID,
-    @ProductIdParameter private val productId: ID,
-    @ComponentKindIdParameter private val componentKindId: ID,
-    @ComponentIdParameter private val componentId: ID,
-    @ComponentStageKindIdParameter private val componentStageKindId: ID,
-    @ComponentStageIdParameter private val componentStageId: ID,
-    @VersionFIdParameter private val versionFId: String = NoRecordStr.str
 ) : ViewModel() {
-    private val _productsVisibility = MutableStateFlow(Pair(SelectedNumber(productId), NoRecord))
-    private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindId), NoRecord))
-    private val _componentsVisibility = MutableStateFlow(Pair(SelectedNumber(componentId), NoRecord))
-    private val _componentStageKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageKindId), NoRecord))
-    private val _componentStagesVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageId), NoRecord))
-    private val _versionsVisibility = MutableStateFlow(Pair(SelectedString(versionFId), NoRecordStr))
-
-    private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
-    private val _products = repository.productKindProducts(productKindId)
-    private val _componentKinds = repository.componentKinds(productKindId)
+    private val _productKindId = MutableStateFlow(NoRecord.num)
+    private val _productsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _componentsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _componentStageKindsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _componentStagesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _versionsVisibility = MutableStateFlow(Pair(SelectedString(NoRecordStr.str), NoRecordStr))
+    private val _products = _productKindId.flatMapLatest { repository.productKindProducts(it) }
+    private val _componentKinds = _productKindId.flatMapLatest { repository.componentKinds(it) }
     private val _components = _productsVisibility.flatMapLatest { product ->
         _componentKindsVisibility.flatMapLatest { componentKind -> repository.components(product.first.num, componentKind.first.num) }
     }
@@ -84,16 +67,25 @@ class ProductListViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProduct(productKindId) }
-            .setOnPullRefreshAction { updateProductsData() }
-            .build()
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.ProductsList) {
+        viewModelScope.launch {
+            _productKindId.value = route.productKindId
+            _productsVisibility.value = Pair(SelectedNumber(route.productId), NoRecord)
+            _componentKindsVisibility.value = Pair(SelectedNumber(route.componentKindId), NoRecord)
+            _componentsVisibility.value = Pair(SelectedNumber(route.componentId), NoRecord)
+            _componentStageKindsVisibility.value = Pair(SelectedNumber(route.componentStageKindId), NoRecord)
+            _componentStagesVisibility.value = Pair(SelectedNumber(route.componentStageId), NoRecord)
+            _versionsVisibility.value = Pair(SelectedString(route.versionFId), NoRecordStr)
 
-        viewModelScope.launch(Dispatchers.IO) { _productKind.value = repository.productKind(productKindId) }
+            mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProduct(route.productKindId) }
+                .setOnPullRefreshAction { updateProductsData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+        }
     }
 
 
@@ -131,7 +123,7 @@ class ProductListViewModel @Inject constructor(
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productKind get() = _productKind.asStateFlow()
+    val productKind get() = _productKindId.flatMapLatest { flow { emit(repository.productKind(it)) } }.flowOn(Dispatchers.IO)
     val versionsForItem get() = _versionsForItem.asStateFlow()
 
     private val _viewState = MutableStateFlow(false)
@@ -162,8 +154,8 @@ class ProductListViewModel @Inject constructor(
             _versionListIsInitialized.flatMapLatest { sl ->
                 if (viewState)
                     flow {
-                        if (productId != NoRecord.num) {
-                            storage.setLong(ScrollStates.PRODUCTS.indexKey, products.map { it.product.product.id }.indexOf(productId).toLong())
+                        if (_productsVisibility.value.first.num != NoRecord.num) {
+                            storage.setLong(ScrollStates.PRODUCTS.indexKey, products.map { it.product.product.id }.indexOf(_productsVisibility.value.first.num).toLong())
                             storage.setLong(ScrollStates.PRODUCTS.offsetKey, ZeroValue.num)
                             emit(Pair(true, sl))
 
@@ -181,8 +173,8 @@ class ProductListViewModel @Inject constructor(
 
     private val _versionListIsInitialized: Flow<Boolean> = _versions.flatMapLatest { versions ->
         flow {
-            if (versionFId != NoRecordStr.str) {
-                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.itemVersion.fId }.indexOf(versionFId).toLong())
+            if (_versionsVisibility.value.first.str != NoRecordStr.str) {
+                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.itemVersion.fId }.indexOf(_versionsVisibility.value.first.str).toLong())
                 storage.setLong(ScrollStates.VERSIONS.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
@@ -319,6 +311,6 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onSpecificationClick(it: String) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances.withOpts(it, FalseStr.str))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(versionFId = it))
     }
 }

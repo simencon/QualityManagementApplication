@@ -11,7 +11,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +40,7 @@ class ProductKindsViewModel @Inject constructor(
      * */
     var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindsList) {
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductKindsList) {
         viewModelScope.launch {
             _productLineId.value = route.productLineId
             _productKindsVisibility.value = Pair(SelectedNumber(route.productKindId), NoRecord)
@@ -96,18 +96,18 @@ class ProductKindsViewModel @Inject constructor(
     }
 
     fun onProductKindKeysClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList(productKindId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList(productKindId = it))
     }
 
     fun onProductKindCharacteristicsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList(productKindId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList(productKindId = it))
     }
 
     fun onProductKindSpecificationClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList(productKindId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList(productKindId = it))
     }
 
     fun onProductKindItemsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = it))
     }
 }

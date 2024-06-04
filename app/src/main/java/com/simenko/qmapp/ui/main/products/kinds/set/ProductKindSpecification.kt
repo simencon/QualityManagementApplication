@@ -49,13 +49,13 @@ import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.ComponentStageKinds
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
 fun ProductKindSpecification(
     modifier: Modifier = Modifier,
     viewModel: ProductKindSpecificationViewModel = hiltViewModel(),
-    route: RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList
+    route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList
 ) {
     val product by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
     val items by viewModel.componentKinds.collectAsStateWithLifecycle(listOf())

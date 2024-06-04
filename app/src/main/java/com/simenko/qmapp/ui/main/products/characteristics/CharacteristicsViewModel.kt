@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Status
@@ -16,7 +15,6 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +56,7 @@ class CharacteristicsViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     var mainPageHandler: MainPageHandler? = null
-    fun onEntered(route: RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList) {
+    fun onEntered(route: Route.Main.ProductLines.Characteristics.CharacteristicsList) {
         viewModelScope.launch {
             _productLine.value = route.productLineId
             _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
@@ -224,7 +222,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onAddCharSubGroupClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit(charGroupId = it))
     }
 
     fun onAddCharacteristicClick(it: ID) {
@@ -240,7 +238,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onEditCharSubGroupClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit(charGroupId = it.first, charSubGroupId = it.second))
     }
 
     fun onEditCharacteristicClick(it: Pair<ID, ID>) {

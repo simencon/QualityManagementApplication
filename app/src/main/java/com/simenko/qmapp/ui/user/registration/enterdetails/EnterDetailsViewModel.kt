@@ -14,7 +14,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,7 +38,7 @@ class EnterDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             mainPageHandler = MainPageHandler.Builder(if (isUserEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
                 .setOnNavMenuClickAction {
-                    appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main.Settings.UserDetails, inclusive = true)
+                    appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails, popUpToRoute = Route.Main.Settings.UserDetails, inclusive = true)
                 }
                 .setOnFabClickAction { validateInput() }
                 .setOnPullRefreshAction { updateUserData() }
@@ -137,11 +137,11 @@ class EnterDetailsViewModel @Inject constructor(
     fun onFillInSuccess(fullName: String) {
         initRawUser()
         resetToInitialState()
-        appNavigator.tryNavigateTo(RouteCompose.LoggedOut.Registration.TermsAndConditions(fullName))
+        appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions(fullName))
     }
 
     fun onLogInClick() {
-        appNavigator.tryNavigateTo(RouteCompose.LoggedOut.LogIn)
+        appNavigator.tryNavigateTo(Route.LoggedOut.LogIn)
     }
 
     fun onSaveUserDataClick() {
@@ -150,7 +150,7 @@ class EnterDetailsViewModel @Inject constructor(
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                    appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings.UserDetails, popUpToRoute = RouteCompose.Main, inclusive = true)
+                    appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails, popUpToRoute = Route.Main, inclusive = true)
                 } else {
                     mainPageHandler?.updateLoadingState?.invoke(Pair(false, task.exception?.message))
                 }

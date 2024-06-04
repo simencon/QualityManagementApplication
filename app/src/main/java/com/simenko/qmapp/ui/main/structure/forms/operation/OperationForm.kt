@@ -44,7 +44,7 @@ import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.PreviousOperationHeader
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous.AddPreviousOperation
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 import kotlinx.coroutines.flow.collectLatest
 
@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun OperationForm(
     modifier: Modifier = Modifier,
     viewModel: OperationViewModel,
-    route: RouteCompose.Main.CompanyStructure.OperationAddEdit
+    route: Route.Main.CompanyStructure.OperationAddEdit
 ) {
     val opComplete by viewModel.operationComplete.collectAsStateWithLifecycle(DomainManufacturingOperationComplete())
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()

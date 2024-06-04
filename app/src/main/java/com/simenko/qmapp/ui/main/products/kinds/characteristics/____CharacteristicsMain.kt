@@ -17,13 +17,13 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
 fun ProductKindCharacteristicsMain(
     modifier: Modifier = Modifier,
     viewModel: ProductKindCharacteristicsViewModel = hiltViewModel(),
-    route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList
+    route: Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList
 ) {
     val productKind by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
 

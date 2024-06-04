@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.team.forms.employee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
@@ -23,7 +21,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -242,7 +240,7 @@ class EmployeeViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                appNavigator.tryNavigateTo(route = RouteCompose.Main.Team.Employees(it), popUpToRoute = RouteCompose.Main.Team, inclusive = true)
+                appNavigator.tryNavigateTo(route = Route.Main.Team.Employees(it), popUpToRoute = Route.Main.Team, inclusive = true)
             }
         }
     }

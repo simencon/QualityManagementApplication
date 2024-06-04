@@ -26,13 +26,13 @@ import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.main.products.designations.KeyCard
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
 fun ProductKindKeys(
     modifier: Modifier = Modifier,
     viewModel: ProductKindKeysViewModel = hiltViewModel(),
-    route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList
+    route: Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList
 ) {
     val product by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
     val items by viewModel.productKindKeys.collectAsStateWithLifecycle(listOf())

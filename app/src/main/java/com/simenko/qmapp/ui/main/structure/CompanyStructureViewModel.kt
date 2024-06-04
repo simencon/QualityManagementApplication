@@ -14,7 +14,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,7 @@ class CompanyStructureViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: RouteCompose.Main.CompanyStructure.StructureView) {
+    fun onEntered(route: Route.Main.CompanyStructure.StructureView) {
         viewModelScope.launch {
             _companyId.value = route.companyId
             _departmentsVisibility.value = Pair(SelectedNumber(route.departmentId), NoRecord)
@@ -326,11 +326,11 @@ class CompanyStructureViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddDepartmentClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.DepartmentAddEdit(companyId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit(companyId = it))
     }
 
     fun onEditDepartmentClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.DepartmentAddEdit(companyId = it.first, departmentId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit(companyId = it.first, departmentId = it.second))
     }
 
     fun onDepartmentProductsClick(it: ID) {
@@ -338,11 +338,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddSubDepartmentClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it))
     }
 
     fun onEditSubDepartmentClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it.first, subDepartmentId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it.first, subDepartmentId = it.second))
     }
 
     fun onSubDepartmentProductsClick(it: ID) {
@@ -350,11 +350,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddChannelClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it))
     }
 
     fun onEditChannelClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it.first, channelId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it.first, channelId = it.second))
     }
 
     fun onChannelProductsClick(it: ID) {
@@ -362,11 +362,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     private fun onAddLineClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.LineAddEdit(channelId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit(channelId = it))
     }
 
     fun onEditLineClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.LineAddEdit(channelId = it.first, lineId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit(channelId = it.first, lineId = it.second))
     }
 
     fun onLineProductsClick(it: ID) {
@@ -374,11 +374,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddOperationClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.OperationAddEdit(lineId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit(lineId = it))
     }
 
     fun onEditOperationClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.OperationAddEdit(lineId = it.first, operationId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit(lineId = it.first, operationId = it.second))
     }
 
     fun onOperationProductsClick(it: ID) {

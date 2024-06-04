@@ -40,12 +40,9 @@ import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.AppNavigatorImpl.Companion.subscribeNavigationEvents
 import com.simenko.qmapp.ui.navigation.MainScreen
-import com.simenko.qmapp.ui.navigation.NavigationIntent
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.channels.consume
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -112,12 +109,12 @@ class MainActivity : BaseActivity() {
                 fun onDrawerItemClick(id: String) {
                     if (id != topBarSetup.link) {
                         when (id) {
-                            RouteCompose.Main.Team::class.qualifiedName -> viewModel.onDrawerMenuTeamSelected()
-                            RouteCompose.Main.CompanyStructure::class.qualifiedName -> viewModel.onDrawerMenuCompanyStructureSelected()
-                            RouteCompose.Main.ProductLines::class.qualifiedName -> viewModel.onDrawerMenuProductsSelected()
-                            RouteCompose.Main.AllInvestigations::class.qualifiedName -> viewModel.onDrawerMenuInvSelected()
-                            RouteCompose.Main.ProcessControl::class.qualifiedName -> viewModel.onDrawerMenuProcessControlSelected()
-                            RouteCompose.Main.Settings::class.qualifiedName -> viewModel.onDrawerMenuSettingsSelected()
+                            Route.Main.Team::class.qualifiedName -> viewModel.onDrawerMenuTeamSelected()
+                            Route.Main.CompanyStructure::class.qualifiedName -> viewModel.onDrawerMenuCompanyStructureSelected()
+                            Route.Main.ProductLines::class.qualifiedName -> viewModel.onDrawerMenuProductsSelected()
+                            Route.Main.AllInvestigations::class.qualifiedName -> viewModel.onDrawerMenuInvSelected()
+                            Route.Main.ProcessControl::class.qualifiedName -> viewModel.onDrawerMenuProcessControlSelected()
+                            Route.Main.Settings::class.qualifiedName -> viewModel.onDrawerMenuSettingsSelected()
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }

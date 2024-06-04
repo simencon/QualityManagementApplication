@@ -17,31 +17,31 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.subdepartment.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.subdepartment.SubDepartmentViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScreenPadding: PaddingValues) {
-    navigation<T>(startDestination = RouteCompose.Main.CompanyStructure.StructureView()) {
-        composable<RouteCompose.Main.CompanyStructure.StructureView> {
+    navigation<T>(startDestination = Route.Main.CompanyStructure.StructureView()) {
+        composable<Route.Main.CompanyStructure.StructureView> {
             val viewModel: CompanyStructureViewModel = hiltViewModel()
             CompanyStructure(mainScreenPadding = mainScreenPadding, viewModel = viewModel, it.toRoute())
         }
-        composable<RouteCompose.Main.CompanyStructure.DepartmentAddEdit> {
+        composable<Route.Main.CompanyStructure.DepartmentAddEdit> {
             val viewModel: DepartmentViewModel = hiltViewModel()
             DepartmentForm(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit> {
+        composable<Route.Main.CompanyStructure.SubDepartmentAddEdit> {
             val viewModel: SubDepartmentViewModel = hiltViewModel()
             SubDepartmentForm(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.CompanyStructure.ChannelAddEdit> {
+        composable<Route.Main.CompanyStructure.ChannelAddEdit> {
             val viewModel: ChannelViewModel = hiltViewModel()
             ChannelForm(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.CompanyStructure.LineAddEdit> {
+        composable<Route.Main.CompanyStructure.LineAddEdit> {
             val viewModel: LineViewModel = hiltViewModel()
             LineForm(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.CompanyStructure.OperationAddEdit> {
+        composable<Route.Main.CompanyStructure.OperationAddEdit> {
             val viewModel: OperationViewModel = hiltViewModel()
             OperationForm(viewModel = viewModel, route = it.toRoute())
         }

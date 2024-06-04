@@ -33,13 +33,13 @@ import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
 fun ProductLineKeys(
     modifier: Modifier = Modifier,
     viewModel: ProductLineKeysViewModel = hiltViewModel(),
-    route: RouteCompose.Main.ProductLines.ProductLineKeys.ProductLineKeysList
+    route: Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList
 ) {
     val productLine by viewModel.productLine.collectAsStateWithLifecycle(DomainProductLine())
     val items by viewModel.productKeys.collectAsStateWithLifecycle(listOf())

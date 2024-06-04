@@ -20,11 +20,10 @@ import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.receivers.NotificationActionsReceiver
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.services.MessagingService
-import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.navigation.RouteCompose
-import com.simenko.qmapp.ui.navigation.RouteCompose.Companion.DOMAIN
-import com.simenko.qmapp.ui.navigation.RouteCompose.Companion.withArgs
+import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.Route.Companion.DOMAIN
+import com.simenko.qmapp.ui.navigation.Route.Companion.withArgs
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY
 import com.simenko.qmapp.works.WorkerKeys.EMAIL
@@ -32,9 +31,6 @@ import com.simenko.qmapp.works.WorkerKeys.ERROR_MSG
 import com.simenko.qmapp.works.WorkerKeys.TITLE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.encodeToString
 import java.util.Objects
 
 @HiltWorker
@@ -81,7 +77,7 @@ class NewNotificationWorker @AssistedInject constructor(
 
                     val intent = Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
-                        data = (navDeepLink<RouteCompose.Main.Team.AuthorizeUser>(DOMAIN).uriPattern?.withArgs(it) ?: EmptyString.str).toUri()
+                        data = (navDeepLink<Route.Main.Team.AuthorizeUser>(DOMAIN).uriPattern?.withArgs(it) ?: EmptyString.str).toUri()
                     }
 
                     val pendingIntent = TaskStackBuilder.create(context).run {

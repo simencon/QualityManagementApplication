@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -45,17 +44,16 @@ import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.Rounder
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CharacteristicSubGroupForm(
     modifier: Modifier = Modifier,
-    viewModel: CharSubGroupViewModel = hiltViewModel()
+    viewModel: CharSubGroupViewModel = hiltViewModel(),
+    route: Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
     val charSubGroup by viewModel.charSubGroup.collectAsStateWithLifecycle()
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()

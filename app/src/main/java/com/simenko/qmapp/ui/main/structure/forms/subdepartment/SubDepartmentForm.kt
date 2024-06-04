@@ -40,14 +40,14 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @Composable
 fun SubDepartmentForm(
     modifier: Modifier = Modifier,
     viewModel: SubDepartmentViewModel,
-    route: RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit
+    route: Route.Main.CompanyStructure.SubDepartmentAddEdit
 ) {
     val sdComplete by viewModel.subDepartment.collectAsStateWithLifecycle(DomainSubDepartment.DomainSubDepartmentComplete())
     LaunchedEffect(Unit) { viewModel.onEntered(route = route) }

@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -35,7 +34,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
@@ -55,6 +54,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
@@ -63,7 +63,8 @@ import com.simenko.qmapp.utils.observeAsState
 @Composable
 fun VersionTolerances(
     mainScreenPadding: PaddingValues,
-    viewModel: VersionTolerancesViewModel = hiltViewModel()
+    viewModel: VersionTolerancesViewModel = hiltViewModel(),
+    route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
@@ -75,7 +76,7 @@ fun VersionTolerances(
 
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
-    val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle()
+    val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle(DomainItemVersionComplete())
     val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
     val itemVersionErrors by viewModel.itemVersionErrors.collectAsStateWithLifecycle()
     val versionStatuses by viewModel.versionStatuses.collectAsStateWithLifecycle(emptyList())
@@ -91,7 +92,7 @@ fun VersionTolerances(
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
@@ -154,7 +155,6 @@ fun VersionTolerances(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun VersionSpecificationHeader(
     localDensity: Density,

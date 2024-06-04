@@ -14,7 +14,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +45,7 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
      * */
     var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList) {
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList) {
         viewModelScope.launch {
             _productKindId.value = route.productKindId
             _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)

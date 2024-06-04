@@ -2,29 +2,27 @@ package com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.CharacteristicIdParameter
-import com.simenko.qmapp.di.ComponentStageKindIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
-import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,35 +33,37 @@ class ComponentStageKindCharacteristicsViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ComponentStageKindIdParameter private val componentStageKindId: ID,
-    @CharacteristicIdParameter private val characteristicId: ID
 ) : ViewModel() {
+    private val _componentStageKindId = MutableStateFlow(NoRecord.num)
     private val _charGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _charSubGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
-
-    private val _productKind: MutableStateFlow<DomainComponentStageKind.DomainComponentStageKindComplete> = MutableStateFlow(DomainComponentStageKind.DomainComponentStageKindComplete())
-    private val _itemKindCharsComplete = repository.itemKindCharsComplete("s$componentStageKindId")
-
-    val productKind get() = _productKind.asStateFlow()
+    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _itemKindCharsComplete = _componentStageKindId.flatMapLatest { repository.itemKindCharsComplete("s$it") }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_CHARACTERISTICS, mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddCharacteristicClick(Pair(componentStageKindId, NoRecord.num)) }
-            .setOnPullRefreshAction { updateCharacteristicsData() }
-            .build()
-        viewModelScope.launch(Dispatchers.IO) { _productKind.value = repository.componentStageKind(componentStageKindId) }
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindCharacteristics.ComponentStageKindCharacteristicsList) {
+        viewModelScope.launch {
+            _componentStageKindId.value = route.componentStageKindId
+            _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+
+            mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_CHARACTERISTICS, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { onAddCharacteristicClick(Pair(route.componentStageKindId, NoRecord.num)) }
+                .setOnPullRefreshAction { updateCharacteristicsData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+        }
     }
 
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
+    val productKind get() = _componentStageKindId.flatMapLatest { flow { emit(repository.componentStageKind(it)) } }.flowOn(Dispatchers.IO)
+
     fun setGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _charGroupVisibility.value = _charGroupVisibility.value.setVisibility(dId, aId)
     }

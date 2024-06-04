@@ -18,13 +18,13 @@ fun MainScreen(
     mainScreenPadding: PaddingValues
 ) {
     QMAppTheme {
-        NavHost(navController = navController, startDestination = RouteCompose.Main.Team, route = RouteCompose.Main::class) {
-            teamNavigation<RouteCompose.Main.Team>()
-            companyStructureNavigation<RouteCompose.Main.CompanyStructure>(mainScreenPadding)
-            productsNavigation<RouteCompose.Main.ProductLines>(mainScreenPadding)
-            allInvestigations<RouteCompose.Main.AllInvestigations>(mainScreenPadding)
-            processControl<RouteCompose.Main.ProcessControl>(mainScreenPadding)
-            settingsNavigation<RouteCompose.Main.Settings>()
+        NavHost(navController = navController, startDestination = Route.Main.Team, route = Route.Main::class) {
+            teamNavigation<Route.Main.Team>()
+            companyStructureNavigation<Route.Main.CompanyStructure>(mainScreenPadding)
+            productsNavigation<Route.Main.ProductLines>(mainScreenPadding)
+            allInvestigations<Route.Main.AllInvestigations>(mainScreenPadding)
+            processControl<Route.Main.ProcessControl>(mainScreenPadding)
+            settingsNavigation<Route.Main.Settings>()
         }
     }
 }

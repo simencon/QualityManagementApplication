@@ -1,307 +1,239 @@
 package com.simenko.qmapp.ui.navigation
 
-import android.content.Intent
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDeepLink
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import kotlinx.serialization.Serializable
 
-const val MAIN_ROUTE = "main"
-const val PRODUCTS_ROUTE = "products"
+sealed interface Route {
+    @Serializable
+    data object LoggedOut : Route {
+        @Serializable
+        data object InitialScreen : Route
 
-object NavRouteName {
-    //--------------------------------------------------------------------
-    //--------------------------------------------------------------------
+        @Serializable
+        data object Registration : Route {
+            @Serializable
+            data class EnterDetails(val userEditMode: Boolean = false) : Route
 
-    //--------------------------------------------------------------------
-    //--------------------------------------------------------------------
+            @Serializable
+            data class TermsAndConditions(val fullName: String = EmptyString.str) : Route
+        }
 
-    const val product_lines = "product_lines"
-    const val product_line_characteristics = "product_line_characteristics"
-    const val product_kinds = "product_kinds"
+        @Serializable
+        data class WaitingForValidation(val message: String = EmptyString.str) : Route
 
-    const val product_list = "product_list"
-    const val version_tolerances = "version_tolerances"
+        @Serializable
+        data object LogIn : Route
+    }
 
-    const val product_line_char_sub_group_add_edit = "product_line_char_sub_group_add_edit"
+    @Serializable
+    data object Main : Route {
+        @Serializable
+        data object CompanyProfile : Route
 
-    //--------------------------------------------------------------------
-    //--------------------------------------------------------------------
-}
+        @Serializable
+        data object Team : Route {
+            @Serializable
+            data class Employees(val employeeId: ID = NoRecord.num) : Route
 
-object NavArguments {
-    const val domain = "https://qm.simple.com"
+            @Serializable
+            data class EmployeeAddEdit(val employeeId: ID = NoRecord.num) : Route
 
-    const val fullName = "name"
-    const val message = "message"
+            @Serializable
+            data class Users(val userId: String = NoRecordStr.str) : Route
 
-    const val companyId = "companyId"
+            @Serializable
+            data class EditUser(val userId: String = NoRecordStr.str) : Route
 
-    const val productLineId = "productLineId"
+            @Serializable
+            data class Requests(val userId: String = NoRecordStr.str) : Route
 
-    const val charGroupId = "charGroupId"
-    const val charSubGroupId = "charSubGroupId"
-    const val characteristicId = "characteristicId"
-    const val metricId = "metricId"
+            @Serializable
+            data class AuthorizeUser(val userId: String) : Route
+        }
 
-    const val productKindId = "productKindId"
-    const val componentKindId = "componentKindId"
-    const val componentKindKeyId = "componentKindKeyId"
-    const val componentStageKindId = "componentStageKindId"
-    const val componentStageKindKeyId = "componentKindKeyId"
+        @Serializable
 
-    const val productId = "productId"
-    const val componentId = "componentId"
-    const val componentStageId = "componentStageId"
-    const val versionFId = "versionFId"
-    const val versionEditMode = "versionEditMode"
-    const val toleranceId = "toleranceId"
-}
+        data object CompanyStructure : Route {
+            @Serializable
+            data class StructureView(
+                val companyId: ID = NoRecord.num, val departmentId: ID = NoRecord.num, val subDepartmentId: ID = NoRecord.num,
+                val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num, val operationId: ID = NoRecord.num
+            ) : Route
 
-sealed class Route(
-    val link: String,
-    val arguments: List<NamedNavArgument> = emptyList(),
-    val deepLinks: List<NavDeepLink> = emptyList(),
-    val route: String = EmptyString.str
-) {
-    data object Main : Route(link = MAIN_ROUTE) {
-        data object Products : Route(link = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}", route = MAIN_ROUTE) {
-            data object ProductLines : Route(
-                link = NavRouteName.product_lines + "?${opt(NavArguments.companyId)}&${opt(NavArguments.productLineId)}",
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}" + "?${opt(NavArguments.companyId)}&${opt(NavArguments.productLineId)}"
-                        action = Intent.ACTION_VIEW
-                    }
-                ),
-                arguments = listOf(
-                    navArgument(NavArguments.companyId) {
-                        type = NavType.LongType
-                        defaultValue = NoRecord.num
-                    },
-                    navArgument(NavArguments.productLineId) {
-                        type = NavType.LongType
-                        defaultValue = NoRecord.num
-                    }
-                ),
-                route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
-            ) {
-                data object Characteristics : Route(
-                    link = NavRouteName.product_line_characteristics +
-                            "?${opt(NavArguments.productLineId)}&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}" +
-                            "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}",
-                    deepLinks = listOf(
-                        navDeepLink {
-                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_characteristics}" +
-                                    "?${opt(NavArguments.productLineId)}&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}" +
-                                    "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}"
-                            action = Intent.ACTION_VIEW
-                        }
-                    ),
-                    arguments = listOf(
-                        navArgument(NavArguments.productLineId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.charGroupId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.charSubGroupId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.characteristicId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.metricId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        }
-                    ),
-                    route = NavRouteName.product_lines
-                ) {
-                    data object CharSubGroupAddEdit : Route(
-                        link = "${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${arg(NavArguments.charSubGroupId)}",
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_line_characteristics}/${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${
-                                    arg(NavArguments.charSubGroupId)
-                                }"
-                                action = Intent.ACTION_VIEW
-                            }
-                        ),
-                        arguments = listOf(
-                            navArgument(NavArguments.charGroupId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.charSubGroupId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            }
-                        ),
-                        route = NavRouteName.product_line_characteristics
-                    )
+            @Serializable
+            data class DepartmentAddEdit(val companyId: ID = NoRecord.num, val departmentId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class SubDepartmentAddEdit(val departmentId: ID = NoRecord.num, val subDepartmentId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class ChannelAddEdit(val subDepartmentId: ID = NoRecord.num, val channelId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class LineAddEdit(val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class OperationAddEdit(val lineId: ID = NoRecord.num, val operationId: ID = NoRecord.num) : Route
+        }
+
+        @Serializable
+        data object ProductLines : Route {
+            @Serializable
+            data class ProductLinesList(val companyId: ID = NoRecord.num, val productLineId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data object ProductLineKeys : Route {
+                @Serializable
+                data class ProductLineKeysList(val productLineId: ID = NoRecord.num, val productLineKeyId: ID = NoRecord.num) : Route
+            }
+
+            @Serializable
+            data object Characteristics : Route {
+                @Serializable
+                data class CharacteristicsList(
+                    val productLineId: ID = NoRecord.num,
+                    val charGroupId: ID = NoRecord.num,
+                    val charSubGroupId: ID = NoRecord.num,
+                    val characteristicId: ID = NoRecord.num,
+                    val metricId: ID = NoRecord.num
+                ) : Route
+
+                @Serializable
+                data class CharSubGroupAddEdit(val charGroupId: ID, val charSubGroupId: ID = NoRecord.num) : Route
+            }
+
+            @Serializable
+            data object ProductKinds : Route {
+                @Serializable
+                data class ProductKindsList(val productLineId: ID = NoRecord.num, val productKindId: ID = NoRecord.num) : Route
+
+                @Serializable
+                data object ProductKindKeys : Route {
+                    @Serializable
+                    data class ProductKindKeysList(val productKindId: ID = NoRecord.num, val productKindKeyId: ID = NoRecord.num) : Route
                 }
 
-                data object ProductKinds : Route(
-                    link = NavRouteName.product_kinds + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKindId)}",
-                    deepLinks = listOf(
-                        navDeepLink {
-                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}" +
-                                    "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKindId)}"
-                            action = Intent.ACTION_VIEW
-                        }
-                    ),
-                    arguments = listOf(
-                        navArgument(NavArguments.productLineId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.productKindId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        }
-                    ),
-                    route = NavRouteName.product_lines
-                ) {
+                @Serializable
+                data object ProductKindCharacteristics : Route {
+                    @Serializable
+                    data class ProductKindCharacteristicsList(val productKindId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num) : Route
+                }
 
-                    data object ProductList : Route(
-                        link = NavRouteName.product_list +
-                                "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}" +
-                                "&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentId)}&${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageId)}" +
-                                "&${opt(NavArguments.versionFId)}",
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}" +
-                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}" +
-                                        "&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentId)}&${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageId)}" +
-                                        "&${opt(NavArguments.versionFId)}"
-                                action = Intent.ACTION_VIEW
-                            }
-                        ),
-                        arguments = listOf(
-                            navArgument(NavArguments.productKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.productId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentStageKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentStageId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.versionFId) {
-                                type = NavType.StringType
-                                defaultValue = NoRecordStr.str
-                            }
-                        ),
-                        route = NavRouteName.product_kinds
-                    ) {
-                        data object VersionTolerances : Route(
-                            link = NavRouteName.version_tolerances +
-                                    "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
-                                    "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}",
-                            deepLinks = listOf(
-                                navDeepLink {
-                                    uriPattern = NavArguments.domain +
-                                            "/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
-                                            "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
-                                            "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}"
-                                    action = Intent.ACTION_VIEW
-                                }
-                            ),
-                            arguments = listOf(
-                                navArgument(NavArguments.versionFId) {
-                                    type = NavType.StringType
-                                    defaultValue = NoRecordStr.str
-                                },
-                                navArgument(NavArguments.versionEditMode) {
-                                    type = NavType.BoolType
-                                    defaultValue = false
-                                },
-                                navArgument(NavArguments.charGroupId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.charSubGroupId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.characteristicId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.toleranceId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                }
-                            ),
-                            route = NavRouteName.product_list
-                        )
+                @Serializable
+                data object ProductSpecification : Route {
+                    @Serializable
+                    data class ProductSpecificationList(val productKindId: ID = NoRecord.num, val componentKindId: ID = NoRecord.num, val componentStageKindId: ID = NoRecord.num) : Route
+
+                    @Serializable
+                    data class ProductKindAddEdit(val productLineId: ID, val productKindId: ID = NoRecord.num) : Route
+
+                    @Serializable
+                    data class ComponentKindAddEdit(val productKindId: ID, val componentKindId: ID = NoRecord.num) : Route
+
+                    @Serializable
+                    data class ComponentStageKindAddEdit(val componentKindId: ID, val componentStageKindId: ID = NoRecord.num) : Route
+
+                    @Serializable
+                    data object ComponentKindKeys : Route {
+                        @Serializable
+                        data class ComponentKindKeysList(val componentKindId: ID= NoRecord.num, val componentKindKeyId: ID= NoRecord.num) : Route
+                    }
+
+                    @Serializable
+                    data object ComponentKindCharacteristics : Route {
+                        @Serializable
+                        data class ProductSpecificationList(val componentKindId: ID= NoRecord.num, val characteristicId: ID= NoRecord.num) : Route
+                    }
+
+                    @Serializable
+                    data object ComponentStageKindKeys : Route {
+                        @Serializable
+                        data class ComponentStageKindKeysList(val componentStageKindId: ID = NoRecord.num, val componentStageKindKeyId: ID = NoRecord.num) : Route
+                    }
+
+                    @Serializable
+                    data object ComponentStageKindCharacteristics : Route {
+                        @Serializable
+                        data class ComponentStageKindCharacteristicsList(val componentStageKindId: ID = NoRecord.num, val characteristicId: ID= NoRecord.num) : Route
+                    }
+                }
+
+                @Serializable
+                data object Products : Route {
+                    @Serializable
+                    data class ProductsList(
+                        val productKindId: ID = NoRecord.num, val productId: ID = NoRecord.num,
+                        val componentKindId: ID = NoRecord.num, val componentId: ID = NoRecord.num, val componentStageKindId: ID = NoRecord.num, val componentStageId: ID = NoRecord.num,
+                        val versionFId: String = NoRecordStr.str
+                    ) : Route
+
+                    @Serializable
+                    data object VersionTolerances : Route {
+                        @Serializable
+                        data class VersionTolerancesDetails(
+                            val versionFId: String = NoRecordStr.str, val versionEditMode: Boolean = false,
+                            val charGroupId: ID = NoRecord.num, val charSubGroupId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num, val toleranceId: ID = NoRecord.num
+                        ) : Route
                     }
                 }
             }
+        }
 
+        @Serializable
+        data object AllInvestigations : Route {
+            @Serializable
+            data class AllInvestigationsList(val orderId: ID = NoRecord.num, val subOrderId: ID = NoRecord.num) : Route
 
+            @Serializable
+            data class OrderAddEdit(val orderId: ID = NoRecord.num) : Route
 
+            @Serializable
+            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num) : Route
+        }
+
+        @Serializable
+        data object ProcessControl : Route {
+            @Serializable
+            data class ProcessControlList(val orderId: ID = NoRecord.num, val subOrderId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num) : Route
+        }
+
+        @Serializable
+        data object ScrapLevel : Route {
+            @Serializable
+            data object ScrapLevelList : Route
+        }
+
+        @Serializable
+        data object Settings : Route {
+            @Serializable
+            data object UserDetails : Route
+
+            @Serializable
+            data class EditUserDetails(val userEditMode: Boolean = false) : Route
         }
     }
 
-    fun withArgs(vararg args: String) = link.withArgs(*args)
-
-    fun withOpts(vararg args: String) = link.withOpts(*args)
-
     companion object {
-        fun opt(p: String) = "$p={$p}"
-        fun arg(p: String) = "/{$p}"
 
-        private fun String.withArgs(vararg args: String): String {
+        const val DOMAIN = "https://qm.simple.com"
+
+        fun String.withArgs(vararg args: String): String {
             val link = this
             return buildString {
-                append(link.split("/")[0])
+                append(link.split("/{")[0])
                 args.forEach { arg ->
                     append("/$arg")
                 }
             }
         }
 
-        private fun String.getParamsNames(): List<String> {
-            val list = mutableListOf<String>()
-            val rawList = this.split('?')[1].split('&')
-            rawList.forEach { item ->
-                if (item.find { it == '{' } != null) {
-                    list.add(item.substringAfter('{').substringBefore('}'))
-                }
-            }
-            return list.toList()
-        }
-
-        private fun String.withOpts(vararg args: String): String {
+        fun String.withOpts(vararg args: String): String {
             val link = this
             val list = link.getParamsNames()
             var index = 0
@@ -319,10 +251,16 @@ sealed class Route(
                 }
             }
         }
-    }
-}
 
-@Composable
-inline fun <reified T : ViewModel> NavBackStackEntry?.viewModel(): T? = this?.let {
-    viewModel(viewModelStoreOwner = it)
+        private fun String.getParamsNames(): List<String> {
+            val list = mutableListOf<String>()
+            val rawList = this.split('?')[1].split('&')
+            rawList.forEach { item ->
+                if (item.find { it == '{' } != null) {
+                    list.add(item.substringAfter('{').substringBefore('}'))
+                }
+            }
+            return list.toList()
+        }
+    }
 }

@@ -16,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.EmployeesFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +50,7 @@ class DepartmentViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: RouteCompose.Main.CompanyStructure.DepartmentAddEdit) {
+    fun onEntered(route: Route.Main.CompanyStructure.DepartmentAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (route.departmentId == NoRecord.num) prepareDepartment(route.companyId) else _department.value = repository.departmentById(route.departmentId)
@@ -176,7 +176,7 @@ class DepartmentViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             id?.let {
                 val companyId = _department.value.department.companyId ?: NoRecord.num
-                appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.StructureView(companyId, it), popUpToRoute = RouteCompose.Main.CompanyStructure, inclusive = true)
+                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.StructureView(companyId, it), popUpToRoute = Route.Main.CompanyStructure, inclusive = true)
             }
         }
     }

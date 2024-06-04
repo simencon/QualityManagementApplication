@@ -32,7 +32,7 @@ import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
@@ -40,7 +40,7 @@ import com.simenko.qmapp.utils.observeAsState
 fun CharacteristicsMain(
     mainScreenPadding: PaddingValues,
     viewModel: CharacteristicsViewModel = hiltViewModel(),
-    route: RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList
+    route: Route.Main.ProductLines.Characteristics.CharacteristicsList
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current

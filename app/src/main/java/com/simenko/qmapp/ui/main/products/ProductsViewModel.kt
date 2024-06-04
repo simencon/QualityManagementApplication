@@ -10,7 +10,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +36,7 @@ class ProductsViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: RouteCompose.Main.ProductLines.ProductLinesList) {
+    fun onEntered(route: Route.Main.ProductLines.ProductLinesList) {
         _companyId.value = route.companyId
         _productLinesVisibility.value = Pair(SelectedNumber(route.productLineId), NoRecord)
 
@@ -91,15 +91,15 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun onProductLineKeysClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductLineKeys.ProductLineKeysList(productLineId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList(productLineId = it))
     }
 
     fun onProductLineCharacteristicsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList(productLineId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharacteristicsList(productLineId = it))
     }
 
     fun onProductLineItemsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductKinds.ProductKindsList(productLineId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductKindsList(productLineId = it))
     }
 
 }

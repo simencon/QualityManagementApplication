@@ -14,21 +14,28 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
+import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
 fun ComponentKindCharacteristicsMain(
     modifier: Modifier = Modifier,
-    viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel()
+    viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel(),
+    route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ProductSpecificationList
 ) {
-    val componentKind by viewModel.productKind.collectAsStateWithLifecycle()
+    val componentKind by viewModel.productKind.collectAsStateWithLifecycle(DomainComponentKind.DomainComponentKindComplete())
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        InfoLine(
+            modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp),
+            title = "Product line",
+            body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str
+        )
         InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
         InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)

@@ -40,14 +40,14 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.navigation.RouteCompose
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @Composable
 fun LineForm(
     modifier: Modifier = Modifier,
     viewModel: LineViewModel,
-    route: RouteCompose.Main.CompanyStructure.LineAddEdit,
+    route: Route.Main.CompanyStructure.LineAddEdit,
 ) {
     val lnComplete by viewModel.line.collectAsStateWithLifecycle(DomainManufacturingLine.DomainManufacturingLineComplete())
     LaunchedEffect(Unit) { viewModel.onEntered(route) }
