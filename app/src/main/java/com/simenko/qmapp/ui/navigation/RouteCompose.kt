@@ -85,41 +85,47 @@ sealed interface RouteCompose {
             data class ProductLinesList(val companyId: ID = NoRecord.num, val productLineId: ID = NoRecord.num) : RouteCompose
 
             @Serializable
+            data object ProductLineKeys : RouteCompose {
+                @Serializable
+                data class ProductLineKeysList(val productLineId: ID = NoRecord.num, val productLineKeyId: ID = NoRecord.num) : RouteCompose
+            }
+
+            @Serializable
             data object Characteristics : RouteCompose {
                 @Serializable
-                data class CharacteristicsList(val productLineId: ID, val charGroupId: ID, val charSubGroupId: ID, val characteristicId: ID, val metricId: ID) : RouteCompose
+                data class CharacteristicsList(
+                    val productLineId: ID = NoRecord.num,
+                    val charGroupId: ID = NoRecord.num,
+                    val charSubGroupId: ID = NoRecord.num,
+                    val characteristicId: ID = NoRecord.num,
+                    val metricId: ID = NoRecord.num
+                ) : RouteCompose
 
                 @Serializable
                 data class CharSubGroupAddEdit(val charGroupId: ID, val charSubGroupId: ID = NoRecord.num) : RouteCompose
             }
 
             @Serializable
-            data object ProductLineKeys : RouteCompose {
-                @Serializable
-                data class ProductLineKeysList(val productLineId: ID, val productLineKeyId: ID) : RouteCompose
-            }
-
-            @Serializable
             data object ProductKinds : RouteCompose {
                 @Serializable
-                data class ProductKindsList(val productLineId: ID, val productKindId: ID) : RouteCompose
+                data class ProductKindsList(val productLineId: ID = NoRecord.num, val productKindId: ID = NoRecord.num) : RouteCompose
 
                 @Serializable
                 data object ProductKindKeys : RouteCompose {
                     @Serializable
-                    data class ProductKindKeysList(val productKindId: ID, val productKindKeyId: ID) : RouteCompose
+                    data class ProductKindKeysList(val productKindId: ID = NoRecord.num, val productKindKeyId: ID = NoRecord.num) : RouteCompose
                 }
 
                 @Serializable
                 data object ProductKindCharacteristics : RouteCompose {
                     @Serializable
-                    data class ProductKindCharacteristicsList(val productKindId: ID, val characteristicId: ID) : RouteCompose
+                    data class ProductKindCharacteristicsList(val productKindId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num) : RouteCompose
                 }
 
                 @Serializable
                 data object ProductSpecification : RouteCompose {
                     @Serializable
-                    data class ProductSpecificationList(val productKindId: ID, val componentKindId: ID, val componentStageKindId: ID) : RouteCompose
+                    data class ProductSpecificationList(val productKindId: ID = NoRecord.num, val componentKindId: ID = NoRecord.num, val componentStageKindId: ID = NoRecord.num) : RouteCompose
 
                     @Serializable
                     data class ProductKindAddEdit(val productLineId: ID, val productKindId: ID = NoRecord.num) : RouteCompose
@@ -133,25 +139,25 @@ sealed interface RouteCompose {
                     @Serializable
                     data object ComponentKindKeys : RouteCompose {
                         @Serializable
-                        data class ComponentKindKeysList(val componentKindId: ID, val componentKindKeyId: ID) : RouteCompose
+                        data class ComponentKindKeysList(val componentKindId: ID= NoRecord.num, val componentKindKeyId: ID= NoRecord.num) : RouteCompose
                     }
 
                     @Serializable
                     data object ComponentKindCharacteristics : RouteCompose {
                         @Serializable
-                        data class ProductSpecificationList(val componentKindId: ID, val characteristicId: ID) : RouteCompose
+                        data class ProductSpecificationList(val componentKindId: ID= NoRecord.num, val characteristicId: ID= NoRecord.num) : RouteCompose
                     }
 
                     @Serializable
                     data object ComponentStageKindKeys : RouteCompose {
                         @Serializable
-                        data class ComponentStageKindKeysList(val componentStageKindId: ID, val componentStageKindKeyId: ID) : RouteCompose
+                        data class ComponentStageKindKeysList(val componentStageKindId: ID = NoRecord.num, val componentStageKindKeyId: ID = NoRecord.num) : RouteCompose
                     }
 
                     @Serializable
                     data object ComponentStageKindCharacteristics : RouteCompose {
                         @Serializable
-                        data class ComponentStageKindCharacteristicsList(val componentStageKindId: ID, val characteristicId: ID) : RouteCompose
+                        data class ComponentStageKindCharacteristicsList(val componentStageKindId: ID = NoRecord.num, val characteristicId: ID= NoRecord.num) : RouteCompose
                     }
                 }
 
@@ -159,9 +165,9 @@ sealed interface RouteCompose {
                 data object Products : RouteCompose {
                     @Serializable
                     data class ProductsList(
-                        val productKindId: ID, val productId: ID,
-                        val componentKindId: ID, val componentId: ID, val componentStageKindId: ID, val componentStageId: ID,
-                        val versionFId: String
+                        val productKindId: ID = NoRecord.num, val productId: ID = NoRecord.num,
+                        val componentKindId: ID = NoRecord.num, val componentId: ID = NoRecord.num, val componentStageKindId: ID = NoRecord.num, val componentStageId: ID = NoRecord.num,
+                        val versionFId: String = NoRecordStr.str
                     ) : RouteCompose
 
                     @Serializable

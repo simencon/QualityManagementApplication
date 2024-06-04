@@ -21,23 +21,26 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
 @Composable
 fun CharacteristicsMain(
     mainScreenPadding: PaddingValues,
-    viewModel: CharacteristicsViewModel = hiltViewModel()
+    viewModel: CharacteristicsViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
@@ -49,7 +52,7 @@ fun CharacteristicsMain(
 
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
-    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
+    val productLine by viewModel.productLine.collectAsStateWithLifecycle(DomainProductLine())
     val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
 
@@ -61,7 +64,7 @@ fun CharacteristicsMain(
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 

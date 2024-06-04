@@ -2,26 +2,24 @@ package com.simenko.qmapp.ui.main.products.kinds.designations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ProductKindIdParameter
-import com.simenko.qmapp.di.ProductKindKeyIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,25 +30,28 @@ class ProductKindKeysViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ProductKindIdParameter private val productKindId: ID,
-    @ProductKindKeyIdParameter private val productKindKeyId: ID
 ) : ViewModel() {
-    private val _productKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKindKeyId), NoRecord))
-    private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
-    private val _productKindKeys = repository.productKindKeys(productKindId)
+    private val _productKindId = MutableStateFlow(NoRecord.num)
+    private val _productKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _productKindKeys = _productKindId.flatMapLatest { repository.productKindKeys(it) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_KEYS, mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddProductKindKeyClick(productKindId) }
-            .setOnPullRefreshAction { updateCompanyProductsData() }
-            .build()
-        viewModelScope.launch(Dispatchers.IO) { _productKind.value = repository.productKind(productKindId) }
+    fun onEntered(route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList) {
+        viewModelScope.launch {
+            _productKindId.value = route.productKindId
+            _productKindKeysVisibility.value = Pair(SelectedNumber(route.productKindKeyId), NoRecord)
+
+            mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_KEYS, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { onAddProductKindKeyClick(route.productKindId) }
+                .setOnPullRefreshAction { updateCompanyProductsData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+        }
     }
 
     /**
@@ -63,7 +64,7 @@ class ProductKindKeysViewModel @Inject constructor(
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productKind get() = _productKind.asStateFlow()
+    val productKind = _productKindId.flatMapLatest { flow { emit(repository.productKind(it)) } }.flowOn(Dispatchers.IO)
     val productKindKeys = _productKindKeys.flatMapLatest { productKindKeys ->
         _productKindKeysVisibility.flatMapLatest { visibility ->
             val cpy = productKindKeys.map {

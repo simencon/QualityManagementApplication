@@ -38,15 +38,7 @@ annotation class MetricIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ProductLineKeyIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class ProductKindIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ProductKindKeyIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -128,24 +120,12 @@ object ViewModelsModule {
     fun provideMetricIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.metricId] ?: NoRecord.num
 
-    @Provides
-    @ProductLineKeyIdParameter
-    @ViewModelScoped
-    fun provideProductLineKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.productLineKeyId] ?: NoRecord.num
-
 
     @Provides
     @ProductKindIdParameter
     @ViewModelScoped
     fun provideProductKindIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productKindId] ?: NoRecord.num
-
-    @Provides
-    @ProductKindKeyIdParameter
-    @ViewModelScoped
-    fun provideProductKindKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.productKindKeyId] ?: NoRecord.num
 
     @Provides
     @ComponentKindIdParameter

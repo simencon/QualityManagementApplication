@@ -27,25 +27,28 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 @Composable
 fun ProductLineKeys(
     modifier: Modifier = Modifier,
-    viewModel: ProductLineKeysViewModel = hiltViewModel()
+    viewModel: ProductLineKeysViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.ProductLineKeys.ProductLineKeysList
 ) {
-    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
+    val productLine by viewModel.productLine.collectAsStateWithLifecycle(DomainProductLine())
     val items by viewModel.productKeys.collectAsStateWithLifecycle(listOf())
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductLineKeysVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductLineKeyClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductLineKeyClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val listState = rememberLazyListState()
 

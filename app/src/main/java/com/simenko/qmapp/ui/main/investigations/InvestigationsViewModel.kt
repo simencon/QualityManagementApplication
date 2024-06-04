@@ -84,7 +84,7 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     private var _syncInvestigationsEvent = MutableSharedFlow<Boolean>()
-    val syncInvestigationsEvent: SharedFlow<Boolean> get() = _syncInvestigationsEvent
+    val syncInvestigationsEvent = _syncInvestigationsEvent.asSharedFlow()
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
 

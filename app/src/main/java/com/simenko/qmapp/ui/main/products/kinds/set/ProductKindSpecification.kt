@@ -42,19 +42,22 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainComponentKind
+import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.ComponentStageKinds
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 @Composable
 fun ProductKindSpecification(
     modifier: Modifier = Modifier,
-    viewModel: ProductKindSpecificationViewModel = hiltViewModel()
+    viewModel: ProductKindSpecificationViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList
 ) {
-    val product by viewModel.productKind.collectAsStateWithLifecycle()
+    val product by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
     val items by viewModel.componentKinds.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindsVisibility(dId = SelectedNumber(it)) } }
@@ -64,7 +67,7 @@ fun ProductKindSpecification(
     val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onComponentKindKeysClick(it) } }
     val onClickCharacteristicsLambda = remember<(ID) -> Unit> { { viewModel.onComponentKindCharacteristicsClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val listState = rememberLazyListState()
 

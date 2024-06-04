@@ -47,11 +47,13 @@ import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 @Composable
 fun ProductLines(
     modifier: Modifier = Modifier,
-    viewModel: ProductsViewModel = hiltViewModel()
+    viewModel: ProductsViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.ProductLinesList
 ) {
     val items by viewModel.productLines.collectAsStateWithLifecycle(listOf())
 
@@ -64,7 +66,7 @@ fun ProductLines(
     val onClickCharacteristicsLambda = remember<(ID) -> Unit> { { viewModel.onProductLineCharacteristicsClick(it) } }
     val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductLineItemsClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
     val listState = rememberLazyListState()
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {

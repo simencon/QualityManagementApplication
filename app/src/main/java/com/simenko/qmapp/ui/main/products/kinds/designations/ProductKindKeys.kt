@@ -22,23 +22,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.main.products.designations.KeyCard
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 @Composable
 fun ProductKindKeys(
     modifier: Modifier = Modifier,
-    viewModel: ProductKindKeysViewModel = hiltViewModel()
+    viewModel: ProductKindKeysViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList
 ) {
-    val product by viewModel.productKind.collectAsStateWithLifecycle()
+    val product by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
     val items by viewModel.productKindKeys.collectAsStateWithLifecycle(listOf())
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductKindKeysVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductKindKeyClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductKindKeyClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val listState = rememberLazyListState()
 

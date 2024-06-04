@@ -46,6 +46,7 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.PreviousOper
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous.AddPreviousOperation
 import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun OperationForm(
@@ -54,15 +55,13 @@ fun OperationForm(
     route: RouteCompose.Main.CompanyStructure.OperationAddEdit
 ) {
     val opComplete by viewModel.operationComplete.collectAsStateWithLifecycle(DomainManufacturingOperationComplete())
-    LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
-
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
-
-    val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(EmptyString.str) }
 
-    LaunchedEffect(fillInState) {
-        fillInState.let { state ->
+    LaunchedEffect(Unit) {
+        viewModel.onEntered(route = route)
+
+        viewModel.fillInState.collectLatest { state ->
             when (state) {
                 is FillInSuccessState -> viewModel.makeRecord()
                 is FillInErrorState -> error = state.errorMsg
@@ -104,7 +103,7 @@ fun OperationForm(
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
-                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.setOperationOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),

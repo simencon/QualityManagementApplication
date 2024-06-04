@@ -43,19 +43,22 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
 @Composable
 fun ProductKinds(
     modifier: Modifier = Modifier,
-    viewModel: ProductKindsViewModel = hiltViewModel()
+    viewModel: ProductKindsViewModel = hiltViewModel(),
+    route: RouteCompose.Main.ProductLines.ProductKinds.ProductKindsList
 ) {
-    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
+    val productLine by viewModel.productLine.collectAsStateWithLifecycle(DomainProductLine())
     val items by viewModel.productKinds.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setProductKindsVisibility(dId = SelectedNumber(it)) } }
@@ -68,7 +71,7 @@ fun ProductKinds(
     val onClickSpecificationLambda = remember<(ID) -> Unit> { { viewModel.onProductKindSpecificationClick(it) } }
     val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductKindItemsClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
     val listState = rememberLazyListState()
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {

@@ -26,15 +26,7 @@ object NavRouteName {
 
     const val product_lines = "product_lines"
     const val product_line_characteristics = "product_line_characteristics"
-    const val product_line_keys = "product_line_keys"
     const val product_kinds = "product_kinds"
-    const val product_kind_keys = "product_kind_keys"
-    const val product_kind_characteristics = "product_kind_characteristics"
-    const val product_specification = "product_specification"
-    const val component_kind_keys = "component_kind_keys"
-    const val component_kind_characteristics = "component_kind_characteristics"
-    const val component_stage_kind_keys = "component_kind_keys"
-    const val component_stage_kind_characteristics = "component_stage_kind_characteristics"
 
     const val product_list = "product_list"
     const val version_tolerances = "version_tolerances"
@@ -59,10 +51,8 @@ object NavArguments {
     const val charSubGroupId = "charSubGroupId"
     const val characteristicId = "characteristicId"
     const val metricId = "metricId"
-    const val productLineKeyId = "productLineKeyId"
 
     const val productKindId = "productKindId"
-    const val productKindKeyId = "productKindKeyId"
     const val componentKindId = "componentKindId"
     const val componentKindKeyId = "componentKindKeyId"
     const val componentStageKindId = "componentStageKindId"
@@ -74,9 +64,6 @@ object NavArguments {
     const val versionFId = "versionFId"
     const val versionEditMode = "versionEditMode"
     const val toleranceId = "toleranceId"
-
-    const val orderId = "orderId"
-    const val subOrderId = "subOrderId"
 }
 
 sealed class Route(
@@ -167,28 +154,6 @@ sealed class Route(
                     )
                 }
 
-                data object ProductLineKeys : Route(
-                    link = NavRouteName.product_line_keys + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}",
-                    deepLinks = listOf(
-                        navDeepLink {
-                            uriPattern =
-                                "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_keys}?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}"
-                            action = Intent.ACTION_VIEW
-                        }
-                    ),
-                    arguments = listOf(
-                        navArgument(NavArguments.productLineId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        },
-                        navArgument(NavArguments.productLineKeyId) {
-                            type = NavType.LongType
-                            defaultValue = NoRecord.num
-                        }
-                    ),
-                    route = NavRouteName.product_lines
-                )
-
                 data object ProductKinds : Route(
                     link = NavRouteName.product_kinds + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKindId)}",
                     deepLinks = listOf(
@@ -210,165 +175,6 @@ sealed class Route(
                     ),
                     route = NavRouteName.product_lines
                 ) {
-                    data object ProductKindKeys : Route(
-                        link = NavRouteName.product_kind_keys + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productKindKeyId)}",
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_kind_keys}" +
-                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productKindKeyId)}"
-                                action = Intent.ACTION_VIEW
-                            }
-                        ),
-                        arguments = listOf(
-                            navArgument(NavArguments.productKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.productKindKeyId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            }
-                        ),
-                        route = NavRouteName.product_kinds
-                    )
-
-                    data object ProductKindCharacteristics : Route(
-                        link = NavRouteName.product_kind_characteristics + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.characteristicId)}",
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_kind_characteristics}" +
-                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.characteristicId)}"
-                                action = Intent.ACTION_VIEW
-                            }
-                        ),
-                        arguments = listOf(
-                            navArgument(NavArguments.productKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.characteristicId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            }
-                        ),
-                        route = NavRouteName.product_kinds
-                    )
-
-                    data object ProductSpecification : Route(
-                        link = NavRouteName.product_specification + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}",
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}" +
-                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}"
-                                action = Intent.ACTION_VIEW
-                            }
-                        ),
-                        arguments = listOf(
-                            navArgument(NavArguments.productKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            },
-                            navArgument(NavArguments.componentStageKindId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
-                            }
-                        ),
-                        route = NavRouteName.product_kinds
-                    ) {
-                        data object ComponentKindKeys : Route(
-                            link = NavRouteName.component_kind_keys + "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentKindKeyId)}",
-                            deepLinks = listOf(
-                                navDeepLink {
-                                    uriPattern =
-                                        "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}/${NavRouteName.component_kind_keys}" +
-                                                "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentKindKeyId)}"
-                                    action = Intent.ACTION_VIEW
-                                }
-                            ),
-                            arguments = listOf(
-                                navArgument(NavArguments.componentKindId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.componentKindKeyId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                }
-                            ),
-                            route = NavRouteName.product_specification
-                        )
-
-                        data object ComponentKindCharacteristics : Route(
-                            link = NavRouteName.component_kind_characteristics + "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.characteristicId)}",
-                            deepLinks = listOf(
-                                navDeepLink {
-                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.component_kind_characteristics}" +
-                                            "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.characteristicId)}"
-                                    action = Intent.ACTION_VIEW
-                                }
-                            ),
-                            arguments = listOf(
-                                navArgument(NavArguments.componentKindId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.characteristicId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                }
-                            ),
-                            route = NavRouteName.product_specification
-                        )
-
-                        data object ComponentStageKindKeys : Route(
-                            link = NavRouteName.component_stage_kind_keys + "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageKindKeyId)}",
-                            deepLinks = listOf(
-                                navDeepLink {
-                                    uriPattern =
-                                        "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}/${NavRouteName.component_stage_kind_keys}" +
-                                                "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageKindKeyId)}"
-                                    action = Intent.ACTION_VIEW
-                                }
-                            ),
-                            arguments = listOf(
-                                navArgument(NavArguments.componentStageKindId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.componentStageKindKeyId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                }
-                            ),
-                            route = NavRouteName.product_specification
-                        )
-
-                        data object ComponentStageKindCharacteristics : Route(
-                            link = NavRouteName.component_stage_kind_characteristics + "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.characteristicId)}",
-                            deepLinks = listOf(
-                                navDeepLink {
-                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.component_stage_kind_characteristics}" +
-                                            "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.characteristicId)}"
-                                    action = Intent.ACTION_VIEW
-                                }
-                            ),
-                            arguments = listOf(
-                                navArgument(NavArguments.componentStageKindId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                },
-                                navArgument(NavArguments.characteristicId) {
-                                    type = NavType.LongType
-                                    defaultValue = NoRecord.num
-                                }
-                            ),
-                            route = NavRouteName.product_specification
-                        )
-                    }
 
                     data object ProductList : Route(
                         link = NavRouteName.product_list +

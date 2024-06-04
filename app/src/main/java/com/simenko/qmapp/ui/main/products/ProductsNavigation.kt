@@ -5,7 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.simenko.qmapp.domain.NoRecord
+import androidx.navigation.toRoute
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharSubGroupViewModel
@@ -38,35 +38,32 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
     navigation<T>(startDestination = RouteCompose.Main.ProductLines.ProductLinesList()) {
         composable<RouteCompose.Main.ProductLines.ProductLinesList> {
             val viewModel: ProductsViewModel = hiltViewModel()
-            ProductLines(viewModel = viewModel)
+            ProductLines(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.ProductLines.ProductLineKeys> {
+
+
+
+        composable<RouteCompose.Main.ProductLines.ProductLineKeys.ProductLineKeysList> {
             val viewModel: ProductLineKeysViewModel = hiltViewModel()
-            ProductLineKeys(viewModel = viewModel)
+            ProductLineKeys(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.ProductLines.Characteristics> {
-            val viewModel: CharacteristicsViewModel = hiltViewModel()
-            CharacteristicsMain(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
-        }
-        composable<RouteCompose.Main.ProductLines.Characteristics.CharSubGroupAddEdit> {
-            val viewModel: CharSubGroupViewModel = hiltViewModel()
-            CharacteristicSubGroupForm(viewModel = viewModel)
-        }
-        composable<RouteCompose.Main.ProductLines.ProductKinds> {
+
+
+        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductKindsList> {
             val viewModel: ProductKindsViewModel = hiltViewModel()
-            ProductKinds(viewModel = viewModel)
+            ProductKinds(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys> {
+        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList> {
             val viewModel: ProductKindKeysViewModel = hiltViewModel()
-            ProductKindKeys(viewModel = viewModel)
+            ProductKindKeys(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductKindCharacteristics> {
+        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList> {
             val viewModel: ProductKindCharacteristicsViewModel = hiltViewModel()
-            ProductKindCharacteristicsMain(viewModel = viewModel)
+            ProductKindCharacteristicsMain(viewModel = viewModel, route = it.toRoute())
         }
-        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification> {
+        composable<RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList> {
             val viewModel: ProductKindSpecificationViewModel = hiltViewModel()
-            ProductKindSpecification(viewModel = viewModel)
+            ProductKindSpecification(viewModel = viewModel, route = it.toRoute())
         }
         composable<RouteCompose.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys> {
             val viewModel: ComponentKindKeysViewModel = hiltViewModel()
@@ -91,6 +88,17 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
         composable<RouteCompose.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
             VersionTolerances(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
+        }
+
+
+
+        composable<RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList> {
+            val viewModel: CharacteristicsViewModel = hiltViewModel()
+            CharacteristicsMain(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
+        }
+        composable<RouteCompose.Main.ProductLines.Characteristics.CharSubGroupAddEdit> {
+            val viewModel: CharSubGroupViewModel = hiltViewModel()
+            CharacteristicSubGroupForm(viewModel = viewModel)
         }
     }
 }

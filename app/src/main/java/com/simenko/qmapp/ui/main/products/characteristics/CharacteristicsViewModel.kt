@@ -2,18 +2,11 @@ package com.simenko.qmapp.ui.main.products.characteristics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.CharGroupIdParameter
-import com.simenko.qmapp.di.CharSubGroupIdParameter
-import com.simenko.qmapp.di.MetricIdParameter
-import com.simenko.qmapp.di.CharacteristicIdParameter
-import com.simenko.qmapp.di.ProductLineIdParameter
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
@@ -23,6 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -49,18 +43,13 @@ class CharacteristicsViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ProductLineIdParameter private val productLineId: ID,
-    @CharGroupIdParameter private val charGroupId: ID,
-    @CharSubGroupIdParameter private val charSubGroupId: ID,
-    @CharacteristicIdParameter private val characteristicId: ID,
-    @MetricIdParameter private val metricId: ID
 ) : ViewModel() {
-    private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(charGroupId), NoRecord))
-    private val _charSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(charSubGroupId), NoRecord))
-    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
-    private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(metricId), NoRecord))
-    private val _productLine = MutableStateFlow(DomainProductLine())
-    private val _charGroups = repository.charGroups(productLineId)
+    private val _productLine = MutableStateFlow(NoRecord.num)
+    private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _charSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _charGroups = _productLine.flatMapLatest { repository.charGroups(it) }
     private val _charSubGroups = _charGroupVisibility.flatMapLatest { repository.charSubGroups(it.first.num) }
     private val _characteristics = _charSubGroupVisibility.flatMapLatest { repository.characteristicsByParent(it.first.num) }
     private val _metrics = _characteristicVisibility.flatMapLatest { repository.metrics(it.first.num) }
@@ -68,15 +57,22 @@ class CharacteristicsViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    var mainPageHandler: MainPageHandler? = null
+    fun onEntered(route: RouteCompose.Main.ProductLines.Characteristics.CharacteristicsList) {
+        viewModelScope.launch {
+            _productLine.value = route.productLineId
+            _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
+            _charSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
+            _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+            _metricVisibility.value = Pair(SelectedNumber(route.metricId), NoRecord)
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_CHARACTERISTICS, mainPageState)
-            .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddCharGroupClick(Pair(productLineId, NoRecord.num)) }
-            .setOnPullRefreshAction { updateCharacteristicsData() }
-            .build()
-        viewModelScope.launch(Dispatchers.IO) { _productLine.value = repository.productLine(productLineId) }
+            mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_CHARACTERISTICS, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { onAddCharGroupClick(Pair(route.productLineId, NoRecord.num)) }
+                .setOnPullRefreshAction { updateCharacteristicsData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+        }
     }
 
     /**
@@ -101,7 +97,7 @@ class CharacteristicsViewModel @Inject constructor(
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productLine get() = _productLine.asStateFlow()
+    val productLine = _productLine.flatMapLatest { flow { emit(repository.productLine(it)) } }.flowOn(Dispatchers.IO)
 
     private val _viewState = MutableStateFlow(false)
     val setViewState: (Boolean) -> Unit = {
@@ -127,8 +123,8 @@ class CharacteristicsViewModel @Inject constructor(
             _secondListIsInitialized.flatMapLatest { secondListState ->
                 if (viewState)
                     flow {
-                        if (charGroupId != NoRecord.num) {
-                            storage.setLong(ScrollStates.CHAR_GROUPS.indexKey, firstList.map { it.charGroup.id }.indexOf(charGroupId).toLong())
+                        if (_charGroupVisibility.value.first.num != NoRecord.num) {
+                            storage.setLong(ScrollStates.CHAR_GROUPS.indexKey, firstList.map { it.charGroup.id }.indexOf(_charGroupVisibility.value.first.num).toLong())
                             storage.setLong(ScrollStates.CHAR_GROUPS.offsetKey, ZeroValue.num)
                             emit(Pair(true, secondListState))
                         } else {
@@ -145,8 +141,8 @@ class CharacteristicsViewModel @Inject constructor(
 
     private val _secondListIsInitialized: Flow<Boolean> = _metrics.flatMapLatest { secondList ->
         flow {
-            if (metricId != NoRecord.num) {
-                storage.setLong(ScrollStates.METRICS.indexKey, secondList.map { it.id }.indexOf(metricId).toLong())
+            if (_metricVisibility.value.first.num != NoRecord.num) {
+                storage.setLong(ScrollStates.METRICS.indexKey, secondList.map { it.id }.indexOf(_metricVisibility.value.first.num).toLong())
                 storage.setLong(ScrollStates.METRICS.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
@@ -192,15 +188,15 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onDeleteCharSubGroupClick(id: ID) = viewModelScope.launch {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
                 deleteCharSubGroup(id).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         }
                     }
                 }
