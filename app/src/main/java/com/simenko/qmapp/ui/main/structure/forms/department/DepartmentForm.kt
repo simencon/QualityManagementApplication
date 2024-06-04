@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -44,19 +43,18 @@ import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DepartmentForm(
     modifier: Modifier = Modifier,
-    viewModel: DepartmentViewModel
+    viewModel: DepartmentViewModel,
+    route: RouteCompose.Main.CompanyStructure.DepartmentAddEdit,
 ) {
     val dComplete by viewModel.department.collectAsStateWithLifecycle(DomainDepartment.DomainDepartmentComplete())
     val companyEmployees by viewModel.companyEmployees.collectAsStateWithLifecycle()
-    LaunchedEffect(dComplete) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 

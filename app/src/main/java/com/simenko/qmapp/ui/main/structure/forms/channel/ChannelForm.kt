@@ -21,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,18 +40,17 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChannelForm(
     modifier: Modifier = Modifier,
-    viewModel: ChannelViewModel
+    viewModel: ChannelViewModel,
+    route: RouteCompose.Main.CompanyStructure.ChannelAddEdit,
 ) {
     val cnComplete by viewModel.channel.collectAsStateWithLifecycle(DomainManufacturingChannel.DomainManufacturingChannelComplete())
-    LaunchedEffect(cnComplete) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
@@ -89,12 +87,16 @@ fun ChannelForm(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(cnComplete.subDepartmentWithParents.depAbbr, cnComplete.subDepartmentWithParents.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(cnComplete.subDepartmentWithParents.subDepAbbr, cnComplete.subDepartmentWithParents.subDepDesignation))
+            InfoLine(
+                modifier = modifier.padding(start = 0.dp),
+                title = "Sub department",
+                body = concatTwoStrings(cnComplete.subDepartmentWithParents.subDepAbbr, cnComplete.subDepartmentWithParents.subDepDesignation)
+            )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(cnComplete.channel.channelOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.channelOrderError) {
-                    viewModel.setChannelOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.setChannelOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
@@ -103,7 +105,7 @@ fun ChannelForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(cnComplete.channel.channelAbbr?: EmptyString.str, fillInErrors.channelAbbrError) { viewModel.setChannelAbbr(it) },
+                valueParam = Triple(cnComplete.channel.channelAbbr ?: EmptyString.str, fillInErrors.channelAbbrError) { viewModel.setChannelAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Channel id", "Enter id"),
@@ -111,7 +113,7 @@ fun ChannelForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(cnComplete.channel.channelDesignation?: EmptyString.str, fillInErrors.channelDesignationError) { viewModel.setChannelDesignation(it) },
+                valueParam = Triple(cnComplete.channel.channelDesignation ?: EmptyString.str, fillInErrors.channelDesignationError) { viewModel.setChannelDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Channel complete name", "Enter complete name"),

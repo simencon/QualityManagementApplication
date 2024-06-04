@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.structure.forms.line
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ChannelIdParameter
-import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -18,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
@@ -33,8 +31,6 @@ class LineViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @ChannelIdParameter private val channelId: ID,
-    @LineIdParameter private val lineId: ID
 ) : ViewModel() {
     private val _line = MutableStateFlow(DomainManufacturingLineComplete())
 
@@ -44,14 +40,15 @@ class LineViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    init {
+    fun onEntered(route: RouteCompose.Main.CompanyStructure.LineAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (lineId == NoRecord.num) prepareLine(channelId) else _line.value = repository.lineById(lineId)
-                mainPageHandler = MainPageHandler.Builder(if (lineId == NoRecord.num) Page.ADD_LINE else Page.EDIT_LINE, mainPageState)
+                if (route.lineId == NoRecord.num) prepareLine(route.channelId) else _line.value = repository.lineById(route.lineId)
+                mainPageHandler = MainPageHandler.Builder(if (route.lineId == NoRecord.num) Page.ADD_LINE else Page.EDIT_LINE, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -115,7 +112,7 @@ class LineViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (lineId == NoRecord.num) insertLine(_line.value.line) else updateLine(_line.value.line) }.consumeEach { event ->
+            repository.run { if (_line.value.line.id == NoRecord.num) insertLine(_line.value.line) else updateLine(_line.value.line) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
@@ -134,14 +131,13 @@ class LineViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val companyId = _line.value.channelWithParents.companyId.toString()
-                val depId = _line.value.channelWithParents.departmentId.toString()
-                val subDepId = _line.value.channelWithParents.subDepartmentId.toString()
-                val chId = _line.value.channelWithParents.id.toString()
-                val lineId = it.toString()
+                val companyId = _line.value.channelWithParents.companyId
+                val depId = _line.value.channelWithParents.departmentId
+                val subDepId = _line.value.channelWithParents.subDepartmentId
+                val chId = _line.value.channelWithParents.id
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId, chId, lineId),
-                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
+                    route = RouteCompose.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, it),
+                    popUpToRoute = RouteCompose.Main.CompanyStructure,
                     inclusive = true
                 )
             }

@@ -11,6 +11,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +41,7 @@ class SettingsViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onUserDataEditClick() {
-        appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.withArgs(TrueStr.str))
+        appNavigator.tryNavigateTo(RouteCompose.Main.Settings.EditUserDetails(true))
     }
 
     /**

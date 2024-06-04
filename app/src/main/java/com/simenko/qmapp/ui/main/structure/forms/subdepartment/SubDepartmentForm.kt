@@ -21,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,18 +40,17 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SubDepartmentForm(
     modifier: Modifier = Modifier,
-    viewModel: SubDepartmentViewModel
+    viewModel: SubDepartmentViewModel,
+    route: RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit
 ) {
     val sdComplete by viewModel.subDepartment.collectAsStateWithLifecycle(DomainSubDepartment.DomainSubDepartmentComplete())
-    LaunchedEffect(sdComplete) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 

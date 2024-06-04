@@ -66,11 +66,14 @@ class InvestigationsViewModel @Inject constructor(
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
                 .setOnActionItemClickAction {
-                    if (it == InvestigationsActions.SYNC_INVESTIGATIONS || it == ProcessControlActions.SYNC_INVESTIGATIONS) _syncInvestigationsEvent.value = Event(true)
+                    viewModelScope.launch {
+                        _syncInvestigationsEvent.emit(it == InvestigationsActions.SYNC_INVESTIGATIONS || it == ProcessControlActions.SYNC_INVESTIGATIONS)
+                    }
                 }
                 .build()
                 .apply {
-                    val selectedTabIndex = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
+                    val selectedTabIndex =
+                        if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
                     setupMainPage.invoke(selectedTabIndex, true)
                 }
 
@@ -80,8 +83,8 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    private var _syncInvestigationsEvent: MutableStateFlow<Event<Boolean>> = MutableStateFlow(Event(false))
-    val syncInvestigationsEvent: StateFlow<Event<Boolean>> get() = _syncInvestigationsEvent
+    private var _syncInvestigationsEvent = MutableSharedFlow<Boolean>()
+    val syncInvestigationsEvent: SharedFlow<Boolean> get() = _syncInvestigationsEvent
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
 

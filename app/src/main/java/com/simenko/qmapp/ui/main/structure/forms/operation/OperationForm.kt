@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -45,18 +44,17 @@ import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.PreviousOperationHeader
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous.AddPreviousOperation
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OperationForm(
     modifier: Modifier = Modifier,
-    viewModel: OperationViewModel
+    viewModel: OperationViewModel,
+    route: RouteCompose.Main.CompanyStructure.OperationAddEdit
 ) {
     val opComplete by viewModel.operationComplete.collectAsStateWithLifecycle(DomainManufacturingOperationComplete())
-    LaunchedEffect(opComplete) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 

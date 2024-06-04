@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.structure.forms.department
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.CompanyIdParameter
-import com.simenko.qmapp.di.DepartmentIdParameter
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -18,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.EmployeesFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -44,25 +42,23 @@ class DepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @CompanyIdParameter private val companyId: ID,
-    @DepartmentIdParameter private val depId: ID
 ) : ViewModel() {
     private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    var mainPageHandler: MainPageHandler? = null
-        private set
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
+    fun onEntered(route: RouteCompose.Main.CompanyStructure.DepartmentAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (depId == NoRecord.num) prepareDepartment(companyId) else _department.value = repository.departmentById(depId)
-                mainPageHandler = MainPageHandler.Builder(if (depId == NoRecord.num) Page.ADD_DEPARTMENT else Page.EDIT_DEPARTMENT, mainPageState)
+                if (route.departmentId == NoRecord.num) prepareDepartment(route.companyId) else _department.value = repository.departmentById(route.departmentId)
+                mainPageHandler = MainPageHandler.Builder(if (route.departmentId == NoRecord.num) Page.ADD_DEPARTMENT else Page.EDIT_DEPARTMENT, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -73,6 +69,7 @@ class DepartmentViewModel @Inject constructor(
             company = repository.companyById(companyId)
         )
     }
+
     /**
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -96,7 +93,10 @@ class DepartmentViewModel @Inject constructor(
         _fillInState.value = FillInInitialState
     }
 
-    private val _companyEmployees: Flow<List<DomainEmployeeComplete>> = repository.employeesComplete(EmployeesFilter(parentId = companyId))
+    private val _companyEmployees: Flow<List<DomainEmployeeComplete>> = _department.flatMapLatest { department ->
+        repository.employeesComplete(EmployeesFilter(parentId = department.company.id))
+    }
+
     val companyEmployees: StateFlow<List<Triple<ID, String, Boolean>>> = _companyEmployees.flatMapLatest { employees ->
         _department.flatMapLatest { department ->
             val cpy = mutableListOf<Triple<ID, String, Boolean>>()
@@ -155,18 +155,19 @@ class DepartmentViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (depId == NoRecord.num) insertDepartment(_department.value.department) else updateDepartment(_department.value.department) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
-                        Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
-                            _fillInState.value = FillInInitialState
+            repository.run { if (_department.value.department.id == NoRecord.num) insertDepartment(_department.value.department) else updateDepartment(_department.value.department) }
+                .consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                            Status.ERROR -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                _fillInState.value = FillInInitialState
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
@@ -174,13 +175,8 @@ class DepartmentViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val companyId = _department.value.department.companyId.toString()
-                val depId = it.toString()
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId),
-                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
-                    inclusive = true
-                )
+                val companyId = _department.value.department.companyId ?: NoRecord.num
+                appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.StructureView(companyId, it), popUpToRoute = RouteCompose.Main.CompanyStructure, inclusive = true)
             }
         }
     }

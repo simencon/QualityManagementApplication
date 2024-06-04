@@ -18,26 +18,6 @@ annotation class CompanyIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class DepartmentIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class SubDepartmentIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ChannelIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class LineIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class OperationIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class ProductLineIdParameter
 
 @Qualifier
@@ -117,36 +97,6 @@ object ViewModelsModule {
     fun provideCompanyIdParameter(savedStateHandle: SavedStateHandle): ID {
         return savedStateHandle[NavArguments.companyId] ?: NoRecord.num
     }
-
-    @Provides
-    @DepartmentIdParameter
-    @ViewModelScoped
-    fun provideDepartmentIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
-
-    @Provides
-    @SubDepartmentIdParameter
-    @ViewModelScoped
-    fun provideSubDepartmentIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.subDepartmentId] ?: NoRecord.num
-
-    @Provides
-    @ChannelIdParameter
-    @ViewModelScoped
-    fun provideChannelIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.channelId] ?: NoRecord.num
-
-    @Provides
-    @LineIdParameter
-    @ViewModelScoped
-    fun provideLineIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.lineId] ?: NoRecord.num
-
-    @Provides
-    @OperationIdParameter
-    @ViewModelScoped
-    fun provideOperationIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.operationId] ?: NoRecord.num
 
     @Provides
     @ProductLineIdParameter

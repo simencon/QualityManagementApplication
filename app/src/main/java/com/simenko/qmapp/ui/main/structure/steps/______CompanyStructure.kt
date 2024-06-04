@@ -21,13 +21,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
 @Composable
 fun CompanyStructure(
     mainScreenPadding: PaddingValues,
-    viewModel: CompanyStructureViewModel = hiltViewModel()
+    viewModel: CompanyStructureViewModel = hiltViewModel(),
+    route: RouteCompose.Main.CompanyStructure.StructureView
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
@@ -48,7 +50,7 @@ fun CompanyStructure(
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 

@@ -2,18 +2,10 @@ package com.simenko.qmapp.ui.main.structure
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ChannelIdParameter
-import com.simenko.qmapp.di.CompanyIdParameter
-import com.simenko.qmapp.di.DepartmentIdParameter
-import com.simenko.qmapp.di.LineIdParameter
-import com.simenko.qmapp.di.OperationIdParameter
-import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.storage.ScrollStates
@@ -22,7 +14,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -49,19 +41,14 @@ class CompanyStructureViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
     val storage: Storage,
-    @CompanyIdParameter private val companyId: ID,
-    @DepartmentIdParameter private val depId: ID,
-    @SubDepartmentIdParameter private val subDepId: ID,
-    @ChannelIdParameter private val channelId: ID,
-    @LineIdParameter private val lineId: ID,
-    @OperationIdParameter private val operationId: ID,
 ) : ViewModel() {
-    private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(depId), NoRecord))
-    private val _subDepartmentsVisibility = MutableStateFlow(Pair(SelectedNumber(subDepId), NoRecord))
-    private val _channelsVisibility = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
-    private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(lineId), NoRecord))
-    private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
-    private val _departments = repository.departmentsComplete(companyId)
+    private val _companyId = MutableStateFlow(NoRecord.num)
+    private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _subDepartmentsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _channelsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _departments = _companyId.flatMapLatest { id -> repository.departmentsComplete(id) }.flowOn(Dispatchers.IO)
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartments(it.first.num) }
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channels(it.first.num) }
     private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }
@@ -70,13 +57,23 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
-        mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
-            .setOnFabClickAction { if (isSecondColumnVisible.value) onAddLineClick(_channelsVisibility.value.first.num) else onAddDepartmentClick(companyId) }
-            .setOnPullRefreshAction { updateCompanyStructureData() }
-            .build()
+    fun onEntered(route: RouteCompose.Main.CompanyStructure.StructureView) {
+        viewModelScope.launch {
+            _companyId.value = route.companyId
+            _departmentsVisibility.value = Pair(SelectedNumber(route.departmentId), NoRecord)
+            _subDepartmentsVisibility.value = Pair(SelectedNumber(route.subDepartmentId), NoRecord)
+            _channelsVisibility.value = Pair(SelectedNumber(route.channelId), NoRecord)
+            _linesVisibility.value = Pair(SelectedNumber(route.lineId), NoRecord)
+            _operationsVisibility.value = Pair(SelectedNumber(route.operationId), NoRecord)
+
+            mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
+                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddLineClick(_channelsVisibility.value.first.num) else onAddDepartmentClick(route.companyId) }
+                .setOnPullRefreshAction { updateCompanyStructureData() }
+                .build()
+                .apply { setupMainPage(0, true) }
+        }
     }
 
     /**
@@ -124,39 +121,44 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-    val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
-        _departments.flatMapLatest { departments ->
-            _lineListIsInitialized.flatMapLatest { sl ->
-                if (viewState)
-                    flow {
-                        if (depId != NoRecord.num) {
-                            storage.setLong(ScrollStates.DEPARTMENTS.indexKey, departments.map { it.department.id }.indexOf(depId).toLong())
-                            storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num)
-                            emit(Pair(true, sl))
+    val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _departmentsVisibility.flatMapLatest { depVisibility ->
+        _viewState.flatMapLatest { viewState ->
+            _departments.flatMapLatest { departments ->
+                _lineListIsInitialized.flatMapLatest { sl ->
+                    if (viewState)
+                        flow {
+                            if (depVisibility.first.num != NoRecord.num) {
+                                storage.setLong(ScrollStates.DEPARTMENTS.indexKey, departments.map { it.department.id }.indexOf(depVisibility.first.num).toLong())
+                                storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num)
+                                emit(Pair(true, sl))
 
-                        } else {
-                            emit(Pair(true, sl))
+                            } else {
+                                emit(Pair(true, sl))
+                            }
                         }
-                    }
-                else
-                    flow {
-                        emit(Pair(false, false))
-                    }
+                    else
+                        flow {
+                            emit(Pair(false, false))
+                        }
+                }
             }
         }
     }
 
-    private val _lineListIsInitialized: Flow<Boolean> = _lines.flatMapLatest { lines ->
-        flow {
-            if (lineId != NoRecord.num) {
-                storage.setLong(ScrollStates.LINES.indexKey, lines.map { it.id }.indexOf(lineId).toLong())
-                storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num)
-                emit(true)
-            } else {
-                emit(true)
+    private val _lineListIsInitialized: Flow<Boolean> = _linesVisibility.flatMapLatest { linesVisibility ->
+        _lines.flatMapLatest { lines ->
+            flow {
+                if (linesVisibility.first.num != NoRecord.num) {
+                    storage.setLong(ScrollStates.LINES.indexKey, lines.map { it.id }.indexOf(linesVisibility.first.num).toLong())
+                    storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num)
+                    emit(true)
+                } else {
+                    emit(true)
+                }
             }
         }
     }
+
 
     val departmentsVisibility = _departmentsVisibility.asStateFlow()
     val departments = _departments.flatMapLatest { departments ->
@@ -216,9 +218,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteDepartment(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -234,9 +236,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteSubDepartment(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -252,9 +254,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteChannel(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -270,9 +272,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteLine(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -288,9 +290,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteOperation(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -302,7 +304,7 @@ class CompanyStructureViewModel @Inject constructor(
     private fun updateCompanyStructureData() {
         viewModelScope.launch {
             try {
-                mainPageHandler.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
                 repository.syncTeamMembers()
                 repository.syncCompanies()
@@ -313,9 +315,9 @@ class CompanyStructureViewModel @Inject constructor(
                 repository.syncOperations()
                 repository.syncOperationsFlows()
 
-                mainPageHandler.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: Exception) {
-                mainPageHandler.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -324,11 +326,11 @@ class CompanyStructureViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddDepartmentClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.DepartmentAddEdit(companyId = it))
     }
 
     fun onEditDepartmentClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.DepartmentAddEdit(companyId = it.first, departmentId = it.second))
     }
 
     fun onDepartmentProductsClick(it: ID) {
@@ -336,11 +338,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddSubDepartmentClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it))
     }
 
     fun onEditSubDepartmentClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it.first, subDepartmentId = it.second))
     }
 
     fun onSubDepartmentProductsClick(it: ID) {
@@ -348,11 +350,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddChannelClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it))
     }
 
     fun onEditChannelClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.ChannelAddEdit(subDepartmentId = it.first, channelId = it.second))
     }
 
     fun onChannelProductsClick(it: ID) {
@@ -360,11 +362,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     private fun onAddLineClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.LineAddEdit(channelId = it))
     }
 
     fun onEditLineClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.LineAddEdit(channelId = it.first, lineId = it.second))
     }
 
     fun onLineProductsClick(it: ID) {
@@ -372,11 +374,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddOperationClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.OperationAddEdit(lineId = it))
     }
 
     fun onEditOperationClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.first.toString(), it.second.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.OperationAddEdit(lineId = it.first, operationId = it.second))
     }
 
     fun onOperationProductsClick(it: ID) {

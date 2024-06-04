@@ -27,6 +27,7 @@ import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun InvestigationsMainComposition(
@@ -57,12 +58,7 @@ fun InvestigationsMainComposition(
 
     LaunchedEffect(Unit) {
         invModel.onEntered(isPcOnly, orderId, subOrderId)
-
-        invModel.syncInvestigationsEvent.collect { event ->
-            event.getContentIfNotHandled()?.let {
-                if (it) BaseApplication.setupOneTimeSync(context)
-            }
-        }
+        invModel.syncInvestigationsEvent.collectLatest { if (it) BaseApplication.setupOneTimeSync(context) }
     }
 
     LaunchedEffect(isSecondRowVisible) {

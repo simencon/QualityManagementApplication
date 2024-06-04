@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.structure.forms.operation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.LineIdParameter
-import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -20,7 +18,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,8 +38,6 @@ class OperationViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @LineIdParameter private val lineId: ID,
-    @OperationIdParameter private val operationId: ID
 ) : ViewModel() {
     private val _operation = MutableStateFlow(DomainManufacturingOperationComplete())
 
@@ -51,14 +47,15 @@ class OperationViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
         private set
 
-    init {
+    fun onEntered(route: RouteCompose.Main.CompanyStructure.OperationAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (operationId == NoRecord.num) prepareOperation(lineId) else _operation.value = repository.operationById(operationId)
-                mainPageHandler = MainPageHandler.Builder(if (operationId == NoRecord.num) Page.ADD_OPERATION else Page.EDIT_OPERATION, mainPageState)
+                if (route.operationId == NoRecord.num) prepareOperation(route.lineId) else _operation.value = repository.operationById(route.operationId)
+                mainPageHandler = MainPageHandler.Builder(if (route.operationId == NoRecord.num) Page.ADD_OPERATION else Page.EDIT_OPERATION, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -177,7 +174,7 @@ class OperationViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (operationId == NoRecord.num) insertOperation(_operation.value.operation) else updateOperation(_operation.value.operation) }.consumeEach { event ->
+            repository.run { if (_operation.value.operation.id == NoRecord.num) insertOperation(_operation.value.operation) else updateOperation(_operation.value.operation) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
@@ -245,15 +242,14 @@ class OperationViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val companyId = _operation.value.lineWithParents.companyId.toString()
-                val depId = _operation.value.lineWithParents.departmentId.toString()
-                val subDepId = _operation.value.lineWithParents.subDepartmentId.toString()
-                val chId = _operation.value.lineWithParents.channelId.toString()
-                val lineId = _operation.value.lineWithParents.id.toString()
-                val opId = it.toString()
+                val companyId = _operation.value.lineWithParents.companyId
+                val depId = _operation.value.lineWithParents.departmentId
+                val subDepId = _operation.value.lineWithParents.subDepartmentId
+                val chId = _operation.value.lineWithParents.channelId
+                val lineId = _operation.value.lineWithParents.id
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId, chId, lineId, opId),
-                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
+                    route = RouteCompose.Main.CompanyStructure.StructureView(companyId, depId, subDepId, chId, lineId, it),
+                    popUpToRoute = RouteCompose.Main.CompanyStructure,
                     inclusive = true
                 )
             }

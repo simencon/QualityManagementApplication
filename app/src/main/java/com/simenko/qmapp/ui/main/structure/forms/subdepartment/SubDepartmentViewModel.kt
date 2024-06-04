@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.structure.forms.subdepartment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.DepartmentIdParameter
-import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -17,7 +15,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
@@ -32,25 +30,23 @@ class SubDepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @DepartmentIdParameter private val depId: ID,
-    @SubDepartmentIdParameter private val subDepId: ID
 ) : ViewModel() {
     private val _subDepartment = MutableStateFlow(DomainSubDepartment.DomainSubDepartmentComplete())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    var mainPageHandler: MainPageHandler? = null
-        private set
+    private var mainPageHandler: MainPageHandler? = null
 
-    init {
+    fun onEntered(route: RouteCompose.Main.CompanyStructure.SubDepartmentAddEdit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (subDepId == NoRecord.num) prepareSubDepartment(depId) else _subDepartment.value = repository.subDepartmentById(subDepId)
-                mainPageHandler = MainPageHandler.Builder(if (subDepId == NoRecord.num) Page.ADD_SUB_DEPARTMENT else Page.EDIT_SUB_DEPARTMENT, mainPageState)
+                if (route.subDepartmentId == NoRecord.num) prepareSubDepartment(route.departmentId) else _subDepartment.value = repository.subDepartmentById(route.subDepartmentId)
+                mainPageHandler = MainPageHandler.Builder(if (route.subDepartmentId == NoRecord.num) Page.ADD_SUB_DEPARTMENT else Page.EDIT_SUB_DEPARTMENT, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
+                    .apply { setupMainPage(0, true) }
             }
         }
     }
@@ -113,18 +109,19 @@ class SubDepartmentViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (subDepId == NoRecord.num) insertSubDepartment(_subDepartment.value.subDepartment) else updateSubDepartment(_subDepartment.value.subDepartment) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
-                        Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
-                            _fillInState.value = FillInInitialState
+            repository.run { if (_subDepartment.value.subDepartment.id == NoRecord.num) insertSubDepartment(_subDepartment.value.subDepartment) else updateSubDepartment(_subDepartment.value.subDepartment) }
+                .consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                            Status.ERROR -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                _fillInState.value = FillInInitialState
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
@@ -132,14 +129,9 @@ class SubDepartmentViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val companyId = _subDepartment.value.department.companyId.toString()
-                val depId = _subDepartment.value.department.id.toString()
-                val subDepId = it.toString()
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId),
-                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
-                    inclusive = true
-                )
+                val companyId = _subDepartment.value.department.companyId ?: NoRecord.num
+                val depId = _subDepartment.value.department.id
+                appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.StructureView(companyId, depId, it), popUpToRoute = RouteCompose.Main.CompanyStructure, inclusive = true)
             }
         }
     }

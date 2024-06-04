@@ -21,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,18 +40,17 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LineForm(
     modifier: Modifier = Modifier,
-    viewModel: LineViewModel
+    viewModel: LineViewModel,
+    route: RouteCompose.Main.CompanyStructure.LineAddEdit,
 ) {
     val lnComplete by viewModel.line.collectAsStateWithLifecycle(DomainManufacturingLine.DomainManufacturingLineComplete())
-    LaunchedEffect(lnComplete) {
-        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.onEntered(route) }
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
@@ -89,13 +87,17 @@ fun LineForm(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(lnComplete.channelWithParents.depAbbr, lnComplete.channelWithParents.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation))
+            InfoLine(
+                modifier = modifier.padding(start = 0.dp),
+                title = "Sub department",
+                body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation)
+            )
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(lnComplete.line.lineOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.lineOrderError) {
-                    viewModel.setLineOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.setLineOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
