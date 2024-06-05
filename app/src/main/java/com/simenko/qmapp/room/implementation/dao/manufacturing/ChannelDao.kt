@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.DatabaseManufacturingChannel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ChannelDao: DaoBaseModel<DatabaseManufacturingChannel> {
+abstract class ChannelDao: DaoBaseModel<ID, ID, DatabaseManufacturingChannel> {
     @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
     abstract override fun getRecords(): List<DatabaseManufacturingChannel>
 
@@ -17,7 +17,7 @@ abstract class ChannelDao: DaoBaseModel<DatabaseManufacturingChannel> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseManufacturingChannel>
 
     @Query("SELECT * FROM `12_manufacturing_channels` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseManufacturingChannel?
+    abstract override fun getRecordById(id: ID): DatabaseManufacturingChannel?
 
     @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseManufacturingChannel>>

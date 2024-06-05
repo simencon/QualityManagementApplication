@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.DatabaseJobRole
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class JobRoleDao : DaoBaseModel<DatabaseJobRole> {
+abstract class JobRoleDao : DaoBaseModel<ID, ID, DatabaseJobRole> {
     @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseJobRole>
 
@@ -16,7 +16,7 @@ abstract class JobRoleDao : DaoBaseModel<DatabaseJobRole> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseJobRole>
 
     @Query("SELECT * FROM `0_job_roles` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseJobRole?
+    abstract override fun getRecordById(id: ID): DatabaseJobRole?
 
     @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseJobRole>>

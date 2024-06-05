@@ -1,13 +1,11 @@
 package com.simenko.qmapp.room.contract
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.domain.DomainBaseModel
-import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import kotlinx.coroutines.flow.Flow
 
-interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseModel<DB>>> {
+interface DaoBaseModel<ID, PID, DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseModel<DB>, ID, PID>> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecord(record: DB)
@@ -32,9 +30,7 @@ interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseMo
     /**
      * when Entity has no parent, function returns single record where id = parentId
      * */
-    fun getRecordsByParentId(parentId: ID): List<DB>
-
-    fun getRecordById(id: String): DB?
-
+    fun getRecordsByParentId(parentId: PID): List<DB>
+    fun getRecordById(id: ID): DB?
     fun getRecordsForUI(): Flow<List<DB>>
 }

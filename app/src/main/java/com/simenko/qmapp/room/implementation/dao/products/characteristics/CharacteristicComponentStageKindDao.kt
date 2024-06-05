@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicComponentS
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class CharacteristicComponentStageKindDao : DaoBaseModel<DatabaseCharacteristicComponentStageKind> {
+abstract class CharacteristicComponentStageKindDao : DaoBaseModel<ID, ID, DatabaseCharacteristicComponentStageKind> {
     @Query("SELECT * FROM `5_7_characteristic_component_stage_kinds` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseCharacteristicComponentStageKind>
 
@@ -16,7 +16,7 @@ abstract class CharacteristicComponentStageKindDao : DaoBaseModel<DatabaseCharac
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseCharacteristicComponentStageKind>
 
     @Query("SELECT * FROM `5_7_characteristic_component_stage_kinds` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseCharacteristicComponentStageKind?
+    abstract override fun getRecordById(id: ID): DatabaseCharacteristicComponentStageKind?
 
     @Query("SELECT * FROM `5_7_characteristic_component_stage_kinds` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharacteristicComponentStageKind>>

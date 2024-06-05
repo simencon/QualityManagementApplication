@@ -36,7 +36,7 @@ import com.simenko.qmapp.utils.ObjectTransformer
 //        )
     ]
 )
-data class DatabaseEmployee constructor(
+data class DatabaseEmployee (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var fullName: String,
@@ -52,7 +52,7 @@ data class DatabaseEmployee constructor(
     var jobRole: String,
     var email: String? = null,
     var passWord: String? = null
-) : DatabaseBaseModel<NetworkEmployee, DomainEmployee> {
+) : DatabaseBaseModel<NetworkEmployee, DomainEmployee, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseEmployee::class, NetworkEmployee::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseEmployee::class, DomainEmployee::class).transform(this)
@@ -69,7 +69,7 @@ data class DatabaseEmployee constructor(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseCompany constructor(
+data class DatabaseCompany (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var companyName: String? = null,
@@ -83,7 +83,7 @@ data class DatabaseCompany constructor(
     var companyIndustrialClassification: String? = null,
     @ColumnInfo(index = true)
     var companyManagerId: ID
-) : DatabaseBaseModel<NetworkCompany, DomainCompany> {
+) : DatabaseBaseModel<NetworkCompany, DomainCompany, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCompany::class, NetworkCompany::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCompany::class, DomainCompany::class).transform(this)
@@ -106,7 +106,7 @@ data class DatabaseJobRole(
     @ColumnInfo(index = true)
     var companyId: ID,
     var jobRoleDescription: String
-) : DatabaseBaseModel<NetworkJobRole, DomainJobRole> {
+) : DatabaseBaseModel<NetworkJobRole, DomainJobRole, ID, ID> {
     override fun getRecordId() = this.id
     override fun toNetworkModel() = ObjectTransformer(DatabaseJobRole::class, NetworkJobRole::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseJobRole::class, DomainJobRole::class).transform(this)
@@ -131,7 +131,7 @@ data class DatabaseJobRole(
         )
     ]
 )
-data class DatabaseDepartment constructor(
+data class DatabaseDepartment (
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     val depAbbr: String?,
@@ -142,7 +142,7 @@ data class DatabaseDepartment constructor(
     val depOrder: Int?,
     @ColumnInfo(index = true)
     val companyId: ID?
-) : DatabaseBaseModel<NetworkDepartment, DomainDepartment> {
+) : DatabaseBaseModel<NetworkDepartment, DomainDepartment, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseDepartment::class, NetworkDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseDepartment::class, DomainDepartment::class).transform(this)
@@ -162,7 +162,7 @@ data class DatabaseDepartment constructor(
             entityColumn = "id"
         )
         val company: DatabaseCompany
-    ) : DatabaseBaseModel<Any?, DomainDepartment.DomainDepartmentComplete> {
+    ) : DatabaseBaseModel<Any?, DomainDepartment.DomainDepartmentComplete, ID, ID> {
         override fun getRecordId() = department.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainDepartment.DomainDepartmentComplete(
@@ -192,7 +192,7 @@ data class DatabaseSubDepartment(
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
-) : DatabaseBaseModel<NetworkSubDepartment, DomainSubDepartment> {
+) : DatabaseBaseModel<NetworkSubDepartment, DomainSubDepartment, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubDepartment::class, NetworkSubDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
@@ -205,7 +205,7 @@ data class DatabaseSubDepartment(
             entityColumn = "id"
         )
         val department: DatabaseDepartment,
-    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentComplete> {
+    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentComplete, ID, ID> {
         override fun getRecordId() = this.subDepartment.id
         override fun toNetworkModel(): Any? = null
         override fun toDomainModel(): DomainSubDepartment.DomainSubDepartmentComplete {
@@ -240,7 +240,7 @@ data class DatabaseSubDepartment(
         val subDepOrder: Int,
         val subDepAbbr: String?,
         val subDepDesignation: String?,
-    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentWithParents> {
+    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentWithParents, ID, ID> {
         override fun getRecordId() = this.id
         override fun toNetworkModel() = null
         override fun toDomainModel(): DomainSubDepartment.DomainSubDepartmentWithParents =
@@ -267,7 +267,7 @@ data class DatabaseManufacturingChannel(
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
-) : DatabaseBaseModel<NetworkManufacturingChannel, DomainManufacturingChannel> {
+) : DatabaseBaseModel<NetworkManufacturingChannel, DomainManufacturingChannel, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
@@ -280,7 +280,7 @@ data class DatabaseManufacturingChannel(
             entityColumn = "id"
         )
         val subDepartmentWithParents: DatabaseSubDepartment.DatabaseSubDepartmentWithParents,
-    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelComplete> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelComplete, ID, ID> {
         override fun getRecordId() = this.channel.id
         override fun toNetworkModel(): Any? = null
         override fun toDomainModel(): DomainManufacturingChannel.DomainManufacturingChannelComplete {
@@ -321,7 +321,7 @@ data class DatabaseManufacturingChannel(
         val channelOrder: Int,
         val channelAbbr: String?,
         val channelDesignation: String?
-    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelWithParents> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelWithParents, ID, ID> {
         override fun getRecordId() = this.id
         override fun toNetworkModel() = null
         override fun toDomainModel(): DomainManufacturingChannel.DomainManufacturingChannelWithParents =
@@ -348,7 +348,7 @@ data class DatabaseManufacturingLine(
     var lineAbbr: String,
     var lineDesignation: String,
     var lineOrder: Int
-) : DatabaseBaseModel<NetworkManufacturingLine, DomainManufacturingLine> {
+) : DatabaseBaseModel<NetworkManufacturingLine, DomainManufacturingLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingLine::class, NetworkManufacturingLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
@@ -361,7 +361,7 @@ data class DatabaseManufacturingLine(
             entityColumn = "id"
         )
         val channelWithParents: DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents,
-    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete, ID, ID> {
         override fun getRecordId() = this.line.id
         override fun toNetworkModel(): Any? = null
         override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineComplete {
@@ -408,7 +408,7 @@ data class DatabaseManufacturingLine(
         val lineOrder: Int,
         val lineAbbr: String?,
         val lineDesignation: String
-    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineWithParents> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineWithParents, ID, ID> {
         override fun getRecordId() = this.id
         override fun toNetworkModel() = null
         override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineWithParents =
@@ -436,7 +436,7 @@ data class DatabaseManufacturingOperation(
     var operationDesignation: String,
     var operationOrder: Int,
     var equipment: String?
-) : DatabaseBaseModel<NetworkManufacturingOperation, DomainManufacturingOperation> {
+) : DatabaseBaseModel<NetworkManufacturingOperation, DomainManufacturingOperation, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingOperation::class, NetworkManufacturingOperation::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
@@ -455,7 +455,7 @@ data class DatabaseManufacturingOperation(
             entityColumn = "currentOperationId"
         )
         val previousOperations: List<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>
-    ) : DatabaseBaseModel<Any?, DomainManufacturingOperation.DomainManufacturingOperationComplete> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingOperation.DomainManufacturingOperationComplete, ID, ID> {
         override fun getRecordId() = this.operation.id
         override fun toNetworkModel(): Any? = null
         override fun toDomainModel(): DomainManufacturingOperation.DomainManufacturingOperationComplete {
@@ -494,7 +494,7 @@ data class DatabaseOperationsFlow(
     var currentOperationId: ID,
     @ColumnInfo(index = true)
     var previousOperationId: ID
-) : DatabaseBaseModel<NetworkOperationsFlow, DomainOperationsFlow> {
+) : DatabaseBaseModel<NetworkOperationsFlow, DomainOperationsFlow, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOperationsFlow::class, NetworkOperationsFlow::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOperationsFlow::class, DomainOperationsFlow::class).transform(this)
@@ -541,7 +541,7 @@ data class DatabaseOperationsFlow(
         val lineId: ID,
         val lineOrder: Int,
         val lineAbbr: String?,
-    ) : DatabaseBaseModel<Any?, DomainOperationsFlow.DomainOperationsFlowComplete> {
+    ) : DatabaseBaseModel<Any?, DomainOperationsFlow.DomainOperationsFlowComplete, ID, ID> {
         override fun getRecordId() = this.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = ObjectTransformer(DatabaseOperationsFlowComplete::class, DomainOperationsFlow.DomainOperationsFlowComplete::class).transform(this)
@@ -575,7 +575,7 @@ data class DatabaseEmployeeComplete(
         entityColumn = "id"
     )
     val jobRole: DatabaseJobRole?
-) : DatabaseBaseModel<Boolean, DomainEmployeeComplete> {
+) : DatabaseBaseModel<Boolean, DomainEmployeeComplete, ID, ID> {
     override fun getRecordId() = teamMember.id
     override fun toNetworkModel() = false
     override fun toDomainModel() = DomainEmployeeComplete(

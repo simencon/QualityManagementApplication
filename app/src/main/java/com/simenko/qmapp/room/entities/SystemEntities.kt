@@ -3,6 +3,7 @@ package com.simenko.qmapp.room.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.retrofit.entities.NetworkUser
@@ -22,8 +23,8 @@ data class DatabaseUserRole(
     val function: String,
     val roleLevel: String,
     val accessLevel: String
-) : DatabaseBaseModel<NetworkUserRole, DomainUserRole> {
-    override fun getRecordId(): Any = "${this.function}:${this.roleLevel}:${this.accessLevel}"
+) : DatabaseBaseModel<NetworkUserRole, DomainUserRole, String, String> {
+    override fun getRecordId(): String = "${this.function}:${this.roleLevel}:${this.accessLevel}"
     override fun toNetworkModel(): NetworkUserRole = ObjectTransformer(DatabaseUserRole::class, NetworkUserRole::class).transform(this)
     override fun toDomainModel(): DomainUserRole = ObjectTransformer(DatabaseUserRole::class, DomainUserRole::class).transform(this)
 }
@@ -38,7 +39,7 @@ data class DatabaseUser(
     val fullName: String?,
     val company: String?,
     @ColumnInfo(index = true)
-    val companyId: Long,
+    val companyId: ID,
     val department: String?,
     @ColumnInfo(index = true)
     val departmentId: Long,
@@ -54,8 +55,8 @@ data class DatabaseUser(
     val accountNonLocked: Boolean,
     val credentialsNonExpired: Boolean,
     val enabled: Boolean
-) : DatabaseBaseModel<NetworkUser, DomainUser> {
-    override fun getRecordId(): Any = this.email
+) : DatabaseBaseModel<NetworkUser, DomainUser, String, ID> {
+    override fun getRecordId(): String = this.email
     override fun toNetworkModel(): NetworkUser = ObjectTransformer(DatabaseUser::class, NetworkUser::class).transform(this)
     override fun toDomainModel(): DomainUser = ObjectTransformer(DatabaseUser::class, DomainUser::class).transform(this)
 }

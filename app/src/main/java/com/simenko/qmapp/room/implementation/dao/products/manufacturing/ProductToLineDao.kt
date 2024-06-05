@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseProductToLine
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ProductToLineDao: DaoBaseModel<DatabaseProductToLine> {
+abstract class ProductToLineDao : DaoBaseModel<ID, ID, DatabaseProductToLine> {
     @Query("SELECT * FROM `13_1_products_to_lines` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProductToLine>
 
@@ -16,7 +16,7 @@ abstract class ProductToLineDao: DaoBaseModel<DatabaseProductToLine> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductToLine>
 
     @Query("SELECT * FROM `13_1_products_to_lines` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseProductToLine?
+    abstract override fun getRecordById(id: ID): DatabaseProductToLine?
 
     @Query("SELECT * FROM `13_1_products_to_lines` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductToLine>>

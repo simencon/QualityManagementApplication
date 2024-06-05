@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.contract.CrudeOperations

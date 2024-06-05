@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.DatabaseSubDepartment
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
+abstract class SubDepartmentDao : DaoBaseModel<ID, ID, DatabaseSubDepartment> {
     @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecords(): List<DatabaseSubDepartment>
 
@@ -17,7 +17,7 @@ abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSubDepartment>
 
     @Query("select * from `11_sub_departments` where id = :id")
-    abstract override fun getRecordById(id: String): DatabaseSubDepartment?
+    abstract override fun getRecordById(id: ID): DatabaseSubDepartment?
 
     @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseSubDepartment>>

@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseCharGroup
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class CharacteristicGroupDao: DaoBaseModel<DatabaseCharGroup> {
+abstract class CharacteristicGroupDao: DaoBaseModel<ID, ID, DatabaseCharGroup> {
     @Query("SELECT * FROM `10_1_d_element_ish_model` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseCharGroup>
 
@@ -17,7 +17,7 @@ abstract class CharacteristicGroupDao: DaoBaseModel<DatabaseCharGroup> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseCharGroup>
 
     @Query("SELECT * FROM `10_1_d_element_ish_model` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseCharGroup?
+    abstract override fun getRecordById(id: ID): DatabaseCharGroup?
 
     @Query("SELECT * FROM `10_1_d_element_ish_model` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharGroup>>

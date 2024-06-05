@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseKey
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
+abstract class ProductKeyDao : DaoBaseModel<ID, ID, DatabaseKey> {
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseKey>
 
@@ -17,7 +17,7 @@ abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseKey>
 
     @Query("SELECT * FROM `0_keys` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseKey?
+    abstract override fun getRecordById(id: ID): DatabaseKey?
 
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseKey>>
@@ -25,4 +25,8 @@ abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
     @Transaction
     @Query("select * from `keys_complete` where projectId = :parentId order by id  asc")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseKey.DatabaseKeyComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM `keys_complete` WHERE id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseKey.DatabaseKeyComplete?
 }

@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseMetrix
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class MetricDao : DaoBaseModel<DatabaseMetrix> {
+abstract class MetricDao : DaoBaseModel<ID, ID, DatabaseMetrix> {
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     abstract override fun getRecords(): List<DatabaseMetrix>
 
@@ -16,7 +16,7 @@ abstract class MetricDao : DaoBaseModel<DatabaseMetrix> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseMetrix>
 
     @Query("SELECT * FROM `8_metrixes` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseMetrix?
+    abstract override fun getRecordById(id: ID): DatabaseMetrix?
 
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseMetrix>>

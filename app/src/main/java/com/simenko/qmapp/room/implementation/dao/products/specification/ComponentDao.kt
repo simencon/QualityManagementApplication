@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseComponent
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ComponentDao: DaoBaseModel<DatabaseComponent> {
+abstract class ComponentDao: DaoBaseModel<ID, ID, DatabaseComponent> {
     @Query("SELECT * FROM `4_components` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponent>
 
@@ -16,7 +16,7 @@ abstract class ComponentDao: DaoBaseModel<DatabaseComponent> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponent>
 
     @Query("SELECT * FROM `4_components` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseComponent?
+    abstract override fun getRecordById(id: ID): DatabaseComponent?
 
     @Query("SELECT * FROM `4_components` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponent>>

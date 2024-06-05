@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseComponentInStageToleranc
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ComponentStageToleranceDao: DaoBaseModel<DatabaseComponentInStageTolerance> {
+abstract class ComponentStageToleranceDao: DaoBaseModel<ID, ID, DatabaseComponentInStageTolerance> {
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentInStageTolerance>
 
@@ -16,7 +16,7 @@ abstract class ComponentStageToleranceDao: DaoBaseModel<DatabaseComponentInStage
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentInStageTolerance>
 
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseComponentInStageTolerance?
+    abstract override fun getRecordById(id: ID): DatabaseComponentInStageTolerance?
 
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentInStageTolerance>>

@@ -24,7 +24,7 @@ import com.simenko.qmapp.utils.StringUtils
         "itemPrefix"
     ]
 )
-data class DatabaseInputForOrder constructor(
+data class DatabaseInputForOrder (
     var depId: ID,
     var depAbbr: String,
     var depOrder: Int,
@@ -54,31 +54,31 @@ data class DatabaseInputForOrder constructor(
     var charDescription: String,
     var charDesignation: String? = null,
     var charOrder: Int
-) : DatabaseBaseModel<NetworkInputForOrder, DomainInputForOrder> {
+) : DatabaseBaseModel<NetworkInputForOrder, DomainInputForOrder, String, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseInputForOrder::class, NetworkInputForOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseInputForOrder::class, DomainInputForOrder::class).transform(this)
 }
 
 @Entity(tableName = "0_orders_statuses")
-data class DatabaseOrdersStatus constructor(
+data class DatabaseOrdersStatus (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var statusDescription: String? = null
-) : DatabaseBaseModel<NetworkOrdersStatus, DomainOrdersStatus> {
+) : DatabaseBaseModel<NetworkOrdersStatus, DomainOrdersStatus, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersStatus::class, NetworkOrdersStatus::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrdersStatus::class, DomainOrdersStatus::class).transform(this)
 }
 
 @Entity(tableName = "0_measurement_reasons")
-data class DatabaseReason constructor(
+data class DatabaseReason (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
-) : DatabaseBaseModel<NetworkReason, DomainReason> {
+) : DatabaseBaseModel<NetworkReason, DomainReason, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseReason::class, NetworkReason::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseReason::class, DomainReason::class).transform(this)
@@ -89,7 +89,7 @@ data class DatabaseOrdersType(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var typeDescription: String? = null
-) : DatabaseBaseModel<NetworkOrdersType, DomainOrdersType> {
+) : DatabaseBaseModel<NetworkOrdersType, DomainOrdersType, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersType::class, NetworkOrdersType::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrdersType::class, DomainOrdersType::class).transform(this)
@@ -134,7 +134,7 @@ data class DatabaseOrdersType(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseOrder constructor(
+data class DatabaseOrder (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
@@ -151,7 +151,7 @@ data class DatabaseOrder constructor(
     @ColumnInfo(index = true)
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
-) : DatabaseBaseModel<NetworkOrder, DomainOrder> {
+) : DatabaseBaseModel<NetworkOrder, DomainOrder, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrder::class, NetworkOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrder::class, DomainOrder::class).transform(this)
@@ -202,7 +202,7 @@ data class DatabaseOrderResult (
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-) : DatabaseBaseModel<Any?, DomainOrderResult> {
+) : DatabaseBaseModel<Any?, DomainOrderResult, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseOrderResult::class, DomainOrderResult::class).transform(this)
@@ -276,7 +276,7 @@ data class DatabaseOrderResult (
         )
     ]
 )
-data class DatabaseSubOrder constructor(
+data class DatabaseSubOrder (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
@@ -306,7 +306,7 @@ data class DatabaseSubOrder constructor(
     var itemVersionId: ID,
     var samplesCount: Int? = null,
     var remarkId: ID
-) : DatabaseBaseModel<NetworkSubOrder, DomainSubOrder> {
+) : DatabaseBaseModel<NetworkSubOrder, DomainSubOrder, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrder::class, NetworkSubOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
@@ -369,12 +369,12 @@ data class DatabaseSubOrder constructor(
             "LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId " +
             "GROUP BY so.id;"
 )
-data class DatabaseSubOrderResult constructor(
+data class DatabaseSubOrderResult (
     val id: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-) : DatabaseBaseModel<Any?, DomainSubOrderResult> {
+) : DatabaseBaseModel<Any?, DomainSubOrderResult, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderResult::class, DomainSubOrderResult::class).transform(this)
@@ -425,7 +425,7 @@ data class DatabaseSubOrderResult constructor(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseSubOrderTask constructor(
+data class DatabaseSubOrderTask (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
@@ -440,7 +440,7 @@ data class DatabaseSubOrderTask constructor(
     var orderedById: ID? = null,
     @ColumnInfo(index = true)
     var completedById: ID? = null,
-) : DatabaseBaseModel<NetworkSubOrderTask, DomainSubOrderTask> {
+) : DatabaseBaseModel<NetworkSubOrderTask, DomainSubOrderTask, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrderTask::class, NetworkSubOrderTask::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
@@ -482,12 +482,12 @@ data class DatabaseSubOrderTask constructor(
             "LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId " +
             "GROUP BY t.id;"
 )
-data class DatabaseTaskResult constructor(
+data class DatabaseTaskResult (
     val id: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-) : DatabaseBaseModel<Any?, DomainTaskResult> {
+) : DatabaseBaseModel<Any?, DomainTaskResult, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseTaskResult::class, DomainTaskResult::class).transform(this)
@@ -504,13 +504,13 @@ data class DatabaseTaskResult constructor(
             onUpdate = ForeignKey.CASCADE
         )]
 )
-data class DatabaseSample constructor(
+data class DatabaseSample (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
     var subOrderId: ID,
     var sampleNumber: Int? = null
-) : DatabaseBaseModel<NetworkSample, DomainSample> {
+) : DatabaseBaseModel<NetworkSample, DomainSample, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSample::class, NetworkSample::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
@@ -542,20 +542,20 @@ data class DatabaseSample constructor(
             "LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId " +
             "GROUP BY s.id, r.taskId;"
 )
-data class DatabaseSampleResult constructor(
+data class DatabaseSampleResult (
     val id: ID,
     val taskId: ID?,
     val subOrderId: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-) : DatabaseBaseModel<Any?, DomainSampleResult> {
+) : DatabaseBaseModel<Any?, DomainSampleResult, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseSampleResult::class, DomainSampleResult::class).transform(this)
 }
 
-data class DatabaseSampleComplete constructor(
+data class DatabaseSampleComplete (
     @Embedded
     val sampleResult: DatabaseSampleResult,
     @Relation(
@@ -564,7 +564,7 @@ data class DatabaseSampleComplete constructor(
         entityColumn = "id"
     )
     val sample: DatabaseSample
-) : DatabaseBaseModel<Any?, DomainSampleComplete> {
+) : DatabaseBaseModel<Any?, DomainSampleComplete, ID, ID> {
     override fun getRecordId() = sample.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSampleComplete(
@@ -574,11 +574,11 @@ data class DatabaseSampleComplete constructor(
 }
 
 @Entity(tableName = "0_results_decryptions")
-data class DatabaseResultsDecryption constructor(
+data class DatabaseResultsDecryption (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var resultDecryption: String? = null
-) : DatabaseBaseModel<NetworkResultsDecryption, DomainResultsDecryption> {
+) : DatabaseBaseModel<NetworkResultsDecryption, DomainResultsDecryption, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseResultsDecryption::class, NetworkResultsDecryption::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
@@ -616,7 +616,7 @@ data class DatabaseResultsDecryption constructor(
             onUpdate = ForeignKey.CASCADE
         )]
 )
-data class DatabaseResult constructor(
+data class DatabaseResult (
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
@@ -629,7 +629,7 @@ data class DatabaseResult constructor(
     var resultDecryptionId: ID,
     @ColumnInfo(index = true)
     var taskId: ID
-) : DatabaseBaseModel<NetworkResult, DomainResult> {
+) : DatabaseBaseModel<NetworkResult, DomainResult, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseResult::class, NetworkResult::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
@@ -667,7 +667,7 @@ data class DatabaseResult constructor(
     viewName = "orders_short",
     value = "SELECT * FROM `12_orders` ORDER BY orderNumber;"
 )
-data class DatabaseOrderShort constructor(
+data class DatabaseOrderShort (
     @Embedded
     val order: DatabaseOrder,
 
@@ -684,7 +684,7 @@ data class DatabaseOrderShort constructor(
         entityColumn = "id"
     )
     val orderReason: DatabaseReason
-) : DatabaseBaseModel<Any?, DomainOrderShort> {
+) : DatabaseBaseModel<Any?, DomainOrderShort, ID, ID> {
     override fun getRecordId() = order.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainOrderShort(
@@ -694,7 +694,7 @@ data class DatabaseOrderShort constructor(
     )
 }
 
-data class DatabaseOrderComplete constructor(
+data class DatabaseOrderComplete (
     @Embedded
     val order: DatabaseOrder,
     @Relation(
@@ -733,7 +733,7 @@ data class DatabaseOrderComplete constructor(
         entityColumn = "id"
     )
     val orderResult: DatabaseOrderResult
-) : DatabaseBaseModel<Any?, DomainOrderComplete> {
+) : DatabaseBaseModel<Any?, DomainOrderComplete, ID, ID> {
     override fun getRecordId() = order.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainOrderComplete(
@@ -747,7 +747,7 @@ data class DatabaseOrderComplete constructor(
     )
 }
 
-data class DatabaseSubOrderComplete constructor(
+data class DatabaseSubOrderComplete (
     @Embedded
     val subOrder: DatabaseSubOrder,
     @Relation(
@@ -816,7 +816,7 @@ data class DatabaseSubOrderComplete constructor(
         entityColumn = "id"
     )
     val subOrderResult: DatabaseSubOrderResult
-) : DatabaseBaseModel<Any?, DomainSubOrderComplete>, StatusHolderModel {
+) : DatabaseBaseModel<Any?, DomainSubOrderComplete, ID, ID>, StatusHolderModel {
     override fun getRecordId() = subOrder.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSubOrderComplete(
@@ -853,7 +853,7 @@ data class DatabaseSubOrderComplete constructor(
     viewName = "sub_order_task_complete",
     value = "SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"
 )
-data class DatabaseSubOrderTaskComplete constructor(
+data class DatabaseSubOrderTaskComplete (
     @Embedded
     var subOrderTask: DatabaseSubOrderTask,
     @Relation(
@@ -880,7 +880,7 @@ data class DatabaseSubOrderTaskComplete constructor(
         entityColumn = "id"
     )
     val taskResult: DatabaseTaskResult,
-) : DatabaseBaseModel<Any?, DomainSubOrderTaskComplete> {
+) : DatabaseBaseModel<Any?, DomainSubOrderTaskComplete, ID, ID> {
     override fun getRecordId() = subOrderTask.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSubOrderTaskComplete(
@@ -904,7 +904,7 @@ data class DatabaseResultTolerance(
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?
-) : DatabaseBaseModel<Any?, DomainResultTolerance> {
+) : DatabaseBaseModel<Any?, DomainResultTolerance, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseResultTolerance::class, DomainResultTolerance::class).transform(this)
@@ -935,7 +935,7 @@ data class DatabaseResultComplete(
         entityColumn = "id"
     )
     val resultTolerance: DatabaseResultTolerance
-) : DatabaseBaseModel<Any?, DomainResultComplete> {
+) : DatabaseBaseModel<Any?, DomainResultComplete, ID, ID> {
     override fun getRecordId() = result.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainResultComplete(

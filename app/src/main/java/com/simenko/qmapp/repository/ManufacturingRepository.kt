@@ -134,7 +134,7 @@ class ManufacturingRepository @Inject constructor(
      */
     val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val employeeById: (ID) -> DomainEmployee = { id ->
-        database.employeeDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
+        database.employeeDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
     }
     val employeesComplete: (EmployeesFilter) -> Flow<List<DomainEmployeeComplete>> = { filter ->
         database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%", filter.parentId).map { list -> list.map { it.toDomainModel() } }
@@ -143,7 +143,7 @@ class ManufacturingRepository @Inject constructor(
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
     val companyById: (ID) -> DomainCompany = { id ->
-        database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
+        database.companyDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
     }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }

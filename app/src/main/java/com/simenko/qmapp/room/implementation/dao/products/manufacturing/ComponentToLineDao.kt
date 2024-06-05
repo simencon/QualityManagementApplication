@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseComponentToLine
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ComponentToLineDao: DaoBaseModel<DatabaseComponentToLine> {
+abstract class ComponentToLineDao : DaoBaseModel<ID, ID, DatabaseComponentToLine> {
     @Query("SELECT * FROM `13_3_components_to_lines` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentToLine>
 
@@ -16,7 +16,7 @@ abstract class ComponentToLineDao: DaoBaseModel<DatabaseComponentToLine> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentToLine>
 
     @Query("SELECT * FROM `13_3_components_to_lines` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseComponentToLine?
+    abstract override fun getRecordById(id: ID): DatabaseComponentToLine?
 
     @Query("SELECT * FROM `13_3_components_to_lines` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentToLine>>

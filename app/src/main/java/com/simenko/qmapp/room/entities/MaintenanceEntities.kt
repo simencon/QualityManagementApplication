@@ -12,7 +12,7 @@ data class NotificationRegisterEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = NoRecord.num.toInt(),
     val email: String
-) : DatabaseBaseModel<NotificationRegisterResponseStub, NotificationRegisterDomainModelStub> {
+) : DatabaseBaseModel<NotificationRegisterResponseStub, NotificationRegisterDomainModelStub, Int, Any> {
     override fun getRecordId() = id
     override fun toNetworkModel() = NotificationRegisterResponseStub(email)
     override fun toDomainModel() = NotificationRegisterDomainModelStub(email)

@@ -44,7 +44,7 @@ import com.simenko.qmapp.utils.ObjectTransformer
 )
 data class DatabaseProductLine(
     @PrimaryKey(autoGenerate = true)
-    var id: Long,
+    var id: ID,
     @ColumnInfo(index = true)
     var companyId: ID,
     @ColumnInfo(index = true)
@@ -61,7 +61,7 @@ data class DatabaseProductLine(
     @ColumnInfo(index = true)
     var processOwner: ID,
     var confLevel: ID? = null
-) : DatabaseBaseModel<NetworkProductLine, DomainProductLine> {
+) : DatabaseBaseModel<NetworkProductLine, DomainProductLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductLine::class, NetworkProductLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductLine::class, DomainProductLine::class).transform(this)
@@ -91,7 +91,7 @@ data class DatabaseProductLine(
             entityColumn = "id"
         )
         val designManager: DatabaseEmployee
-    ) : DatabaseBaseModel<Any?, DomainProductLine.DomainProductLineComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductLine.DomainProductLineComplete, ID, ID> {
         override fun getRecordId() = manufacturingProject.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProductLine.DomainProductLineComplete(
@@ -121,7 +121,7 @@ data class DatabaseKey(
     var projectId: ID,
     var componentKey: String,
     var componentKeyDescription: String?
-) : DatabaseBaseModel<NetworkKey, DomainKey> {
+) : DatabaseBaseModel<NetworkKey, DomainKey, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseKey::class, NetworkKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
@@ -139,7 +139,7 @@ data class DatabaseKey(
             entityColumn = "id"
         )
         val productLine: DatabaseProductLine,
-    ) : DatabaseBaseModel<Any?, DomainKey.DomainKeyComplete> {
+    ) : DatabaseBaseModel<Any?, DomainKey.DomainKeyComplete, ID, ID> {
         override fun getRecordId() = productLineKey.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainKey.DomainKeyComplete(
@@ -167,7 +167,7 @@ data class DatabaseProductBase(
     @ColumnInfo(index = true)
     var projectId: ID?,
     var componentBaseDesignation: String?
-) : DatabaseBaseModel<NetworkProductBase, DomainProductBase> {
+) : DatabaseBaseModel<NetworkProductBase, DomainProductBase, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductBase::class, NetworkProductBase::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductBase::class, DomainProductBase::class).transform(this)
@@ -192,7 +192,7 @@ data class DatabaseProductKind(
     val projectId: ID,
     val productKindDesignation: String,
     val comments: String?
-) : DatabaseBaseModel<NetworkProductKind, DomainProductKind> {
+) : DatabaseBaseModel<NetworkProductKind, DomainProductKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKind::class, NetworkProductKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKind::class, DomainProductKind::class).transform(this)
@@ -210,7 +210,7 @@ data class DatabaseProductKind(
             entityColumn = "id"
         )
         val productLine: DatabaseProductLine.DatabaseProductLineComplete
-    ) : DatabaseBaseModel<Any?, DomainProductKind.DomainProductKindComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductKind.DomainProductKindComplete, ID, ID> {
         override fun getRecordId() = productKind.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProductKind.DomainProductKindComplete(
@@ -239,7 +239,7 @@ data class DatabaseComponentKind(
     val productKindId: ID,
     val componentKindOrder: Int,
     val componentKindDescription: String
-) : DatabaseBaseModel<NetworkComponentKind, DomainComponentKind> {
+) : DatabaseBaseModel<NetworkComponentKind, DomainComponentKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKind::class, NetworkComponentKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentKind::class, DomainComponentKind::class).transform(this)
@@ -257,7 +257,7 @@ data class DatabaseComponentKind(
             entityColumn = "id"
         )
         val productKind: DatabaseProductKind.DatabaseProductKindComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentKind.DomainComponentKindComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentKind.DomainComponentKindComplete, ID, ID> {
         override fun getRecordId() = componentKind.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentKind.DomainComponentKindComplete(
@@ -286,7 +286,7 @@ data class DatabaseComponentStageKind(
     val componentKindId: ID,
     val componentStageOrder: Int,
     val componentStageDescription: String
-) : DatabaseBaseModel<NetworkComponentStageKind, DomainComponentStageKind> {
+) : DatabaseBaseModel<NetworkComponentStageKind, DomainComponentStageKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageKind::class, NetworkComponentStageKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageKind::class, DomainComponentStageKind::class).transform(this)
@@ -304,7 +304,7 @@ data class DatabaseComponentStageKind(
             entityColumn = "id"
         )
         val componentKind: DatabaseComponentKind.DatabaseComponentKindComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentStageKind.DomainComponentStageKindComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentStageKind.DomainComponentStageKindComplete, ID, ID> {
         override fun getRecordId() = componentStageKind.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentStageKind.DomainComponentStageKindComplete(
@@ -340,7 +340,7 @@ data class DatabaseProductKindKey(
     val productKindId: ID,
     @ColumnInfo(index = true)
     val keyId: ID
-) : DatabaseBaseModel<NetworkProductKindKey, DomainProductKindKey> {
+) : DatabaseBaseModel<NetworkProductKindKey, DomainProductKindKey, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKindKey::class, NetworkProductKindKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKindKey::class, DomainProductKindKey::class).transform(this)
@@ -364,7 +364,7 @@ data class DatabaseProductKindKey(
             entityColumn = "id"
         )
         val key: DatabaseKey.DatabaseKeyComplete
-    ) : DatabaseBaseModel<Any?, DomainProductKindKey.DomainProductKindKeyComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductKindKey.DomainProductKindKeyComplete, ID, ID> {
         override fun getRecordId() = productKindKey.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProductKindKey.DomainProductKindKeyComplete(
@@ -402,7 +402,7 @@ data class DatabaseComponentKindKey(
     val componentKindId: ID,
     @ColumnInfo(index = true)
     val keyId: ID
-) : DatabaseBaseModel<NetworkComponentKindKey, DomainComponentKindKey> {
+) : DatabaseBaseModel<NetworkComponentKindKey, DomainComponentKindKey, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKindKey::class, NetworkComponentKindKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentKindKey::class, DomainComponentKindKey::class).transform(this)
@@ -426,7 +426,7 @@ data class DatabaseComponentKindKey(
             entityColumn = "id"
         )
         val key: DatabaseKey.DatabaseKeyComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentKindKey.DomainComponentKindKeyComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentKindKey.DomainComponentKindKeyComplete, ID, ID> {
         override fun getRecordId() = componentKindKey.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentKindKey.DomainComponentKindKeyComplete(
@@ -463,7 +463,7 @@ data class DatabaseComponentStageKindKey(
     val componentStageKindId: ID,
     @ColumnInfo(index = true)
     val keyId: ID
-) : DatabaseBaseModel<NetworkComponentStageKindKey, DomainComponentStageKindKey> {
+) : DatabaseBaseModel<NetworkComponentStageKindKey, DomainComponentStageKindKey, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageKindKey::class, NetworkComponentStageKindKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageKindKey::class, DomainComponentStageKindKey::class).transform(this)
@@ -487,7 +487,7 @@ data class DatabaseComponentStageKindKey(
             entityColumn = "id"
         )
         val key: DatabaseKey.DatabaseKeyComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentStageKindKey.DomainComponentStageKindKeyComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentStageKindKey.DomainComponentStageKindKeyComplete, ID, ID> {
         override fun getRecordId() = componentStageKindKey.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentStageKindKey.DomainComponentStageKindKeyComplete(
@@ -524,7 +524,7 @@ data class DatabaseProduct(
     @ColumnInfo(index = true)
     var keyId: ID,
     var productDesignation: String
-) : DatabaseBaseModel<NetworkProduct, DomainProduct> {
+) : DatabaseBaseModel<NetworkProduct, DomainProduct, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProduct::class, NetworkProduct::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProduct::class, DomainProduct::class).transform(this)
@@ -548,7 +548,7 @@ data class DatabaseProduct(
             entityColumn = "id"
         )
         val key: DatabaseKey
-    ) : DatabaseBaseModel<Any?, DomainProduct.DomainProductComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProduct.DomainProductComplete, ID, ID> {
         override fun getRecordId() = product.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProduct.DomainProductComplete(
@@ -577,7 +577,7 @@ data class DatabaseComponent(
     var keyId: ID,
     var componentDesignation: String,
     var ifAny: Int?
-) : DatabaseBaseModel<NetworkComponent, DomainComponent> {
+) : DatabaseBaseModel<NetworkComponent, DomainComponent, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponent::class, NetworkComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponent::class, DomainComponent::class).transform(this)
@@ -595,7 +595,7 @@ data class DatabaseComponent(
             entityColumn = "id"
         )
         val key: DatabaseKey
-    ) : DatabaseBaseModel<Any?, DomainComponent.DomainComponentComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponent.DomainComponentComplete, ID, ID> {
         override fun getRecordId() = component.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponent.DomainComponentComplete(
@@ -623,7 +623,7 @@ data class DatabaseComponentStage(
     var keyId: ID,
     var componentInStageDescription: String,
     var ifAny: Int?
-) : DatabaseBaseModel<NetworkComponentStage, DomainComponentStage> {
+) : DatabaseBaseModel<NetworkComponentStage, DomainComponentStage, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStage::class, NetworkComponentStage::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStage::class, DomainComponentStage::class).transform(this)
@@ -640,7 +640,7 @@ data class DatabaseComponentStage(
             entityColumn = "id"
         )
         val key: DatabaseKey
-    ) : DatabaseBaseModel<Any?, DomainComponentStage.DomainComponentStageComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentStage.DomainComponentStageComplete, ID, ID> {
         override fun getRecordId() = componentStage.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentStage.DomainComponentStageComplete(
@@ -676,7 +676,7 @@ data class DatabaseProductKindProduct(
     val productKindId: ID,
     @ColumnInfo(index = true)
     val productId: ID
-) : DatabaseBaseModel<NetworkProductKindProduct, DomainProductKindProduct> {
+) : DatabaseBaseModel<NetworkProductKindProduct, DomainProductKindProduct, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKindProduct::class, NetworkProductKindProduct::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKindProduct::class, DomainProductKindProduct::class).transform(this)
@@ -706,7 +706,7 @@ data class DatabaseProductKindProduct(
             entityColumn = "productId"
         )
         val versions: List<DatabaseProductVersion>
-    ) : DatabaseBaseModel<Any?, DomainProductKindProduct.DomainProductKindProductComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductKindProduct.DomainProductKindProductComplete, ID, ID> {
         override fun getRecordId() = productKindProduct.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProductKindProduct.DomainProductKindProductComplete(
@@ -744,7 +744,7 @@ data class DatabaseComponentKindComponent(
     val componentKindId: ID,
     @ColumnInfo(index = true)
     val componentId: ID
-) : DatabaseBaseModel<NetworkComponentKindComponent, DomainComponentKindComponent> {
+) : DatabaseBaseModel<NetworkComponentKindComponent, DomainComponentKindComponent, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKindComponent::class, NetworkComponentKindComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentKindComponent::class, DomainComponentKindComponent::class).transform(this)
@@ -768,7 +768,7 @@ data class DatabaseComponentKindComponent(
             entityColumn = "id"
         )
         val component: DatabaseComponent.DatabaseComponentComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentKindComponent.DomainComponentKindComponentComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentKindComponent.DomainComponentKindComponentComplete, ID, ID> {
         override fun getRecordId() = componentKindComponent.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentKindComponent.DomainComponentKindComponentComplete(
@@ -805,7 +805,7 @@ data class DatabaseComponentStageKindComponentStage(
     val componentStageKindId: ID,
     @ColumnInfo(index = true)
     val componentStageId: ID
-) : DatabaseBaseModel<NetworkComponentStageKindComponentStage, DomainComponentStageKindComponentStage> {
+) : DatabaseBaseModel<NetworkComponentStageKindComponentStage, DomainComponentStageKindComponentStage, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageKindComponentStage::class, NetworkComponentStageKindComponentStage::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageKindComponentStage::class, DomainComponentStageKindComponentStage::class).transform(this)
@@ -828,7 +828,7 @@ data class DatabaseComponentStageKindComponentStage(
             entityColumn = "id"
         )
         val componentStage: DatabaseComponentStage.DatabaseComponentStageComplete
-    ) : DatabaseBaseModel<Any?, DomainComponentStageKindComponentStage.DomainComponentStageKindComponentStageComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentStageKindComponentStage.DomainComponentStageKindComponentStageComplete, ID, ID> {
         override fun getRecordId() = componentStageKindComponentStage.componentStageId
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentStageKindComponentStage.DomainComponentStageKindComponentStageComplete(
@@ -866,7 +866,7 @@ data class DatabaseProductComponent(
     val productId: ID,
     @ColumnInfo(index = true)
     val componentId: ID
-) : DatabaseBaseModel<NetworkProductComponent, DomainProductComponent> {
+) : DatabaseBaseModel<NetworkProductComponent, DomainProductComponent, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductComponent::class, NetworkProductComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductComponent::class, DomainProductComponent::class).transform(this)
@@ -896,7 +896,7 @@ data class DatabaseProductComponent(
             entityColumn = "componentId"
         )
         val versions: List<DatabaseComponentVersion>
-    ) : DatabaseBaseModel<Any?, DomainProductComponent.DomainProductComponentComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductComponent.DomainProductComponentComplete, ID, ID> {
         override fun getRecordId() = productComponent.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainProductComponent.DomainProductComponentComplete(
@@ -934,7 +934,7 @@ data class DatabaseComponentComponentStage(
     val componentId: ID,
     @ColumnInfo(index = true)
     val componentStageId: ID
-) : DatabaseBaseModel<NetworkComponentComponentStage, DomainComponentComponentStage> {
+) : DatabaseBaseModel<NetworkComponentComponentStage, DomainComponentComponentStage, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentComponentStage::class, NetworkComponentComponentStage::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentComponentStage::class, DomainComponentComponentStage::class).transform(this)
@@ -963,7 +963,7 @@ data class DatabaseComponentComponentStage(
             entityColumn = "componentInStageId"
         )
         val versions: List<DatabaseComponentStageVersion>
-    ) : DatabaseBaseModel<Any?, DomainComponentComponentStage.DomainComponentComponentStageComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentComponentStage.DomainComponentComponentStageComplete, ID, ID> {
         override fun getRecordId() = componentComponentStage.componentStageId
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentComponentStage.DomainComponentComponentStageComplete(
@@ -980,7 +980,7 @@ data class DatabaseVersionStatus(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var statusDescription: String?
-) : DatabaseBaseModel<NetworkVersionStatus, DomainVersionStatus> {
+) : DatabaseBaseModel<NetworkVersionStatus, DomainVersionStatus, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseVersionStatus::class, NetworkVersionStatus::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
@@ -1014,7 +1014,7 @@ data class DatabaseProductVersion(
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
-) : DatabaseBaseModel<NetworkProductVersion, DomainProductVersion> {
+) : DatabaseBaseModel<NetworkProductVersion, DomainProductVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductVersion::class, NetworkProductVersion::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductVersion::class, DomainProductVersion::class).transform(this)
@@ -1049,7 +1049,7 @@ data class DatabaseComponentVersion(
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
-) : DatabaseBaseModel<NetworkComponentVersion, DomainComponentVersion> {
+) : DatabaseBaseModel<NetworkComponentVersion, DomainComponentVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentVersion::class, NetworkComponentVersion::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentVersion::class, DomainComponentVersion::class).transform(this)
@@ -1083,7 +1083,7 @@ data class DatabaseComponentStageVersion(
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
-) : DatabaseBaseModel<NetworkComponentStageVersion, DomainComponentStageVersion> {
+) : DatabaseBaseModel<NetworkComponentStageVersion, DomainComponentStageVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageVersion::class, NetworkComponentStageVersion::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageVersion::class, DomainComponentStageVersion::class).transform(this)
@@ -1106,7 +1106,7 @@ data class DatabaseItemKind(
     val itemKindOrder: Int,
     val itemKindDesignation: String,
     val comments: String?
-): DatabaseBaseModel<Any?, DomainItemKind> {
+): DatabaseBaseModel<Any?, DomainItemKind, String, ID> {
     override fun getRecordId() = fId
     override fun toNetworkModel() =null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemKind::class, DomainItemKind::class).transform(this)
@@ -1125,8 +1125,8 @@ data class DatabaseItem(
     val fId: String,
     val keyId: ID?,
     val itemDesignation: String?
-) : DatabaseBaseModel<Any?, DomainItem> {
-    override fun getRecordId() = id
+) : DatabaseBaseModel<Any?, DomainItem, String, ID> {
+    override fun getRecordId() = fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItem::class, DomainItem::class).transform(this)
 }
@@ -1148,8 +1148,8 @@ data class DatabaseItemVersion(
     val versionDate: Long,
     val statusId: ID?,
     val isDefault: Boolean
-) : DatabaseBaseModel<Any?, DomainItemVersion> {
-    override fun getRecordId() = id
+) : DatabaseBaseModel<Any?, DomainItemVersion, String, ID> {
+    override fun getRecordId() = fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemVersion::class, DomainItemVersion::class).transform(this)
 }
@@ -1171,8 +1171,8 @@ data class DatabaseItemComplete(
         entityColumn = "fItemId"
     )
     val itemToLines: List<DatabaseItemToLine>
-) : DatabaseBaseModel<Any?, DomainItemComplete> {
-    override fun getRecordId() = item.id
+) : DatabaseBaseModel<Any?, DomainItemComplete, String, ID> {
+    override fun getRecordId() = item.fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainItemComplete(
         item = item.toDomainModel(),
@@ -1198,8 +1198,8 @@ data class DatabaseItemVersionComplete(
         entityColumn = "fId"
     )
     val itemComplete: DatabaseItemComplete
-) : DatabaseBaseModel<Any?, DomainItemVersionComplete> {
-    override fun getRecordId() = itemVersion.id
+) : DatabaseBaseModel<Any?, DomainItemVersionComplete, String, ID> {
+    override fun getRecordId() = itemVersion.fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainItemVersionComplete(
         itemVersion = itemVersion.toDomainModel(),

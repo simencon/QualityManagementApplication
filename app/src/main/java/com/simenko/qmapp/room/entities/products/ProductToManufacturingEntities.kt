@@ -37,7 +37,7 @@ data class DatabaseProductToLine(
     var lineId: ID,
     @ColumnInfo(index = true)
     var productId: ID
-) : DatabaseBaseModel<NetworkProductToLine, DomainProductToLine> {
+) : DatabaseBaseModel<NetworkProductToLine, DomainProductToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductToLine::class, NetworkProductToLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductToLine::class, DomainProductToLine::class).transform(this)
@@ -68,7 +68,7 @@ data class DatabaseComponentToLine(
     var lineId: ID,
     @ColumnInfo(index = true)
     var componentId: ID
-) : DatabaseBaseModel<NetworkComponentToLine, DomainComponentToLine> {
+) : DatabaseBaseModel<NetworkComponentToLine, DomainComponentToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentToLine::class, NetworkComponentToLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentToLine::class, DomainComponentToLine::class).transform(this)
@@ -100,7 +100,7 @@ data class DatabaseComponentInStageToLine(
     var lineId: ID,
     @ColumnInfo(index = true)
     var componentInStageId: ID
-) : DatabaseBaseModel<NetworkComponentInStageToLine, DomainComponentInStageToLine> {
+) : DatabaseBaseModel<NetworkComponentInStageToLine, DomainComponentInStageToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageToLine::class, NetworkComponentInStageToLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageToLine::class, DomainComponentInStageToLine::class).transform(this)
@@ -120,7 +120,7 @@ data class DatabaseItemToLine(
     val lineId: ID,
     val itemId: ID,
     val fItemId: String
-) : DatabaseBaseModel<Any?, DomainItemToLine> {
+) : DatabaseBaseModel<Any?, DomainItemToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemToLine::class, DomainItemToLine::class).transform(this)

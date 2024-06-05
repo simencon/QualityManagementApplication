@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.DatabaseManufacturingLine
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
+abstract class LineDao: DaoBaseModel<ID, ID, DatabaseManufacturingLine> {
     @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
     abstract override fun getRecords(): List<DatabaseManufacturingLine>
 
@@ -17,7 +17,7 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseManufacturingLine>
 
     @Query("SELECT * FROM `13_manufacturing_lines` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseManufacturingLine?
+    abstract override fun getRecordById(id: ID): DatabaseManufacturingLine?
 
     @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseManufacturingLine>>

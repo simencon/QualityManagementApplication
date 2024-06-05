@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseProductKindKey
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ProductKindKeyDao : DaoBaseModel<DatabaseProductKindKey> {
+abstract class ProductKindKeyDao : DaoBaseModel<ID, ID, DatabaseProductKindKey> {
     @Query("SELECT * FROM `1_1_product_kind_keys` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProductKindKey>
 
@@ -17,7 +17,7 @@ abstract class ProductKindKeyDao : DaoBaseModel<DatabaseProductKindKey> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductKindKey>
 
     @Query("SELECT * FROM `1_1_product_kind_keys` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseProductKindKey?
+    abstract override fun getRecordById(id: ID): DatabaseProductKindKey?
 
     @Query("SELECT * FROM `1_1_product_kind_keys` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductKindKey>>

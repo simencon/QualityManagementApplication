@@ -1,7 +1,6 @@
 package com.simenko.qmapp.repository.contract
 
 import com.simenko.qmapp.domain.DomainBaseModel
-import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.UserRepository
@@ -51,7 +50,7 @@ class CrudeOperations @Inject constructor(
         }
     }
 
-    fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForSingleRecord(
+    fun <ID, PID, N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM, ID, PID>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForSingleRecord(
         taskExecutor: suspend () -> Response<N>,
         resultHandler: (DB) -> Unit
     ): ReceiveChannel<Event<Resource<DM>>> = produce {
@@ -75,7 +74,7 @@ class CrudeOperations @Inject constructor(
         }
     }
 
-    fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForListOfRecords(
+    fun <ID, PID, N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM, ID, PID>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForListOfRecords(
         taskExecutor: suspend () -> Response<List<N>>,
         resultHandler: (List<DB>) -> Unit
     ): ReceiveChannel<Event<Resource<List<DM>>>> = produce {
@@ -99,17 +98,17 @@ class CrudeOperations @Inject constructor(
         }
     }
 
-    suspend fun <N, DB, DBC, DM, DAO> syncStatusRecordsByTimeRange(
+    suspend fun <N, DB, DBC, DM, DAO, ID, PID> syncStatusRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
         dao: DAO,
         daoReadDetailedRecordById: suspend (ID) -> DBC?,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
     ): List<NotificationData> where
             N : NetworkBaseModel<DB>,
-            DB : DatabaseBaseModel<N, DM>,
+            DB : DatabaseBaseModel<N, DM, ID, PID>,
             DBC : StatusHolderModel,
             DM : DomainBaseModel<DB>,
-            DAO : DaoBaseModel<DB>,
+            DAO : DaoBaseModel<ID, PID, DB>,
             DAO : DaoTimeDependentModel<DB> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
@@ -123,7 +122,7 @@ class CrudeOperations @Inject constructor(
                 it1.filter { it2 -> it2.getRecordId() !in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
                     dao.insertRecords(listToInsert)
                     listToInsert.forEach { record ->
-                        daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
+                        daoReadDetailedRecordById(record.getRecordId())?.let { recordComplete ->
                             result.add(recordComplete.toNotificationData(NotificationReasons.CREATED))
                         }
                     }
@@ -131,7 +130,7 @@ class CrudeOperations @Inject constructor(
                 it1.filter { it2 -> it2.getRecordId() in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
                     dao.updateRecords(listToUpdate)
                     listToUpdate.forEach { record ->
-                        daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
+                        daoReadDetailedRecordById(record.getRecordId())?.let { recordComplete ->
                             result.add(recordComplete.toNotificationData(NotificationReasons.CHANGED))
                         }
                     }
@@ -141,7 +140,7 @@ class CrudeOperations @Inject constructor(
             dbOrders.subtract(ntOrders.toSet()).filter { it1 -> it1.getRecordId() !in ntOrders.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
                 dao.deleteRecords(listToDelete)
                 listToDelete.forEach { record ->
-                    daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
+                    daoReadDetailedRecordById(record.getRecordId())?.let { recordComplete ->
                         result.add(recordComplete.toNotificationData(NotificationReasons.DELETED))
                     }
                 }
@@ -150,14 +149,14 @@ class CrudeOperations @Inject constructor(
         return result
     }
 
-    suspend fun <N, DB, DM, DAO> syncRecordsByTimeRange(
+    suspend fun <N, DB, DM, DAO,ID, PID> syncRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
         dao: DAO,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
     ) where N : NetworkBaseModel<DB>,
-            DB : DatabaseBaseModel<N, DM>,
+            DB : DatabaseBaseModel<N, DM, ID, PID>,
             DM : DomainBaseModel<DB>,
-            DAO : DaoBaseModel<DB>,
+            DAO : DaoBaseModel<ID, PID, DB>,
             DAO : DaoTimeDependentModel<DB> {
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
@@ -181,14 +180,14 @@ class CrudeOperations @Inject constructor(
         }
     }
 
-    suspend fun <N, DB, DM, DAO> syncRecordsAll(
+    suspend fun <N, DB, DM, DAO, ID, PID> syncRecordsAll(
         dao: DAO,
         serviceGetRecords: suspend () -> Response<List<N>>,
     ) where
             N : NetworkBaseModel<DB>,
-            DB : DatabaseBaseModel<N, DM>,
+            DB : DatabaseBaseModel<N, DM, ID, PID>,
             DM : DomainBaseModel<DB>,
-            DAO : DaoBaseModel<DB> {
+            DAO : DaoBaseModel<ID, PID, DB> {
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecords().run {

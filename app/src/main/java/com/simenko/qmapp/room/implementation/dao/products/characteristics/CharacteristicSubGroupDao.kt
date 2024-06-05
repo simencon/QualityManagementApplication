@@ -5,12 +5,11 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
-import com.simenko.qmapp.room.entities.products.DatabaseCharGroup
 import com.simenko.qmapp.room.entities.products.DatabaseCharSubGroup
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class CharacteristicSubGroupDao: DaoBaseModel<DatabaseCharSubGroup> {
+abstract class CharacteristicSubGroupDao: DaoBaseModel<ID, ID, DatabaseCharSubGroup> {
     @Query("SELECT * FROM `0_ish_sub_characteristics` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseCharSubGroup>
 
@@ -18,7 +17,7 @@ abstract class CharacteristicSubGroupDao: DaoBaseModel<DatabaseCharSubGroup> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseCharSubGroup>
 
     @Query("SELECT * FROM `0_ish_sub_characteristics` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseCharSubGroup?
+    abstract override fun getRecordById(id: ID): DatabaseCharSubGroup?
 
     @Query("SELECT * FROM `0_ish_sub_characteristics` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharSubGroup>>

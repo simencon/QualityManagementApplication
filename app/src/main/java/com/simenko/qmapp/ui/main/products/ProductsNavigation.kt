@@ -47,6 +47,9 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
             val viewModel: ProductLineKeysViewModel = hiltViewModel()
             ProductLineKeys(viewModel = viewModel, route = it.toRoute())
         }
+        composable<Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey> {
+
+        }
 
 
         composable<Route.Main.ProductLines.ProductKinds.ProductKindsList> {

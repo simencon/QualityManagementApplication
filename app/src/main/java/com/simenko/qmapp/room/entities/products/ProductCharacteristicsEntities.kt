@@ -25,13 +25,13 @@ import com.simenko.qmapp.utils.ObjectTransformer
         )
     ]
 )
-data class DatabaseCharGroup (
+data class DatabaseCharGroup(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
     val productLineId: ID,
     val ishElement: String?
-) : DatabaseBaseModel<NetworkCharGroup, DomainCharGroup> {
+) : DatabaseBaseModel<NetworkCharGroup, DomainCharGroup, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharGroup::class, NetworkCharGroup::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharGroup::class, DomainCharGroup::class).transform(this)
@@ -49,7 +49,7 @@ data class DatabaseCharGroup (
             entityColumn = "id"
         )
         val productLine: DatabaseProductLine.DatabaseProductLineComplete
-    ) : DatabaseBaseModel<Any?, DomainCharGroup.DomainCharGroupComplete> {
+    ) : DatabaseBaseModel<Any?, DomainCharGroup.DomainCharGroupComplete, ID, ID> {
         override fun getRecordId() = charGroup.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainCharGroup.DomainCharGroupComplete(
@@ -71,14 +71,14 @@ data class DatabaseCharGroup (
         )
     ]
 )
-data class DatabaseCharSubGroup (
+data class DatabaseCharSubGroup(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
     val charGroupId: ID,
     val ishElement: String? = null,
     val measurementGroupRelatedTime: Double? = null
-) : DatabaseBaseModel<NetworkCharSubGroup, DomainCharSubGroup> {
+) : DatabaseBaseModel<NetworkCharSubGroup, DomainCharSubGroup, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharSubGroup::class, NetworkCharSubGroup::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharSubGroup::class, DomainCharSubGroup::class).transform(this)
@@ -96,7 +96,7 @@ data class DatabaseCharSubGroup (
             entityColumn = "id"
         )
         val charGroup: DatabaseCharGroup.DatabaseCharGroupComplete
-    ) : DatabaseBaseModel<Any?, DomainCharSubGroup.DomainCharSubGroupComplete> {
+    ) : DatabaseBaseModel<Any?, DomainCharSubGroup.DomainCharSubGroupComplete, ID, ID> {
         override fun getRecordId() = charSubGroup.id
         override fun toNetworkModel() = charSubGroup.charGroupId
         override fun toDomainModel() = DomainCharSubGroup.DomainCharSubGroupComplete(
@@ -119,7 +119,7 @@ data class DatabaseCharSubGroup (
         )
     ]
 )
-data class DatabaseCharacteristic (
+data class DatabaseCharacteristic(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
@@ -129,7 +129,7 @@ data class DatabaseCharacteristic (
     val charDescription: String? = null,
     val sampleRelatedTime: Double? = null,
     val measurementRelatedTime: Double? = null
-) : DatabaseBaseModel<NetworkCharacteristic, DomainCharacteristic> {
+) : DatabaseBaseModel<NetworkCharacteristic, DomainCharacteristic, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristic::class, NetworkCharacteristic::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
@@ -158,7 +158,7 @@ data class DatabaseCharacteristic (
         val charDescription: String,
         val sampleRelatedTime: Double,
         val measurementRelatedTime: Double
-    ): DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicWithParents> {
+    ) : DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicWithParents, ID, ID> {
         override fun getRecordId() = charId
         override fun toNetworkModel() = null
         override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicWithParents::class, DomainCharacteristic.DomainCharacteristicWithParents::class).transform(this)
@@ -177,7 +177,7 @@ data class DatabaseCharacteristic (
             entityColumn = "id"
         )
         val characteristicSubGroup: DatabaseCharSubGroup.DatabaseCharSubGroupComplete
-    ) : DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicComplete> {
+    ) : DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicComplete, ID, ID> {
         override fun getRecordId() = characteristic.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainCharacteristic.DomainCharacteristicComplete(
@@ -207,7 +207,7 @@ data class DatabaseMetrix(
     val metrixDesignation: String? = null,
     val metrixDescription: String? = null,
     val units: String? = null
-) : DatabaseBaseModel<NetworkMetrix, DomainMetrix> {
+) : DatabaseBaseModel<NetworkMetrix, DomainMetrix, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseMetrix::class, NetworkMetrix::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
@@ -243,7 +243,7 @@ data class DatabaseMetrix(
         val metricDesignation: String?,
         val metricDescription: String?,
         val metricUnits: String,
-    ) : DatabaseBaseModel<Any?, DomainMetrix.DomainMetricWithParents> {
+    ) : DatabaseBaseModel<Any?, DomainMetrix.DomainMetricWithParents, ID, ID> {
         override fun getRecordId() = charId
         override fun toNetworkModel() = null
         override fun toDomainModel() = ObjectTransformer(DatabaseMetricWithParents::class, DomainMetrix.DomainMetricWithParents::class).transform(this)
@@ -276,7 +276,7 @@ data class DatabaseCharacteristicProductKind(
     val charId: ID,
     @ColumnInfo(index = true)
     val productKindId: ID
-) : DatabaseBaseModel<NetworkCharacteristicProductKind, DomainCharacteristicProductKind> {
+) : DatabaseBaseModel<NetworkCharacteristicProductKind, DomainCharacteristicProductKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicProductKind::class, NetworkCharacteristicProductKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicProductKind::class, DomainCharacteristicProductKind::class).transform(this)
@@ -308,7 +308,7 @@ data class DatabaseCharacteristicComponentKind(
     val charId: ID,
     @ColumnInfo(index = true)
     val componentKindId: ID
-) : DatabaseBaseModel<NetworkCharacteristicComponentKind, DomainCharacteristicComponentKind> {
+) : DatabaseBaseModel<NetworkCharacteristicComponentKind, DomainCharacteristicComponentKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicComponentKind::class, NetworkCharacteristicComponentKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicComponentKind::class, DomainCharacteristicComponentKind::class).transform(this)
@@ -340,7 +340,7 @@ data class DatabaseCharacteristicComponentStageKind(
     val charId: ID,
     @ColumnInfo(index = true)
     val componentStageKindId: ID
-) : DatabaseBaseModel<NetworkCharacteristicComponentStageKind, DomainCharacteristicComponentStageKind> {
+) : DatabaseBaseModel<NetworkCharacteristicComponentStageKind, DomainCharacteristicComponentStageKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicComponentStageKind::class, NetworkCharacteristicComponentStageKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicComponentStageKind::class, DomainCharacteristicComponentStageKind::class).transform(this)
@@ -362,7 +362,7 @@ data class DatabaseCharacteristicItemKind(
     val charId: ID,
     val itemKindFId: String,
     val itemKindId: ID
-) : DatabaseBaseModel<Any?, DomainCharacteristicItemKind> {
+) : DatabaseBaseModel<Any?, DomainCharacteristicItemKind, String, String> {
     override fun getRecordId() = fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicItemKind::class, DomainCharacteristicItemKind::class).transform(this)
@@ -376,7 +376,7 @@ data class DatabaseCharacteristicItemKind(
             entityColumn = "charId"
         )
         val characteristicWithParents: DatabaseCharacteristic.DatabaseCharacteristicWithParents
-    ): DatabaseBaseModel<Any?, DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete> {
+    ) : DatabaseBaseModel<Any?, DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete, String, String> {
         override fun getRecordId() = characteristicItemKind.fId
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete(
@@ -415,7 +415,7 @@ data class DatabaseProductTolerance(
     val lsl: Float?,
     val usl: Float?,
     val isActual: Boolean
-) : DatabaseBaseModel<NetworkProductTolerance, DomainProductTolerance> {
+) : DatabaseBaseModel<NetworkProductTolerance, DomainProductTolerance, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductTolerance::class, NetworkProductTolerance::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductTolerance::class, DomainProductTolerance::class).transform(this)
@@ -450,7 +450,7 @@ data class DatabaseComponentTolerance(
     val lsl: Float?,
     val usl: Float?,
     val isActual: Boolean
-) : DatabaseBaseModel<NetworkComponentTolerance, DomainComponentTolerance> {
+) : DatabaseBaseModel<NetworkComponentTolerance, DomainComponentTolerance, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentTolerance::class, NetworkComponentTolerance::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentTolerance::class, DomainComponentTolerance::class).transform(this)
@@ -485,7 +485,7 @@ data class DatabaseComponentInStageTolerance(
     val lsl: Float?,
     val usl: Float?,
     val isActual: Boolean
-) : DatabaseBaseModel<NetworkComponentInStageTolerance, DomainComponentInStageTolerance> {
+) : DatabaseBaseModel<NetworkComponentInStageTolerance, DomainComponentInStageTolerance, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageTolerance::class, NetworkComponentInStageTolerance::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageTolerance::class, DomainComponentInStageTolerance::class).transform(this)
@@ -509,7 +509,7 @@ data class DatabaseItemTolerance(
     val lsl: Float?,
     val usl: Float?,
     val isActual: Boolean
-) : DatabaseBaseModel<Any?, DomainItemTolerance> {
+) : DatabaseBaseModel<Any?, DomainItemTolerance, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemTolerance::class, DomainItemTolerance::class).transform(this)
@@ -523,7 +523,7 @@ data class DatabaseItemTolerance(
             entityColumn = "metricId"
         )
         val metricWithParents: DatabaseMetrix.DatabaseMetricWithParents
-    ) : DatabaseBaseModel<Any?, DomainItemTolerance.DomainItemToleranceComplete> {
+    ) : DatabaseBaseModel<Any?, DomainItemTolerance.DomainItemToleranceComplete, ID, ID> {
         override fun getRecordId() = itemTolerance.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainItemTolerance.DomainItemToleranceComplete(

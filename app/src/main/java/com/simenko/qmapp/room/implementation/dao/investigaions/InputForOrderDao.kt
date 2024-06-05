@@ -7,7 +7,7 @@ import com.simenko.qmapp.room.contract.DaoBaseModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class InputForOrderDao : DaoBaseModel<DatabaseInputForOrder> {
+abstract class InputForOrderDao : DaoBaseModel<String, ID, DatabaseInputForOrder> {
     @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
     abstract override fun getRecords(): List<DatabaseInputForOrder>
 

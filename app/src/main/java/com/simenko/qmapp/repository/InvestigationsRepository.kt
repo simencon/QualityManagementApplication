@@ -244,12 +244,12 @@ class InvestigationsRepository @Inject constructor(
 //    ToDO - change this part to return exactly what is needed
 
     val orderById: (ID) -> DomainOrder = { id ->
-        database.orderDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such order in local DB") }
+        database.orderDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such order in local DB") }
     }
 
 
     val subOrderById: (ID) -> DomainSubOrder = { id ->
-        database.subOrderDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such sub order in local DB") }
+        database.subOrderDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such sub order in local DB") }
     }
 
     val tasksBySubOrderId: (ID) -> List<DomainSubOrderTask> = { subOrderId -> database.taskDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
@@ -262,7 +262,7 @@ class InvestigationsRepository @Inject constructor(
     val latestLocalOrderId: () -> ID = { database.orderDao.getLatestOrderId(database.orderDao.getLatestOrderDate() ?: NoRecord.num) ?: NoRecord.num }
 
     val ordersListByLastVisibleId: (ID, OrdersFilter) -> Flow<List<DomainOrderComplete>> = { lastVisibleId, filter ->
-        database.orderDao.getRecordById(lastVisibleId.toString())?.let { order ->
+        database.orderDao.getRecordById(lastVisibleId)?.let { order ->
             database.orderDao.getRecordsByTimeRangeForUI(
                 lastVisibleCreateDate = order.createdDate,
                 orderTypeId = filter.typeId,

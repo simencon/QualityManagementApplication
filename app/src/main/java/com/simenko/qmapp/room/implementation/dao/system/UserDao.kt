@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.DatabaseUser
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class UserDao: DaoBaseModel<DatabaseUser> {
+abstract class UserDao : DaoBaseModel<String, ID, DatabaseUser> {
     @Query("SELECT * FROM users ORDER BY email ASC")
     abstract override fun getRecords(): List<DatabaseUser>
 

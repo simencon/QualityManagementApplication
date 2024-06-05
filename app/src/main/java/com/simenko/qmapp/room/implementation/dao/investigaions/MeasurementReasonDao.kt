@@ -7,7 +7,7 @@ import com.simenko.qmapp.room.contract.DaoBaseModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class MeasurementReasonDao : DaoBaseModel<DatabaseReason> {
+abstract class MeasurementReasonDao : DaoBaseModel<ID, ID, DatabaseReason> {
     @Query("SELECT * FROM `0_measurement_reasons` ORDER BY reasonOrder ASC")
     abstract override fun getRecords(): List<DatabaseReason>
 
@@ -16,7 +16,7 @@ abstract class MeasurementReasonDao : DaoBaseModel<DatabaseReason> {
     abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseReason>
 
     @Query("SELECT * FROM `0_measurement_reasons` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseReason?
+    abstract override fun getRecordById(id: ID): DatabaseReason?
 
     @Query("SELECT * FROM `0_measurement_reasons` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseReason>>
