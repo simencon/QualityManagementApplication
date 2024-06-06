@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.contract.DaoTimeDependentModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class TaskDao : DaoBaseModel<ID, ID, DatabaseSubOrderTask>, DaoTimeDependentModel<DatabaseSubOrderTask> {
+abstract class TaskDao : DaoBaseModel<ID, ID, DatabaseSubOrderTask>, DaoTimeDependentModel<ID, ID, DatabaseSubOrderTask> {
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseSubOrderTask>
 

@@ -109,7 +109,7 @@ class CrudeOperations @Inject constructor(
             DBC : StatusHolderModel,
             DM : DomainBaseModel<DB>,
             DAO : DaoBaseModel<ID, PID, DB>,
-            DAO : DaoTimeDependentModel<DB> {
+            DAO : DaoTimeDependentModel<ID, PID, DB> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
@@ -157,7 +157,7 @@ class CrudeOperations @Inject constructor(
             DB : DatabaseBaseModel<N, DM, ID, PID>,
             DM : DomainBaseModel<DB>,
             DAO : DaoBaseModel<ID, PID, DB>,
-            DAO : DaoTimeDependentModel<DB> {
+            DAO : DaoTimeDependentModel<ID, PID, DB> {
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecordsByTimeRange(timeRange).run {
