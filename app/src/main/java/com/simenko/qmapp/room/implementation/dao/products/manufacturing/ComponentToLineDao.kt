@@ -12,13 +12,12 @@ abstract class ComponentToLineDao : DaoBaseModel<ID, ID, DatabaseComponentToLine
     @Query("SELECT * FROM `13_3_components_to_lines` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentToLine>
 
-    @Query("select * from `13_3_components_to_lines` where lineId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentToLine>
-
-    @Query("SELECT * FROM `13_3_components_to_lines` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseComponentToLine?
-
     @Query("SELECT * FROM `13_3_components_to_lines` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentToLine>>
 
+    @Query("select * from `13_3_components_to_lines` where lineId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentToLine>
+
+    @Query("SELECT * FROM `13_3_components_to_lines` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponentToLine?
 }

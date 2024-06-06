@@ -11,15 +11,14 @@ abstract class NotificationRegisterDao : DaoBaseModel<Int, Any, NotificationRegi
         TODO("Not yet implemented")
     }
 
-    override fun getRecordsByParentId(parentId: Any): List<NotificationRegisterEntity> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getRecordById(id: Int): NotificationRegisterEntity? {
-        TODO("Not yet implemented")
-    }
-
     override fun getRecordsForUI(): Flow<List<NotificationRegisterEntity>> {
+        TODO("Not yet implemented")
+    }
+    fun getRecordsByParentId(parentId: Any): List<NotificationRegisterEntity> {
+        TODO("Not yet implemented")
+    }
+
+    fun getRecordById(id: Int): NotificationRegisterEntity? {
         TODO("Not yet implemented")
     }
 }

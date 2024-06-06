@@ -13,12 +13,6 @@ abstract class SampleDao : DaoBaseModel<ID, ID, DatabaseSample>, DaoTimeDependen
     @Query("SELECT * FROM `14_samples` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseSample>
 
-    @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :parentId")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSample>
-
-    @Query("SELECT * FROM `14_samples` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseSample?
-
     @Query("SELECT * FROM `14_samples` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseSample>>
 
@@ -31,6 +25,12 @@ abstract class SampleDao : DaoBaseModel<ID, ID, DatabaseSample>, DaoTimeDependen
                 "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
     abstract override fun getRecordsByTimeRange(timeRange: Pair<Long, Long>): List<DatabaseSample>
+
+    @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :parentId")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseSample>
+
+    @Query("SELECT * FROM `14_samples` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseSample?
 
     @Transaction
     @Query(

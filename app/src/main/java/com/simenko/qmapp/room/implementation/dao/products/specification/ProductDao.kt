@@ -12,12 +12,12 @@ abstract class ProductDao: DaoBaseModel<ID, ID, DatabaseProduct> {
     @Query("SELECT * FROM `2_products` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProduct>
 
-    @Query("select * from `2_products` where productBaseId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProduct>
-
-    @Query("SELECT * FROM `2_products` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseProduct?
-
     @Query("SELECT * FROM `2_products` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProduct>>
+
+    @Query("select * from `2_products` where productBaseId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProduct>
+
+    @Query("SELECT * FROM `2_products` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseProduct?
 }

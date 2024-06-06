@@ -12,13 +12,13 @@ abstract class VersionStatusDao : DaoBaseModel<ID, ID, DatabaseVersionStatus> {
     @Query("SELECT * FROM `0_versions_status` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseVersionStatus>
 
-    @Query("select * from `0_versions_status` where id = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseVersionStatus>
-
-    @Query("SELECT * FROM `0_versions_status` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseVersionStatus?
-
     @Query("SELECT * FROM `0_versions_status` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseVersionStatus>>
+
+    @Query("select * from `0_versions_status` where id = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseVersionStatus>
+
+    @Query("SELECT * FROM `0_versions_status` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseVersionStatus?
 
 }

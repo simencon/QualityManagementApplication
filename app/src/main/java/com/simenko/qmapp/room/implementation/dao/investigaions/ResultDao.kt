@@ -13,13 +13,6 @@ abstract class ResultDao : DaoBaseModel<ID, ID, DatabaseResult>, DaoTimeDependen
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseResult>
 
-    //    ToDo - is not 100% correct because parent is taskId + sampleId
-    @Query("SELECT s.* FROM `14_8_results` as s where s.taskId = :parentId")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseResult>
-
-    @Query("SELECT * FROM `14_8_results` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseResult?
-
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseResult>>
 
@@ -33,6 +26,13 @@ abstract class ResultDao : DaoBaseModel<ID, ID, DatabaseResult>, DaoTimeDependen
                 "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
     abstract override fun getRecordsByTimeRange(timeRange: Pair<Long, Long>): List<DatabaseResult>
+
+    //    ToDo - is not 100% correct because parent is taskId + sampleId
+    @Query("SELECT s.* FROM `14_8_results` as s where s.taskId = :parentId")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseResult>
+
+    @Query("SELECT * FROM `14_8_results` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseResult?
 
     @Transaction
     @Query("select r.* from `result_complete` r where r.taskId = :taskId and r.sampleId = :sampleId;")

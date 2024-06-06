@@ -11,12 +11,12 @@ abstract class OrderStatusDao : DaoBaseModel<ID, ID, DatabaseOrdersStatus> {
     @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseOrdersStatus>
 
-    @Query("select * from `0_orders_statuses` where id = :parentId")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseOrdersStatus>
-
-    @Query("SELECT * FROM `0_orders_statuses` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseOrdersStatus?
-
     @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseOrdersStatus>>
+
+    @Query("select * from `0_orders_statuses` where id = :parentId")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseOrdersStatus>
+
+    @Query("SELECT * FROM `0_orders_statuses` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseOrdersStatus?
 }

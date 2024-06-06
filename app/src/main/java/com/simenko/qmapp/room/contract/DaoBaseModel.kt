@@ -26,11 +26,5 @@ interface DaoBaseModel<ID, PID, DB : DatabaseBaseModel<NetworkBaseModel<DB>, Dom
     fun deleteRecords(record: List<DB>)
 
     fun getRecords(): List<DB>
-
-    /**
-     * when Entity has no parent, function returns single record where id = parentId
-     * */
-    fun getRecordsByParentId(parentId: PID): List<DB>
-    fun getRecordById(id: ID): DB?
     fun getRecordsForUI(): Flow<List<DB>>
 }

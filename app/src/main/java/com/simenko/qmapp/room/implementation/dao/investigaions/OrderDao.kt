@@ -15,12 +15,6 @@ abstract class OrderDao : DaoBaseModel<ID, ID, DatabaseOrder>, DaoTimeDependentM
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecords(): List<DatabaseOrder>
 
-    @Query("select * from `12_orders` where orderTypeId = :parentId order by orderNumber asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseOrder>
-
-    @Query("SELECT * FROM `12_orders` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseOrder?
-
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseOrder>>
 
@@ -31,6 +25,12 @@ abstract class OrderDao : DaoBaseModel<ID, ID, DatabaseOrder>, DaoTimeDependentM
                 "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
     abstract override fun getRecordsByTimeRange(timeRange: Pair<Long, Long>): List<DatabaseOrder>
+
+    @Query("select * from `12_orders` where orderTypeId = :parentId order by orderNumber asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseOrder>
+
+    @Query("SELECT * FROM `12_orders` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseOrder?
 
     @Transaction
     @Query("select max(createdDate) from `12_orders`")

@@ -12,13 +12,13 @@ abstract class ComponentStageToleranceDao: DaoBaseModel<ID, ID, DatabaseComponen
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentInStageTolerance>
 
-    @Query("select * from `11_8_component_in_stage_tolerances` where versionId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentInStageTolerance>
-
-    @Query("SELECT * FROM `11_8_component_in_stage_tolerances` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseComponentInStageTolerance?
-
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentInStageTolerance>>
+
+    @Query("select * from `11_8_component_in_stage_tolerances` where versionId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentInStageTolerance>
+
+    @Query("SELECT * FROM `11_8_component_in_stage_tolerances` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponentInStageTolerance?
 
 }

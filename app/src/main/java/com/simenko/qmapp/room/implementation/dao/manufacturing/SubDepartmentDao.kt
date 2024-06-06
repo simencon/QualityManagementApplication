@@ -13,14 +13,14 @@ abstract class SubDepartmentDao : DaoBaseModel<ID, ID, DatabaseSubDepartment> {
     @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecords(): List<DatabaseSubDepartment>
 
-    @Query("select * from `11_sub_departments` where depId = :parentId order by subDepOrder asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSubDepartment>
-
-    @Query("select * from `11_sub_departments` where id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseSubDepartment?
-
     @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseSubDepartment>>
+
+    @Query("select * from `11_sub_departments` where depId = :parentId order by subDepOrder asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseSubDepartment>
+
+    @Query("select * from `11_sub_departments` where id = :id")
+    abstract fun getRecordById(id: ID): DatabaseSubDepartment?
 
     @Query("""
         select * from `11_sub_departments` as sd

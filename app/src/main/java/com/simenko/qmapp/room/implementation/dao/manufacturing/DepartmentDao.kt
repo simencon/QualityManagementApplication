@@ -9,25 +9,27 @@ import com.simenko.qmapp.room.entities.DatabaseDepartment
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class DepartmentDao: DaoBaseModel<ID, ID, DatabaseDepartment> {
+abstract class DepartmentDao : DaoBaseModel<ID, ID, DatabaseDepartment> {
     @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
     abstract override fun getRecords(): List<DatabaseDepartment>
-
-    @Query("select * from `10_departments` where companyId = :parentId order by depOrder asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseDepartment>
-
-    @Query("SELECT * FROM `10_departments` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseDepartment?
 
     @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseDepartment>>
 
+    @Query("select * from `10_departments` where companyId = :parentId order by depOrder asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseDepartment>
+
+    @Query("SELECT * FROM `10_departments` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseDepartment?
+
     @Transaction
-    @Query("""
+    @Query(
+        """
         select * from `10_departments` as d
         where (:parentId = -1 or d.companyId = :parentId)
         order by depOrder;
-        """)
+        """
+    )
     abstract fun getRecordsComplete(parentId: ID): Flow<List<DatabaseDepartment.DatabaseDepartmentsComplete>>
 
     @Transaction

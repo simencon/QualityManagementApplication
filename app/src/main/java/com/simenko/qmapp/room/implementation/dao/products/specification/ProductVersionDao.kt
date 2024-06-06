@@ -15,14 +15,14 @@ abstract class ProductVersionDao : DaoBaseModel<ID, ID, DatabaseProductVersion> 
     @Query("SELECT * FROM `9_products_versions` ORDER BY versionDate ASC")
     abstract override fun getRecords(): List<DatabaseProductVersion>
 
-    @Query("select * from `9_products_versions` where productId = :parentId order by versionDate  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductVersion>
-
-    @Query("SELECT * FROM `9_products_versions` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseProductVersion?
-
     @Query("SELECT * FROM `9_products_versions` ORDER BY versionDate ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductVersion>>
+
+    @Query("select * from `9_products_versions` where productId = :parentId order by versionDate  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductVersion>
+
+    @Query("SELECT * FROM `9_products_versions` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseProductVersion?
 
     @Transaction
     @Query("SELECT * FROM item_versions where fItemId = :fpId or :fpId = '-1'")

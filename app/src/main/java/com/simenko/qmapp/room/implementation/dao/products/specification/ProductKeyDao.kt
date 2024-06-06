@@ -13,14 +13,14 @@ abstract class ProductKeyDao : DaoBaseModel<ID, ID, DatabaseKey> {
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseKey>
 
-    @Query("select * from `0_keys` where projectId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseKey>
-
-    @Query("SELECT * FROM `0_keys` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseKey?
-
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseKey>>
+
+    @Query("select * from `0_keys` where projectId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseKey>
+
+    @Query("SELECT * FROM `0_keys` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseKey?
 
     @Transaction
     @Query("select * from `keys_complete` where projectId = :parentId order by id  asc")

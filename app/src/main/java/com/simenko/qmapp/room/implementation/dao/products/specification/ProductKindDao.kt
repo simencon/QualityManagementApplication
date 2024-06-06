@@ -14,14 +14,14 @@ abstract class ProductKindDao : DaoBaseModel<ID, ID, DatabaseProductKind> {
     @Query("SELECT * FROM `1_product_kinds` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProductKind>
 
-    @Query("select * from `1_product_kinds` where projectId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductKind>
-
-    @Query("SELECT * FROM `1_product_kinds` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseProductKind?
-
     @Query("SELECT * FROM `1_product_kinds` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductKind>>
+
+    @Query("select * from `1_product_kinds` where projectId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductKind>
+
+    @Query("SELECT * FROM `1_product_kinds` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseProductKind?
 
     @Transaction
     @Query("SELECT * FROM `product_kinds_complete` WHERE id = :id")

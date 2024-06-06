@@ -13,14 +13,14 @@ abstract class CharacteristicSubGroupDao: DaoBaseModel<ID, ID, DatabaseCharSubGr
     @Query("SELECT * FROM `0_ish_sub_characteristics` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseCharSubGroup>
 
-    @Query("select * from `0_ish_sub_characteristics` where id = :parentId order by id asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseCharSubGroup>
-
-    @Query("SELECT * FROM `0_ish_sub_characteristics` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseCharSubGroup?
-
     @Query("SELECT * FROM `0_ish_sub_characteristics` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharSubGroup>>
+
+    @Query("select * from `0_ish_sub_characteristics` where id = :parentId order by id asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseCharSubGroup>
+
+    @Query("SELECT * FROM `0_ish_sub_characteristics` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseCharSubGroup?
 
     @Transaction
     @Query("select * from characteristic_sub_group_complete where charGroupId = :parentId")

@@ -14,14 +14,14 @@ abstract class EmployeeDao : DaoBaseModel<ID, ID, DatabaseEmployee> {
     @Query("SELECT * FROM `8_employees` ORDER BY id DESC")
     abstract override fun getRecords(): List<DatabaseEmployee>
 
-    @Query("select * from `8_employees` where companyId = :parentId order by id DESC")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseEmployee>
-
-    @Query("SELECT * FROM `8_employees` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseEmployee?
-
     @Query("SELECT * FROM `8_employees` ORDER BY id DESC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseEmployee>>
+
+    @Query("select * from `8_employees` where companyId = :parentId order by id DESC")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseEmployee>
+
+    @Query("SELECT * FROM `8_employees` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseEmployee?
 
     @Transaction
     @Query(

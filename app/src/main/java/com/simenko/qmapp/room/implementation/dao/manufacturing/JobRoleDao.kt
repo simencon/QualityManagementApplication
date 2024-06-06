@@ -12,12 +12,12 @@ abstract class JobRoleDao : DaoBaseModel<ID, ID, DatabaseJobRole> {
     @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseJobRole>
 
-    @Query("select * from `0_job_roles` where companyId = :parentId order by id asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseJobRole>
-
-    @Query("SELECT * FROM `0_job_roles` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseJobRole?
-
     @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseJobRole>>
+
+    @Query("select * from `0_job_roles` where companyId = :parentId order by id asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseJobRole>
+
+    @Query("SELECT * FROM `0_job_roles` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseJobRole?
 }

@@ -12,12 +12,12 @@ abstract class ComponentStageKindComponentStageDao : DaoBaseModel<ID, ID, Databa
     @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentStageKindComponentStage>
 
-    @Query("select * from `5_6_component_stage_kinds_component_stages` where id = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentStageKindComponentStage>
-
-    @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseComponentStageKindComponentStage?
-
     @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentStageKindComponentStage>>
+
+    @Query("select * from `5_6_component_stage_kinds_component_stages` where id = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentStageKindComponentStage>
+
+    @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponentStageKindComponentStage?
 }

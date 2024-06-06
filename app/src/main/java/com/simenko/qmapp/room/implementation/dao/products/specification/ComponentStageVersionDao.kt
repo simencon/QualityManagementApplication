@@ -12,12 +12,12 @@ abstract class ComponentStageVersionDao: DaoBaseModel<ID, ID, DatabaseComponentS
     @Query("SELECT * FROM `11_component_in_stage_versions` ORDER BY versionDate ASC")
     abstract override fun getRecords(): List<DatabaseComponentStageVersion>
 
-    @Query("select * from `11_component_in_stage_versions` where componentInStageId = :parentId order by versionDate  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentStageVersion>
-
-    @Query("SELECT * FROM `11_component_in_stage_versions` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseComponentStageVersion?
-
     @Query("SELECT * FROM `11_component_in_stage_versions` ORDER BY versionDate ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentStageVersion>>
+
+    @Query("select * from `11_component_in_stage_versions` where componentInStageId = :parentId order by versionDate  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentStageVersion>
+
+    @Query("SELECT * FROM `11_component_in_stage_versions` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponentStageVersion?
 }

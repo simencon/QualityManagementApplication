@@ -13,14 +13,14 @@ abstract class ComponentKindDao : DaoBaseModel<ID, ID, DatabaseComponentKind> {
     @Query("SELECT * FROM `3_component_kinds` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseComponentKind>
 
-    @Query("select * from `3_component_kinds` where productKindId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKind>
-
-    @Query("SELECT * FROM `3_component_kinds` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseComponentKind?
-
     @Query("SELECT * FROM `3_component_kinds` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentKind>>
+
+    @Query("select * from `3_component_kinds` where productKindId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKind>
+
+    @Query("SELECT * FROM `3_component_kinds` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponentKind?
 
     @Transaction
     @Query("SELECT * FROM `component_kinds_complete` WHERE id = :id")

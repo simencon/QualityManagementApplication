@@ -11,15 +11,15 @@ abstract class InputForOrderDao : DaoBaseModel<String, ID, DatabaseInputForOrder
     @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
     abstract override fun getRecords(): List<DatabaseInputForOrder>
 
+    @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseInputForOrder>>
+
     /**
      * as parent is used lineId but in fact should be companyId in future
      * */
     @Query("select * from `1_1_inputformeasurementregister` where lineId = :parentId order by charOrder asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseInputForOrder>
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseInputForOrder>
 
     @Query("SELECT * FROM `1_1_inputForMeasurementRegister` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseInputForOrder?
-
-    @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
-    abstract override fun getRecordsForUI(): Flow<List<DatabaseInputForOrder>>
+    abstract fun getRecordById(id: String): DatabaseInputForOrder?
 }

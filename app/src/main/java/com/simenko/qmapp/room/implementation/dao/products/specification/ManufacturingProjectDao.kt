@@ -13,14 +13,14 @@ abstract class ManufacturingProjectDao : DaoBaseModel<ID, ID, DatabaseProductLin
     @Query("SELECT * FROM `0_manufacturing_project` ORDER BY startDate ASC")
     abstract override fun getRecords(): List<DatabaseProductLine>
 
-    @Query("select * from `0_manufacturing_project` where companyId = :parentId order by startDate asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductLine>
-
-    @Query("SELECT * FROM `0_manufacturing_project` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseProductLine?
-
     @Query("SELECT * FROM `0_manufacturing_project` ORDER BY startDate ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductLine>>
+
+    @Query("select * from `0_manufacturing_project` where companyId = :parentId order by startDate asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductLine>
+
+    @Query("SELECT * FROM `0_manufacturing_project` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseProductLine?
 
     @Transaction
     @Query("select * from product_line_complete where companyId = :parentId;")

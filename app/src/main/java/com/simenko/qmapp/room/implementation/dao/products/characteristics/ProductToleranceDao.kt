@@ -12,13 +12,12 @@ abstract class ProductToleranceDao: DaoBaseModel<ID, ID, DatabaseProductToleranc
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProductTolerance>
 
-    @Query("select * from `9_8_product_tolerances` where versionId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseProductTolerance>
-
-    @Query("SELECT * FROM `9_8_product_tolerances` WHERE id = :id")
-    abstract override fun getRecordById(id: ID): DatabaseProductTolerance?
-
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductTolerance>>
 
+    @Query("select * from `9_8_product_tolerances` where versionId = :parentId order by id  asc")
+    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductTolerance>
+
+    @Query("SELECT * FROM `9_8_product_tolerances` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseProductTolerance?
 }
