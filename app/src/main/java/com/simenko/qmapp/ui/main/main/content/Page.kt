@@ -270,6 +270,9 @@ enum class Page(
     ADD_PRODUCT_PROJECT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new manufacturing project", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_PROJECT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit manufacturing project", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_PRODUCT_LINE_KEY(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add product line design.", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_LINE_KEY(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product line design.", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
 

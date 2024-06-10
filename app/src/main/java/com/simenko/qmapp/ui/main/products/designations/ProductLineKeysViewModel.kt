@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -15,11 +16,13 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -75,21 +78,45 @@ class ProductLineKeysViewModel @Inject constructor(
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onDeleteProductLineKeyClick(it: ID) {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                with(repository){
+                    deleteProductLineKey(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun updateProductLineKeysData() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            try {
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+                repository.syncProductLineKeys()
+
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+            } catch (e: Exception) {
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+            }
+        }
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddProductLineKeyClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey(productLineId = it.first, productLineKeyId = it.second))
     }
 
     fun onEditProductLineKeyClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey(productLineId = it.first, productLineKeyId = it.second))
     }
 }

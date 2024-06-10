@@ -24,6 +24,8 @@ import com.simenko.qmapp.ui.main.products.kinds.set.stages.designations.Componen
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.designations.ComponentStageKindKeysViewModel
 import com.simenko.qmapp.ui.main.products.designations.ProductLineKeys
 import com.simenko.qmapp.ui.main.products.designations.ProductLineKeysViewModel
+import com.simenko.qmapp.ui.main.products.designations.forms.ProductLineKeyForm
+import com.simenko.qmapp.ui.main.products.designations.forms.ProductLineKeyViewModel
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
@@ -33,6 +35,7 @@ import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKin
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.navigation.Route
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
     navigation<T>(startDestination = Route.Main.ProductLines.ProductLinesList()) {
@@ -41,16 +44,7 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
             ProductLines(viewModel = viewModel, route = it.toRoute())
         }
 
-
-
-        composable<Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList> {
-            val viewModel: ProductLineKeysViewModel = hiltViewModel()
-            ProductLineKeys(viewModel = viewModel, route = it.toRoute())
-        }
-        composable<Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey> {
-
-        }
-
+        productLineKeysNavigation<Route.Main.ProductLines.ProductLineKeys>()
 
         composable<Route.Main.ProductLines.ProductKinds.ProductKindsList> {
             val viewModel: ProductKindsViewModel = hiltViewModel()
@@ -102,6 +96,20 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
         composable<Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit> {
             val viewModel: CharSubGroupViewModel = hiltViewModel()
             CharacteristicSubGroupForm(viewModel = viewModel, route = it.toRoute())
+        }
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+inline fun <reified T : Any> NavGraphBuilder.productLineKeysNavigation() {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList()) {
+        composable<Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList> {
+            val viewModel: ProductLineKeysViewModel = hiltViewModel()
+            ProductLineKeys(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey> {
+            val viewModel: ProductLineKeyViewModel = hiltViewModel()
+            ProductLineKeyForm(viewModel = viewModel, route = it.toRoute())
         }
     }
 }

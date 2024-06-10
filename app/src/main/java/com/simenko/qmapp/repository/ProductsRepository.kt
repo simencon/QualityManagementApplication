@@ -25,7 +25,22 @@ class ProductsRepository @Inject constructor(
      * Update Products from the network
      */
     suspend fun syncManufacturingProjects() = crudeOperations.syncRecordsAll(database.manufacturingProjectDao) { service.getManufacturingProjects() }
-    suspend fun syncProductKeys() = crudeOperations.syncRecordsAll(database.productKeyDao) { service.getKeys() }
+
+
+    suspend fun syncProductLineKeys() = crudeOperations.syncRecordsAll(database.productKeyDao) { service.getKeys() }
+    fun CoroutineScope.deleteProductLineKey(id: ID): ReceiveChannel<Event<Resource<DomainKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteProductLineKey(id) }) { r -> database.productKeyDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertProductLineKey(record: DomainKey): ReceiveChannel<Event<Resource<DomainKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertProductLineKey(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKeyDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateProductLineKey(record: DomainKey): ReceiveChannel<Event<Resource<DomainKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editProductLineKey(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKeyDao.updateRecord(r) }
+    }
+
+
     suspend fun syncProductBases() = crudeOperations.syncRecordsAll(database.productBaseDao) { service.getProductBases() }
     suspend fun syncCharacteristicGroups() = crudeOperations.syncRecordsAll(database.characteristicGroupDao) { service.getCharacteristicGroups() }
 
@@ -103,8 +118,8 @@ class ProductsRepository @Inject constructor(
     val productLineKeys: (ID) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId ->
         database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val productLineKey: suspend (ID) -> DomainKey = { id ->
-        database.productKeyDao.getRecordById(id)?.toDomainModel() ?: DomainKey()
+    val productLineKeyById: suspend (ID) -> DomainKey.DomainKeyComplete = { id ->
+        database.productKeyDao.getRecordCompleteById(id)?.toDomainModel() ?: DomainKey.DomainKeyComplete()
     }
 
     val productKind: suspend (ID) -> DomainProductKind.DomainProductKindComplete = { id ->
