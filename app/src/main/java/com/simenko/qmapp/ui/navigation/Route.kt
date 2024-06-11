@@ -85,6 +85,9 @@ sealed interface Route {
             data class ProductLinesList(val companyId: ID = NoRecord.num, val productLineId: ID = NoRecord.num) : Route
 
             @Serializable
+            data class AddEditProductLine(val companyId: ID = NoRecord.num, val productLineId: ID = NoRecord.num) : Route
+
+            @Serializable
             data object ProductLineKeys : Route {
                 @Serializable
                 data class ProductLineKeysList(val productLineId: ID = NoRecord.num, val productLineKeyId: ID = NoRecord.num) : Route

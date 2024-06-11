@@ -63,7 +63,7 @@ class DepartmentViewModel @Inject constructor(
         }
     }
 
-    private fun prepareDepartment(companyId: ID) {
+    private suspend fun prepareDepartment(companyId: ID) {
         _department.value = DomainDepartment.DomainDepartmentComplete(
             department = DomainDepartment(companyId = companyId),
             company = repository.companyById(companyId)

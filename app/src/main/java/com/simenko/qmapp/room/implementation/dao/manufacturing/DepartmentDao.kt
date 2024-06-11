@@ -17,7 +17,7 @@ abstract class DepartmentDao : DaoBaseModel<ID, ID, DatabaseDepartment> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseDepartment>>
 
     @Query("select * from `10_departments` where companyId = :parentId order by depOrder asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseDepartment>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseDepartment>>
 
     @Query("SELECT * FROM `10_departments` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseDepartment?

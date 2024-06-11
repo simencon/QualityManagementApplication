@@ -23,6 +23,10 @@ abstract class ManufacturingProjectDao : DaoBaseModel<ID, ID, DatabaseProductLin
     abstract fun getRecordById(id: ID): DatabaseProductLine?
 
     @Transaction
+    @Query("SELECT * FROM `0_manufacturing_project` WHERE id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseProductLine.DatabaseProductLineComplete?
+
+    @Transaction
     @Query("select * from product_line_complete where companyId = :parentId;")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseProductLine.DatabaseProductLineComplete>>
 }

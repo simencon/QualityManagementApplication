@@ -31,7 +31,7 @@ import javax.inject.Inject
 class ProductLineKeyViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    val repository: ProductsRepository,
+    private val repository: ProductsRepository,
 ) : ViewModel() {
     private val _productLineKey = MutableStateFlow(DomainKey.DomainKeyComplete())
 
@@ -40,15 +40,13 @@ class ProductLineKeyViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
     fun onEntered(route: Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                if (route.productLineKeyId == NoRecord.num) prepareProductLineKey(route.productLineId) else _productLineKey.value = repository.productLineKeyById(route.productLineKeyId)
-                mainPageHandler = MainPageHandler.Builder(if (route.productLineKeyId == NoRecord.num) Page.ADD_PRODUCT_LINE_KEY else Page.EDIT_PRODUCT_LINE_KEY, mainPageState)
-                    .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                    .setOnFabClickAction { validateInput() }
-                    .build()
-                    .apply { setupMainPage(0, true) }
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (route.productLineKeyId == NoRecord.num) prepareProductLineKey(route.productLineId) else _productLineKey.value = repository.productLineKeyById(route.productLineKeyId)
+            mainPageHandler = MainPageHandler.Builder(if (route.productLineKeyId == NoRecord.num) Page.ADD_PRODUCT_LINE_KEY else Page.EDIT_PRODUCT_LINE_KEY, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { validateInput() }
+                .build()
+                .apply { setupMainPage(0, true) }
         }
     }
 

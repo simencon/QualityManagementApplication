@@ -26,6 +26,8 @@ import com.simenko.qmapp.ui.main.products.designations.ProductLineKeys
 import com.simenko.qmapp.ui.main.products.designations.ProductLineKeysViewModel
 import com.simenko.qmapp.ui.main.products.designations.forms.ProductLineKeyForm
 import com.simenko.qmapp.ui.main.products.designations.forms.ProductLineKeyViewModel
+import com.simenko.qmapp.ui.main.products.forms.ProductLineForm
+import com.simenko.qmapp.ui.main.products.forms.ProductLineViewModel
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
@@ -40,8 +42,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
     navigation<T>(startDestination = Route.Main.ProductLines.ProductLinesList()) {
         composable<Route.Main.ProductLines.ProductLinesList> {
-            val viewModel: ProductsViewModel = hiltViewModel()
+            val viewModel: ProductLinesViewModel = hiltViewModel()
             ProductLines(viewModel = viewModel, route = it.toRoute())
+        }
+
+        composable<Route.Main.ProductLines.AddEditProductLine> {
+            val viewModel: ProductLineViewModel = hiltViewModel()
+            ProductLineForm(viewModel = viewModel, route = it.toRoute())
         }
 
         productLineKeysNavigation<Route.Main.ProductLines.ProductLineKeys>()

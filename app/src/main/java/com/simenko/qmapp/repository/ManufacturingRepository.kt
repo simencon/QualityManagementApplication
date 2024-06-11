@@ -133,6 +133,7 @@ class ManufacturingRepository @Inject constructor(
      * Connecting with LiveData for ViewModel
      */
     val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+    val employeesByParentId: (ID) -> Flow<List<DomainEmployee>> = { pId -> database.employeeDao.getRecordsByParentId(pId).map { list -> list.map { it.toDomainModel() } } }
     val employeeById: (ID) -> DomainEmployee = { id ->
         database.employeeDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
     }
@@ -142,13 +143,14 @@ class ManufacturingRepository @Inject constructor(
 
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
-    val companyById: (ID) -> DomainCompany = { id ->
+    val companyById: suspend (ID) -> DomainCompany = { id ->
         database.companyDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
     }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+    val departmentsByParentId: (ID) -> Flow<List<DomainDepartment>> = { pId -> database.departmentDao.getRecordsByParentId(pId).map { list -> list.map { it.toDomainModel() } } }
     val departmentsComplete: (ID) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
     val departmentById: (ID) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).toDomainModel() }
 

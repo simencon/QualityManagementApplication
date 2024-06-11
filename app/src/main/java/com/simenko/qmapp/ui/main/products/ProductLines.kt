@@ -52,7 +52,7 @@ import com.simenko.qmapp.ui.navigation.Route
 @Composable
 fun ProductLines(
     modifier: Modifier = Modifier,
-    viewModel: ProductsViewModel = hiltViewModel(),
+    viewModel: ProductLinesViewModel = hiltViewModel(),
     route: Route.Main.ProductLines.ProductLinesList
 ) {
     val items by viewModel.productLines.collectAsStateWithLifecycle(listOf())

@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProductsViewModel @Inject constructor(
+class ProductLinesViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
@@ -82,12 +82,11 @@ class ProductsViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddProductLineClick(companyId: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.AddEditProductLine(companyId = companyId))
     }
 
-
     fun onEditProductLineClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.AddEditProductLine(companyId = it.first, productLineId = it.second))
     }
 
     fun onProductLineKeysClick(it: ID) {

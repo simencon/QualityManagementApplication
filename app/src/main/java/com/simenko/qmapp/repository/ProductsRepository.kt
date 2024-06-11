@@ -90,6 +90,7 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
 
     val productLine: suspend (ID) -> DomainProductLine = { database.manufacturingProjectDao.getRecordById(it)?.toDomainModel() ?: DomainProductLine() }
+    val productLineById: suspend (ID) -> DomainProductLineComplete = { database.manufacturingProjectDao.getRecordCompleteById(it)?.toDomainModel() ?: DomainProductLineComplete() }
     val productLines: (ID) -> Flow<List<DomainProductLineComplete>> = { pId ->
         database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
