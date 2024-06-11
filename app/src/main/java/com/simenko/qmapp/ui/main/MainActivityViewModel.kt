@@ -164,7 +164,7 @@ class MainActivityViewModel @Inject constructor(
             manufacturingRepository.syncOperations()
             manufacturingRepository.syncOperationsFlows()
 
-            productsRepository.syncManufacturingProjects()
+            productsRepository.syncProductLines()
             productsRepository.syncProductLineKeys()
             productsRepository.syncProductBases()
             productsRepository.syncCharacteristicGroups()

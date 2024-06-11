@@ -48,7 +48,7 @@ object Constants {
     const val MANUFACTURING_OPERATIONS = "manufacturingOperations"
     const val MANUFACTURING_OPERATIONS_FLOWS = "manufacturingOperationsFlows"
 
-    const val MANUFACTURING_PROJECTS = "manufacturingProjects"
+    const val PRODUCT_LINES = "manufacturingProjects"
     const val PRODUCTS_KEYS = "productsKeys"
     const val PRODUCT_BASES = "productBases"
     const val CHARACTERISTICS_GROUPS = "characteristicGroups"

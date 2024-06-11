@@ -156,7 +156,7 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val operationDao: OperationDao
     abstract val operationsFlowDao: OperationsFlowDao
 
-    abstract val manufacturingProjectDao: ManufacturingProjectDao
+    abstract val productLineDao: ManufacturingProjectDao
     abstract val productKeyDao: ProductKeyDao
     abstract val productBaseDao: ProductBaseDao
     abstract val characteristicGroupDao: CharacteristicGroupDao

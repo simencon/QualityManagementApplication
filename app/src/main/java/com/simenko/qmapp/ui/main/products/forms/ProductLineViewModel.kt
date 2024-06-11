@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -20,6 +21,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -179,8 +182,36 @@ class ProductLineViewModel @Inject constructor(
         if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg) else _fillInState.value = FillInSuccessState
     }
 
-    fun makeRecord() {
-        TODO("Not yet implemented")
+    fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) {
+            if (_productLine.value.manufacturingProject.id == NoRecord.num) insertProductLine(_productLine.value.manufacturingProject) else updateProductLine(_productLine.value.manufacturingProject)
+        }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                    Status.ERROR -> {
+                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        _fillInState.value = FillInInitialState
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord(id: ID?) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        withContext(Dispatchers.Main) {
+            id?.let {
+                val companyId = _productLine.value.manufacturingProject.companyId
+                val productLineId = it
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductLinesList(companyId, productLineId),
+                    popUpToRoute = Route.Main.ProductLines,
+                    inclusive = true
+                )
+            }
+        }
     }
 }
 

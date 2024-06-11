@@ -22,7 +22,7 @@ import com.simenko.qmapp.other.Constants.COMPONENT_STAGE_KINDS_COMPONENT_STAGES
 import com.simenko.qmapp.other.Constants.COMPONENT_STAGE_KINDS_KEYS
 import com.simenko.qmapp.other.Constants.COMPONENT_TOLERANCES
 import com.simenko.qmapp.other.Constants.COMPONENT_VERSIONS
-import com.simenko.qmapp.other.Constants.MANUFACTURING_PROJECTS
+import com.simenko.qmapp.other.Constants.PRODUCT_LINES
 import com.simenko.qmapp.other.Constants.METRICS
 import com.simenko.qmapp.other.Constants.PRODUCTS
 import com.simenko.qmapp.other.Constants.PRODUCTS_COMPONENTS
@@ -46,8 +46,14 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ProductsService {
-    @GET(MANUFACTURING_PROJECTS)
-    suspend fun getManufacturingProjects(): Response<List<NetworkProductLine>>
+    @GET(PRODUCT_LINES)
+    suspend fun getProductLines(): Response<List<NetworkProductLine>>
+    @POST(PRODUCT_LINES)
+    suspend fun insertProductLine(@Body value: NetworkProductLine): Response<NetworkProductLine>
+    @DELETE("$PRODUCT_LINES/{id}")
+    suspend fun deleteProductLine(@Path("id") id: ID): Response<NetworkProductLine>
+    @PUT("$PRODUCT_LINES/{id}")
+    suspend fun editProductLine(@Path("id") id: ID, @Body value: NetworkProductLine): Response<NetworkProductLine>
 
 
     @GET(PRODUCTS_KEYS)

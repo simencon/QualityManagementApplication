@@ -24,7 +24,19 @@ class ProductsRepository @Inject constructor(
     /**
      * Update Products from the network
      */
-    suspend fun syncManufacturingProjects() = crudeOperations.syncRecordsAll(database.manufacturingProjectDao) { service.getManufacturingProjects() }
+    suspend fun syncProductLines() = crudeOperations.syncRecordsAll(database.productLineDao) { service.getProductLines() }
+    fun CoroutineScope.deleteProductLine(id: ID): ReceiveChannel<Event<Resource<DomainProductLine>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteProductLine(id) }) { r -> database.productLineDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertProductLine(record: DomainProductLine): ReceiveChannel<Event<Resource<DomainProductLine>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertProductLine(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productLineDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateProductLine(record: DomainProductLine): ReceiveChannel<Event<Resource<DomainProductLine>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editProductLine(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productLineDao.updateRecord(r) }
+    }
+
 
 
     suspend fun syncProductLineKeys() = crudeOperations.syncRecordsAll(database.productKeyDao) { service.getKeys() }
@@ -89,10 +101,10 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
 
-    val productLine: suspend (ID) -> DomainProductLine = { database.manufacturingProjectDao.getRecordById(it)?.toDomainModel() ?: DomainProductLine() }
-    val productLineById: suspend (ID) -> DomainProductLineComplete = { database.manufacturingProjectDao.getRecordCompleteById(it)?.toDomainModel() ?: DomainProductLineComplete() }
+    val productLine: suspend (ID) -> DomainProductLine = { database.productLineDao.getRecordById(it)?.toDomainModel() ?: DomainProductLine() }
+    val productLineById: suspend (ID) -> DomainProductLineComplete = { database.productLineDao.getRecordCompleteById(it)?.toDomainModel() ?: DomainProductLineComplete() }
     val productLines: (ID) -> Flow<List<DomainProductLineComplete>> = { pId ->
-        database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+        database.productLineDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
     val charGroups: (ID) -> Flow<List<DomainCharGroup.DomainCharGroupComplete>> = { pId ->
