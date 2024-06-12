@@ -44,7 +44,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<ID>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
-    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
+    private val _lastVisibleItemKey = MutableStateFlow(0L)
     private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _tasksVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
@@ -171,7 +171,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with orders ______________________________________________________________
      * */
-    fun setLastVisibleItemKey(key: Any) {
+    fun setLastVisibleItemKey(key: ID) {
         _lastVisibleItemKey.value = key
     }
 

@@ -38,7 +38,7 @@ fun SubOrdersStandAlone(
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        when(lifecycleState.value) {
+        when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
             else -> {}
@@ -63,7 +63,7 @@ fun SubOrdersStandAlone(
         if (lastItemIsVisible) viewModel.mainPageHandler?.onListEnd?.invoke(true) else viewModel.mainPageHandler?.onListEnd?.invoke(false)
     }
 
-    val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
+    val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key?.toString()?.toLongOrNull() } }
     LaunchedEffect(listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) lastVisibleItemKey?.let { viewModel.setLastVisibleItemKey(it) }
     }
