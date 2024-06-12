@@ -39,7 +39,7 @@ import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.Compo
 import com.simenko.qmapp.ui.navigation.Route
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
+inline fun <reified T : Route> NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
     navigation<T>(startDestination = Route.Main.ProductLines.ProductLinesList()) {
         composable<Route.Main.ProductLines.ProductLinesList> {
             val viewModel: ProductLinesViewModel = hiltViewModel()
@@ -52,19 +52,63 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
         }
 
         productLineKeysNavigation<Route.Main.ProductLines.ProductLineKeys>()
+        productKindNavigation<Route.Main.ProductLines.ProductKinds>(mainScreenPadding)
+        productLineCharacteristicsNavigation<Route.Main.ProductLines.Characteristics>(mainScreenPadding)
+    }
+}
 
+@OptIn(ExperimentalCoroutinesApi::class)
+inline fun <reified T : Route> NavGraphBuilder.productLineKeysNavigation() {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList()) {
+        composable<Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList> {
+            val viewModel: ProductLineKeysViewModel = hiltViewModel()
+            ProductLineKeys(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey> {
+            val viewModel: ProductLineKeyViewModel = hiltViewModel()
+            ProductLineKeyForm(viewModel = viewModel, route = it.toRoute())
+        }
+    }
+}
+
+inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPadding: PaddingValues) {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductKindsList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductKindsList> {
             val viewModel: ProductKindsViewModel = hiltViewModel()
             ProductKinds(viewModel = viewModel, route = it.toRoute())
         }
+
+        composable<Route.Main.ProductLines.ProductKinds.AddEditProductKind> {
+
+        }
+
+        productKindKeysNavigation<Route.Main.ProductLines.ProductKinds.ProductKindKeys>()
+        productKindCharacteristicsNavigation<Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics>()
+        productKindSpecificationNavigation<Route.Main.ProductLines.ProductKinds.ProductSpecification>()
+        productKindProductsNavigation<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances>(mainScreenPadding)
+    }
+}
+
+inline fun <reified T : Route> NavGraphBuilder.productKindKeysNavigation() {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList> {
             val viewModel: ProductKindKeysViewModel = hiltViewModel()
             ProductKindKeys(viewModel = viewModel, route = it.toRoute())
         }
+    }
+}
+
+inline fun <reified T : Route> NavGraphBuilder.productKindCharacteristicsNavigation() {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList> {
             val viewModel: ProductKindCharacteristicsViewModel = hiltViewModel()
             ProductKindCharacteristicsMain(viewModel = viewModel, route = it.toRoute())
         }
+    }
+}
+
+inline fun <reified T : Route> NavGraphBuilder.productKindSpecificationNavigation() {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList> {
             val viewModel: ProductKindSpecificationViewModel = hiltViewModel()
             ProductKindSpecification(viewModel = viewModel, route = it.toRoute())
@@ -85,6 +129,11 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
             val viewModel: ComponentStageKindCharacteristicsViewModel = hiltViewModel()
             ComponentStageKindCharacteristicsMain(viewModel = viewModel, route = it.toRoute())
         }
+    }
+}
+
+inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mainScreenPadding: PaddingValues) {
+    navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.Products.ProductsList()) {
         composable<Route.Main.ProductLines.ProductKinds.Products.ProductsList> {
             val viewModel: ProductListViewModel = hiltViewModel()
             ProductKindProducts(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
@@ -93,9 +142,11 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
             VersionTolerances(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
         }
+    }
+}
 
-
-
+inline fun <reified T : Route> NavGraphBuilder.productLineCharacteristicsNavigation(mainScreenPadding: PaddingValues) {
+    navigation<T>(startDestination = Route.Main.ProductLines.Characteristics.CharacteristicsList()) {
         composable<Route.Main.ProductLines.Characteristics.CharacteristicsList> {
             val viewModel: CharacteristicsViewModel = hiltViewModel()
             CharacteristicsMain(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
@@ -107,16 +158,3 @@ inline fun <reified T : Any> NavGraphBuilder.productsNavigation(mainScreenPaddin
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-inline fun <reified T : Any> NavGraphBuilder.productLineKeysNavigation() {
-    navigation<T>(startDestination = Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList()) {
-        composable<Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList> {
-            val viewModel: ProductLineKeysViewModel = hiltViewModel()
-            ProductLineKeys(viewModel = viewModel, route = it.toRoute())
-        }
-        composable<Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey> {
-            val viewModel: ProductLineKeyViewModel = hiltViewModel()
-            ProductLineKeyForm(viewModel = viewModel, route = it.toRoute())
-        }
-    }
-}
