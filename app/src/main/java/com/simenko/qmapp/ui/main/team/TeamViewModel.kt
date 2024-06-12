@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -32,7 +33,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+    context: BaseApplication,
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,

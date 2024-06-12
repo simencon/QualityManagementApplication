@@ -1,9 +1,11 @@
 package com.simenko.qmapp.ui.navigation
 
-import kotlinx.coroutines.channels.Channel
+import androidx.navigation.NavHostController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 interface AppNavigator {
-    val navigationChannel: Channel<NavigationIntent>
+    var navigationSharedFlow: MutableSharedFlow<NavigationIntent>
 
     suspend fun navigateBack(
         route: Route? = null,
@@ -30,6 +32,8 @@ interface AppNavigator {
         inclusive: Boolean = false,
         isSingleTop: Boolean = false,
     )
+
+    fun subscribeNavigationEvents(coroutineScope: CoroutineScope, navController: NavHostController)
 }
 
 sealed class NavigationIntent {

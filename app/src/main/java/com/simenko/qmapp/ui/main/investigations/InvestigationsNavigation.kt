@@ -38,12 +38,12 @@ inline fun <reified T : Route> NavGraphBuilder.processControl(mainScreenPadding:
         composable<Route.Main.ProcessControl.ProcessControlList> { backStackEntry ->
             val route = backStackEntry.toRoute<Route.Main.ProcessControl.ProcessControlList>()
             val viewModel: InvestigationsViewModel = hiltViewModel()
-            InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel, isPcOnly = false, orderId = route.orderId, subOrderId = route.subOrderId)
+            InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel, isPcOnly = true, orderId = route.orderId, subOrderId = route.subOrderId)
         }
         composable<Route.Main.ProcessControl.SubOrderAddEdit> { backStackEntry ->
             val route = backStackEntry.toRoute<Route.Main.ProcessControl.SubOrderAddEdit>()
             val viewModel: NewItemViewModel = hiltViewModel()
-            SubOrderForm(viewModel = viewModel, isPcOnly = false, orderId = route.orderId, subOrderId = route.subOrderId)
+            SubOrderForm(viewModel = viewModel, isPcOnly = true, orderId = route.orderId, subOrderId = route.subOrderId)
         }
     }
 }

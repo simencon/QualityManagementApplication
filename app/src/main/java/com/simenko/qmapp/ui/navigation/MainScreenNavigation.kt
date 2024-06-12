@@ -13,7 +13,7 @@ import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @Composable
-fun MainScreen(
+fun MainScreenNavigation(
     navController: NavHostController,
     mainScreenPadding: PaddingValues
 ) {

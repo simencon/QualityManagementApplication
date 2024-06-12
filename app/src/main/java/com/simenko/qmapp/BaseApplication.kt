@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.navigation.NavHostController
 import androidx.work.*
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_NAME

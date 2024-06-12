@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -38,8 +39,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.AppNavigatorImpl.Companion.subscribeNavigationEvents
-import com.simenko.qmapp.ui.navigation.MainScreen
+import com.simenko.qmapp.ui.navigation.MainScreenNavigation
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,10 +72,7 @@ class MainActivity : BaseActivity() {
         fetchAndActivateRemoteConfigValues()
 
         if (
-            ActivityCompat.checkSelfPermission(
-                this@MainActivity,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -90,10 +87,14 @@ class MainActivity : BaseActivity() {
 
             QMAppTheme {
                 val navController = rememberNavController()
+                val currentBackStack by navController.currentBackStackEntryAsState()
+                val route = currentBackStack?.destination?.route
+                println(route)
+
                 val scope = rememberCoroutineScope()
 
-                LaunchedEffect(key1 = Unit) {
-                    appNavigator.navigationChannel.subscribeNavigationEvents(this, navController)
+                LaunchedEffect(key1 = navController) {
+                    appNavigator.subscribeNavigationEvents(this, navController)
                 }
 
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
@@ -173,7 +174,7 @@ class MainActivity : BaseActivity() {
                                         .padding(it)
                                 ) {
                                     TopTabs(topTabsSetup)
-                                    MainScreen(navController, it)
+                                    MainScreenNavigation(navController, it)
                                 }
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,

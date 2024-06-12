@@ -30,11 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.AppNavigatorImpl.Companion.subscribeNavigationEvents
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.channels.consumeEach
 import java.util.Locale
 import javax.inject.Inject
 
@@ -67,7 +65,7 @@ class UserActivity : BaseActivity() {
                 val navController = rememberNavController()
 
                 LaunchedEffect(key1 = Unit) {
-                    appNavigator.navigationChannel.subscribeNavigationEvents(this, navController)
+                    appNavigator.subscribeNavigationEvents(this, navController)
                 }
 
                 val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()

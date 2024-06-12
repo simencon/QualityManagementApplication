@@ -38,15 +38,15 @@ data class FillInErrorState(val errorMsg: String) : FillInState()
 @JvmInline
 value class SelectedNumber(val num: Long)
 
-val NoRecord = SelectedNumber(-1)
-val ZeroValue = SelectedNumber(0)
-val StatusDoneId = SelectedNumber(3)
-val ProcessControlOrderTypeId = SelectedNumber(3)
+val NoRecord = SelectedNumber(-1L)
+val ZeroValue = SelectedNumber(0L)
+val StatusDoneId = SelectedNumber(3L)
+val ProcessControlOrderTypeId = SelectedNumber(3L)
 
 val FirstTabId = NoRecord
-val SecondTabId = SelectedNumber(1)
-val ThirdTabId = SelectedNumber(2)
-val FourthTabId = SelectedNumber(3)
+val SecondTabId = SelectedNumber(1L)
+val ThirdTabId = SelectedNumber(2L)
+val FourthTabId = SelectedNumber(3L)
 
 @JvmInline
 value class SelectedString(val str: String)

@@ -113,13 +113,15 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideWorkManager(@ApplicationContext context: Context) =
-        WorkManager.getInstance(context.applicationContext)
+    fun provideBaseApplicationInstance(@ApplicationContext context: Context) = context as BaseApplication
 
     @Singleton
     @Provides
-    fun provideNotificationManager(@ApplicationContext context: Context) =
-        NotificationManagerCompat.from(context.applicationContext)
+    fun provideWorkManager(app: BaseApplication) = WorkManager.getInstance(app.applicationContext)
+
+    @Singleton
+    @Provides
+    fun provideNotificationManager(app: BaseApplication) = NotificationManagerCompat.from(app.applicationContext)
 
     @Singleton
     @Provides

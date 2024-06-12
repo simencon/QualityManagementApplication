@@ -1,14 +1,14 @@
 package com.simenko.qmapp.storage
 
 import android.content.Context
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class SharedPreferencesStorage @Inject constructor(@ApplicationContext context: Context) : Storage {
+class SharedPreferencesStorage @Inject constructor(app: BaseApplication) : Storage {
 
-    private val sharedPreferences = context.getSharedPreferences(
+    private val sharedPreferences = app.getSharedPreferences(
         "QualityManagementApp",
         Context.MODE_PRIVATE
     )
