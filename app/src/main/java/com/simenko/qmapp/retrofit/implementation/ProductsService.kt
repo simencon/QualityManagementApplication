@@ -109,6 +109,13 @@ interface ProductsService {
 
     @GET(PRODUCT_KINDS)
     suspend fun getProductKinds(): Response<List<NetworkProductKind>>
+    @POST(PRODUCT_KINDS)
+    suspend fun insertProductKind(@Body value: NetworkProductKind): Response<NetworkProductKind>
+    @DELETE("$PRODUCT_KINDS/{id}")
+    suspend fun deleteProductKind(@Path("id") id: ID): Response<NetworkProductKind>
+    @PUT("$PRODUCT_KINDS/{id}")
+    suspend fun editProductKind(@Path("id") id: ID, @Body value: NetworkProductKind): Response<NetworkProductKind>
+
 
     @GET(COMPONENT_KINDS)
     suspend fun getComponentKinds(): Response<List<NetworkComponentKind>>

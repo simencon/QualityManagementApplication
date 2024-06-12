@@ -38,7 +38,6 @@ class ProductsRepository @Inject constructor(
     }
 
 
-
     suspend fun syncProductLineKeys() = crudeOperations.syncRecordsAll(database.productKeyDao) { service.getKeys() }
     fun CoroutineScope.deleteProductLineKey(id: ID): ReceiveChannel<Event<Resource<DomainKey>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteProductLineKey(id) }) { r -> database.productKeyDao.deleteRecord(r) }
@@ -74,7 +73,20 @@ class ProductsRepository @Inject constructor(
     suspend fun syncCharacteristics() = crudeOperations.syncRecordsAll(database.characteristicDao) { service.getCharacteristics() }
     suspend fun syncMetrics() = crudeOperations.syncRecordsAll(database.metricDao) { service.getMetrics() }
     suspend fun syncVersionStatuses() = crudeOperations.syncRecordsAll(database.versionStatusDao) { service.getVersionStatuses() }
+
+
     suspend fun syncProductKinds() = crudeOperations.syncRecordsAll(database.productKindDao) { service.getProductKinds() }
+    fun CoroutineScope.deleteProductKind(id: ID): ReceiveChannel<Event<Resource<DomainProductKind>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductKind(id) }) { r -> database.productKindDao.deleteRecord(r) }
+    }
+    fun CoroutineScope.insertProductKind(record: DomainProductKind) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertProductKind(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindDao.insertRecord(r) }
+    }
+    fun CoroutineScope.updateProductKind(record: DomainProductKind) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editProductKind(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindDao.updateRecord(r) }
+    }
+
+
     suspend fun syncComponentKinds() = crudeOperations.syncRecordsAll(database.componentKindDao) { service.getComponentKinds() }
     suspend fun syncComponentStageKinds() = crudeOperations.syncRecordsAll(database.componentStageKindDao) { service.getComponentStageKinds() }
     suspend fun syncProductKindsKeys() = crudeOperations.syncRecordsAll(database.productKindKeyDao) { service.getProductKindsKeys() }

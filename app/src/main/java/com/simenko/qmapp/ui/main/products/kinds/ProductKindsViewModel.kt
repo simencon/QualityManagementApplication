@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -16,6 +17,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -78,23 +80,41 @@ class ProductKindsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductKindClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteProductKindClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) {
+            deleteProductKind(it).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                    }
+                }
+            }
+        }
     }
 
-    private fun updateCompanyProductsData() {
-        TODO("Not yet implemented")
+    private fun updateCompanyProductsData() = viewModelScope.launch {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.syncProductKinds()
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddProductKindClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.ProductKinds.AddEditProductKind(productLineId = it.first, productKindId = it.second))
     }
 
     fun onEditProductKindClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.ProductKinds.AddEditProductKind(productLineId = it.first, productKindId = it.second))
     }
 
     fun onProductKindKeysClick(it: ID) {

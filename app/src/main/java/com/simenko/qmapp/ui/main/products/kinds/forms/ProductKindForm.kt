@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.designations.forms
+package com.simenko.qmapp.ui.main.products.kinds.forms
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,16 +39,14 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.navigation.Route
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun ProductLineKeyForm(
+fun ProductKindForm(
     modifier: Modifier = Modifier,
-    viewModel: ProductLineKeyViewModel,
-    route: Route.Main.ProductLines.ProductLineKeys.AddEditProductLineKey
+    viewModel: ProductKindViewModel,
+    route: Route.Main.ProductLines.ProductKinds.AddEditProductKind
 ) {
-    val productLineKey by viewModel.productLineKey.collectAsStateWithLifecycle()
+    val productKind by viewModel.productKind.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.onEntered(route) }
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
@@ -64,8 +63,8 @@ fun ProductLineKeyForm(
         }
     }
 
-    val (keyFR) = FocusRequester.createRefs()
-    val (keyDescriptionFR) = FocusRequester.createRefs()
+    val (designationFR) = FocusRequester.createRefs()
+    val (industryFR) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
@@ -82,22 +81,22 @@ fun ProductLineKeyForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = productLineKey.productLine.projectSubject ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(productLineKey.productLineKey.componentKey, fillInErrors.keyError) { viewModel.setProductLineKey(it) },
-                keyboardNavigation = Pair(keyFR) { keyDescriptionFR.requestFocus() },
+                valueParam = Triple(productKind.productKind.productKindDesignation, fillInErrors.productKindDesignationError) { viewModel.onSetProductKindDesignation(it) },
+                keyboardNavigation = Pair(designationFR) { industryFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Designation", "Enter designation"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(productLineKey.productLineKey.componentKeyDescription?: EmptyString.str, fillInErrors.keyDescriptionError) { viewModel.setProductLineKeyDescription(it) },
-                keyboardNavigation = Pair(keyDescriptionFR) { keyboardController?.hide() },
+                valueParam = Triple(productKind.productKind.comments?: EmptyString.str, fillInErrors.productKindIndustryError) { viewModel.onSetProductKindIndustry(it) },
+                keyboardNavigation = Pair(industryFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Designation description", "Enter designation description"),
+                contentDescription = Triple(Icons.Outlined.Work, "Product industry", "Enter product industry"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)

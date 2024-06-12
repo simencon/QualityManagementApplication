@@ -30,6 +30,8 @@ import com.simenko.qmapp.ui.main.products.forms.ProductLineForm
 import com.simenko.qmapp.ui.main.products.forms.ProductLineViewModel
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindForm
+import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerancesViewModel
 import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsMain
@@ -79,7 +81,8 @@ inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPad
         }
 
         composable<Route.Main.ProductLines.ProductKinds.AddEditProductKind> {
-
+            val viewModel: ProductKindViewModel = hiltViewModel()
+            ProductKindForm(viewModel = viewModel, route = it.toRoute())
         }
 
         productKindKeysNavigation<Route.Main.ProductLines.ProductKinds.ProductKindKeys>()

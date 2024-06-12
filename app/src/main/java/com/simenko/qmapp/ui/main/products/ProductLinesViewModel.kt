@@ -75,35 +75,29 @@ class ProductLinesViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineClick(it: ID) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                with(repository) {
-                    deleteProductLine(it).consumeEach { event ->
-                        event.getContentIfNotHandled()?.let { resource ->
-                            when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
-                            }
-                        }
+    fun onDeleteProductLineClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) {
+            deleteProductLine(it).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
         }
     }
 
-    private fun updateCompanyProductsData() {
-        viewModelScope.launch {
-            try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+    private fun updateCompanyProductsData() = viewModelScope.launch {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
-                repository.syncProductLines()
+            repository.syncProductLines()
 
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-            } catch (e: Exception) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
-            }
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
         }
     }
 
