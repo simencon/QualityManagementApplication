@@ -47,8 +47,10 @@ class ComponentStageKindCharacteristicsViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindCharacteristics.ComponentStageKindCharacteristicsList) {
         viewModelScope.launch {
-            _componentStageKindId.value = route.componentStageKindId
-            _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+            if (mainPageHandler == null) {
+                _componentStageKindId.value = route.componentStageKindId
+                _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_CHARACTERISTICS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }

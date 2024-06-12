@@ -42,8 +42,10 @@ class ComponentStageKindKeysViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.ComponentStageKindKeysList) {
         viewModelScope.launch {
-            _componentStageKindId.value = route.componentStageKindId
-            _componentStageKindKeysVisibility.value = Pair(SelectedNumber(route.componentStageKindKeyId), NoRecord)
+            if (mainPageHandler == null) {
+                _componentStageKindId.value = route.componentStageKindId
+                _componentStageKindKeysVisibility.value = Pair(SelectedNumber(route.componentStageKindKeyId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_STAGE_KIND_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }

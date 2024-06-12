@@ -43,9 +43,11 @@ class ProductKindSpecificationViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList) {
         viewModelScope.launch {
-            _productKindId.value = route.productKindId
-            _componentKindsVisibility.value = Pair(SelectedNumber(route.componentKindId), NoRecord)
-            _componentStageKindsVisibility.value = Pair(SelectedNumber(route.componentStageKindId), NoRecord)
+            if (mainPageHandler == null) {
+                _productKindId.value = route.productKindId
+                _componentKindsVisibility.value = Pair(SelectedNumber(route.componentKindId), NoRecord)
+                _componentStageKindsVisibility.value = Pair(SelectedNumber(route.componentStageKindId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_SPECIFICATION, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }

@@ -61,12 +61,14 @@ class CompanyStructureViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.CompanyStructure.StructureView) {
         viewModelScope.launch {
-            _companyId.value = route.companyId
-            _departmentsVisibility.value = Pair(SelectedNumber(route.departmentId), NoRecord)
-            _subDepartmentsVisibility.value = Pair(SelectedNumber(route.subDepartmentId), NoRecord)
-            _channelsVisibility.value = Pair(SelectedNumber(route.channelId), NoRecord)
-            _linesVisibility.value = Pair(SelectedNumber(route.lineId), NoRecord)
-            _operationsVisibility.value = Pair(SelectedNumber(route.operationId), NoRecord)
+            if (mainPageHandler == null) {
+                _companyId.value = route.companyId
+                _departmentsVisibility.value = Pair(SelectedNumber(route.departmentId), NoRecord)
+                _subDepartmentsVisibility.value = Pair(SelectedNumber(route.subDepartmentId), NoRecord)
+                _channelsVisibility.value = Pair(SelectedNumber(route.channelId), NoRecord)
+                _linesVisibility.value = Pair(SelectedNumber(route.lineId), NoRecord)
+                _operationsVisibility.value = Pair(SelectedNumber(route.operationId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
                 .setOnFabClickAction { if (isSecondColumnVisible.value) onAddLineClick(_channelsVisibility.value.first.num) else onAddDepartmentClick(route.companyId) }

@@ -71,13 +71,15 @@ class ProductListViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.ProductsList) {
         viewModelScope.launch {
-            _productKindId.value = route.productKindId
-            _productsVisibility.value = Pair(SelectedNumber(route.productId), NoRecord)
-            _componentKindsVisibility.value = Pair(SelectedNumber(route.componentKindId), NoRecord)
-            _componentsVisibility.value = Pair(SelectedNumber(route.componentId), NoRecord)
-            _componentStageKindsVisibility.value = Pair(SelectedNumber(route.componentStageKindId), NoRecord)
-            _componentStagesVisibility.value = Pair(SelectedNumber(route.componentStageId), NoRecord)
-            _versionsVisibility.value = Pair(SelectedString(route.versionFId), NoRecordStr)
+            if (mainPageHandler == null) {
+                _productKindId.value = route.productKindId
+                _productsVisibility.value = Pair(SelectedNumber(route.productId), NoRecord)
+                _componentKindsVisibility.value = Pair(SelectedNumber(route.componentKindId), NoRecord)
+                _componentsVisibility.value = Pair(SelectedNumber(route.componentId), NoRecord)
+                _componentStageKindsVisibility.value = Pair(SelectedNumber(route.componentStageKindId), NoRecord)
+                _componentStagesVisibility.value = Pair(SelectedNumber(route.componentStageId), NoRecord)
+                _versionsVisibility.value = Pair(SelectedString(route.versionFId), NoRecordStr)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }

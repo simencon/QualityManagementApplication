@@ -58,11 +58,13 @@ class CharacteristicsViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
     fun onEntered(route: Route.Main.ProductLines.Characteristics.CharacteristicsList) {
         viewModelScope.launch {
-            _productLine.value = route.productLineId
-            _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
-            _charSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
-            _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
-            _metricVisibility.value = Pair(SelectedNumber(route.metricId), NoRecord)
+            if (mainPageHandler == null) {
+                _productLine.value = route.productLineId
+                _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
+                _charSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
+                _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
+                _metricVisibility.value = Pair(SelectedNumber(route.metricId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_CHARACTERISTICS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }

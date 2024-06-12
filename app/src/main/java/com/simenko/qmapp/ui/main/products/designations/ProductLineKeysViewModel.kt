@@ -43,8 +43,10 @@ class ProductLineKeysViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductLineKeys.ProductLineKeysList) {
         viewModelScope.launch {
-            _productLineId.value = route.productLineId
-            _productKeysVisibility.value = Pair(SelectedNumber(route.productLineKeyId), NoRecord)
+            if (mainPageHandler == null) {
+                _productLineId.value = route.productLineId
+                _productKeysVisibility.value = Pair(SelectedNumber(route.productLineKeyId), NoRecord)
+            }
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
                 .setOnFabClickAction { onAddProductLineKeyClick(Pair(route.productLineId, NoRecord.num)) }
@@ -80,7 +82,7 @@ class ProductLineKeysViewModel @Inject constructor(
     fun onDeleteProductLineKeyClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                with(repository){
+                with(repository) {
                     deleteProductLineKey(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {

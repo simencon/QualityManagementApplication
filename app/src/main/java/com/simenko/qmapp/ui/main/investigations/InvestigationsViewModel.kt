@@ -58,7 +58,13 @@ class InvestigationsViewModel @Inject constructor(
 
     fun onEntered(isPcOnly: Boolean, orderId: ID, subOrderId: ID) {
         viewModelScope.launch(Dispatchers.IO) {
-            setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
+            if (mainPageHandler == null) {
+                setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
+                _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
+                _ordersVisibility.value = Pair(SelectedNumber(orderId), NoRecord)
+                _subOrdersVisibility.value = Pair(SelectedNumber(subOrderId), NoRecord)
+            }
+
             mainPageHandler = MainPageHandler.Builder(if (isPcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
                 .setOnSearchClickAction { if (isPcOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
                 .setOnTabSelectAction { if (isPcOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
@@ -66,20 +72,15 @@ class InvestigationsViewModel @Inject constructor(
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
                 .setOnActionItemClickAction {
-                    viewModelScope.launch {
+                    launch {
                         _syncInvestigationsEvent.emit(it == InvestigationsActions.SYNC_INVESTIGATIONS || it == ProcessControlActions.SYNC_INVESTIGATIONS)
                     }
                 }
                 .build()
                 .apply {
-                    val selectedTabIndex =
-                        if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
+                    val selectedTabIndex = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
                     setupMainPage.invoke(selectedTabIndex, true)
                 }
-
-            _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
-            _ordersVisibility.value = Pair(SelectedNumber(orderId), NoRecord)
-            _subOrdersVisibility.value = Pair(SelectedNumber(subOrderId), NoRecord)
         }
     }
 

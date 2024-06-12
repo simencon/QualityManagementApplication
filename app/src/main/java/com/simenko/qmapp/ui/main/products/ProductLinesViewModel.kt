@@ -41,10 +41,11 @@ class ProductLinesViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: Route.Main.ProductLines.ProductLinesList) {
-        _companyId.value = route.companyId
-        _productLinesVisibility.value = Pair(SelectedNumber(route.productLineId), NoRecord)
-
         viewModelScope.launch {
+            if (mainPageHandler == null) {
+                _companyId.value = route.companyId
+                _productLinesVisibility.value = Pair(SelectedNumber(route.productLineId), NoRecord)
+            }
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCTS, mainPageState)
                 .setOnFabClickAction { onAddProductLineClick(route.companyId) }
                 .setOnPullRefreshAction { updateCompanyProductsData() }

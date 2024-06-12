@@ -42,8 +42,10 @@ class ProductKindKeysViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList) {
         viewModelScope.launch {
-            _productKindId.value = route.productKindId
-            _productKindKeysVisibility.value = Pair(SelectedNumber(route.productKindKeyId), NoRecord)
+            if (mainPageHandler == null) {
+                _productKindId.value = route.productKindId
+                _productKindKeysVisibility.value = Pair(SelectedNumber(route.productKindKeyId), NoRecord)
+            }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
