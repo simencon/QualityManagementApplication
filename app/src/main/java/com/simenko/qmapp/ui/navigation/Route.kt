@@ -99,7 +99,7 @@ sealed interface Route {
             @Serializable
             data object Characteristics : Route {
                 @Serializable
-                data class CharacteristicsList(
+                data class CharacteristicGroupList(
                     val productLineId: ID = NoRecord.num,
                     val charGroupId: ID = NoRecord.num,
                     val charSubGroupId: ID = NoRecord.num,
@@ -108,7 +108,16 @@ sealed interface Route {
                 ) : Route
 
                 @Serializable
-                data class CharSubGroupAddEdit(val charGroupId: ID, val charSubGroupId: ID = NoRecord.num) : Route
+                data class AddEditCharGroup(val productLineId: ID = NoRecord.num, val charGroupId: ID = NoRecord.num): Route
+
+                @Serializable
+                data class AddEditCharSubGroup(val charGroupId: ID, val charSubGroupId: ID = NoRecord.num) : Route
+
+                @Serializable
+                data class AddEditChar(val charSubGroupId: ID, val characteristicId: ID = NoRecord.num) : Route
+
+                @Serializable
+                data class AddEditMetric(val characteristicId: ID, val metricId: ID = NoRecord.num) : Route
             }
 
             @Serializable

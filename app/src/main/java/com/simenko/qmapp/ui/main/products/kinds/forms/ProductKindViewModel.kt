@@ -127,17 +127,15 @@ class ProductKindViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-        withContext(Dispatchers.Main) {
-            id?.let {
-                val productLineId = _productKind.value.productKind.projectId
-                val productKindId = it
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.ProductLines.ProductKinds.ProductKindsList(productLineId, productKindId),
-                    popUpToRoute = Route.Main.ProductLines,
-                    inclusive = true
-                )
-            }
+        id?.let {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+            val productLineId = _productKind.value.productKind.projectId
+            val productKindId = it
+            appNavigator.navigateTo(
+                route = Route.Main.ProductLines.ProductKinds.ProductKindsList(productLineId, productKindId),
+                popUpToRoute = Route.Main.ProductLines,
+                inclusive = true
+            )
         }
     }
 }

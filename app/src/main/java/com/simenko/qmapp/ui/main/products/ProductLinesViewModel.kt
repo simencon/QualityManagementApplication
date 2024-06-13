@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -117,7 +116,7 @@ class ProductLinesViewModel @Inject constructor(
     }
 
     fun onProductLineCharacteristicsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharacteristicsList(productLineId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharacteristicGroupList(productLineId = it))
     }
 
     fun onProductLineItemsClick(it: ID) {

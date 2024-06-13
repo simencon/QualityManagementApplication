@@ -40,7 +40,7 @@ import com.simenko.qmapp.utils.observeAsState
 fun CharacteristicsMain(
     mainScreenPadding: PaddingValues,
     viewModel: CharacteristicsViewModel = hiltViewModel(),
-    route: Route.Main.ProductLines.Characteristics.CharacteristicsList
+    route: Route.Main.ProductLines.Characteristics.CharacteristicGroupList
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current

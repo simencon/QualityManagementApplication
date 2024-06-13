@@ -8,6 +8,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupForm
+import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharSubGroupViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharacteristicSubGroupForm
 import com.simenko.qmapp.ui.main.products.kinds.ProductKinds
@@ -73,6 +75,9 @@ inline fun <reified T : Route> NavGraphBuilder.productLineKeysNavigation() {
     }
 }
 
+/**
+ * Product designations navigation
+ * */
 inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPadding: PaddingValues) {
     navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductKindsList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductKindsList> {
@@ -91,7 +96,9 @@ inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPad
         productKindProductsNavigation<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances>(mainScreenPadding)
     }
 }
-
+/**
+ * Product kinds navigation
+ * */
 inline fun <reified T : Route> NavGraphBuilder.productKindKeysNavigation() {
     navigation<T>(startDestination = Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList()) {
         composable<Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList> {
@@ -148,13 +155,21 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
     }
 }
 
+/**
+ * Product characteristics navigation
+ * */
 inline fun <reified T : Route> NavGraphBuilder.productLineCharacteristicsNavigation(mainScreenPadding: PaddingValues) {
-    navigation<T>(startDestination = Route.Main.ProductLines.Characteristics.CharacteristicsList()) {
-        composable<Route.Main.ProductLines.Characteristics.CharacteristicsList> {
+    navigation<T>(startDestination = Route.Main.ProductLines.Characteristics.CharacteristicGroupList()) {
+        composable<Route.Main.ProductLines.Characteristics.CharacteristicGroupList> {
             val viewModel: CharacteristicsViewModel = hiltViewModel()
             CharacteristicsMain(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
         }
-        composable<Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit> {
+        composable<Route.Main.ProductLines.Characteristics.AddEditCharGroup> {
+            val viewModel: CharGroupViewModel = hiltViewModel()
+            CharGroupForm(viewModel = viewModel, route = it.toRoute())
+
+        }
+        composable<Route.Main.ProductLines.Characteristics.AddEditCharSubGroup> {
             val viewModel: CharSubGroupViewModel = hiltViewModel()
             CharacteristicSubGroupForm(viewModel = viewModel, route = it.toRoute())
         }

@@ -282,6 +282,9 @@ enum class Page(
     ADD_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
     EDIT_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_PRODUCT_LINE_CHAR_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add char. group", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_LINE_CHAR_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit char. group", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new char. sub group", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit char. sub group", null, null, null, null, Icons.Filled.Save, null),
 

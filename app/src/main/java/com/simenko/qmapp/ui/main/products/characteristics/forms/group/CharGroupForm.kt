@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group
+package com.simenko.qmapp.ui.main.products.characteristics.forms.group
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +32,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
@@ -48,26 +47,19 @@ import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.Rounder
 
 @Composable
-fun CharacteristicSubGroupForm(
+fun CharGroupForm(
     modifier: Modifier = Modifier,
-    viewModel: CharSubGroupViewModel = hiltViewModel(),
-    route: Route.Main.ProductLines.Characteristics.AddEditCharSubGroup
+    viewModel: CharGroupViewModel,
+    route: Route.Main.ProductLines.Characteristics.AddEditCharGroup
 ) {
     LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
-    val charSubGroup by viewModel.charSubGroup.collectAsStateWithLifecycle()
+    val charGroup by viewModel.charGroup.collectAsStateWithLifecycle()
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
-
-    val charGroups by viewModel.charGroups.collectAsStateWithLifecycle()
-
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    var time by rememberSaveable { mutableStateOf(NoString.str) }
-
-    LaunchedEffect(charSubGroup) {
-        time = charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str
-    }
+    val (groupFR) = FocusRequester.createRefs()
 
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
@@ -76,18 +68,15 @@ fun CharacteristicSubGroupForm(
                 is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = UserError.NO_ERROR.error
             }
+            groupFR.requestFocus()
         }
     }
-
-    val (groupFR) = FocusRequester.createRefs()
-    val (descriptionFR) = FocusRequester.createRefs()
-    val (timeFR) = FocusRequester.createRefs()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = charSubGroup.charGroup.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = charGroup.productLine.manufacturingProject.projectSubject ?: NoString.str)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
             verticalArrangement = Arrangement.Top,
@@ -98,42 +87,12 @@ fun CharacteristicSubGroupForm(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            RecordFieldItemWithMenu(
+            RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                options = charGroups,
-                isError = fillInErrors.charGroupError,
-                onDropdownMenuItemClick = { viewModel.setCharGroup(it) },
+                valueParam = Triple(charGroup.charGroup.ishElement ?: EmptyString.str, fillInErrors.charGroupDescriptionError) { viewModel.onSetCharGroupDescription(it) },
                 keyboardNavigation = Pair(groupFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.SquareFoot, "Characteristic group", "Select group"),
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            RecordFieldItem(
-                modifier = Modifier.width(320.dp),
-                valueParam = Triple(charSubGroup.charSubGroup.ishElement ?: EmptyString.str, fillInErrors.charSubGroupDescriptionError) { viewModel.setCharSubGroupDescription(it) },
-                keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Char. sub group description", "Enter description")
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            RecordFieldItem(
-                modifier = Modifier
-                    .width(320.dp)
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            if (time == NoString.str) time = EmptyString.str
-                        } else {
-                            if (time == EmptyString.str) time = NoString.str
-                        }
-                    },
-                valueParam = Triple(time, fillInErrors.charSubGroupRelatedTimeError) {
-                    viewModel.setCharSubGroupMeasurementTime(it)
-                    time = it
-                },
-                keyboardNavigation = Pair(timeFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Timer, "Sub group related time (minutes)", "Enter time in minutes"),
-                isMandatoryField = false
+                contentDescription = Triple(Icons.Outlined.SquareFoot, "Char. group description", "Enter description")
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != UserError.NO_ERROR.error)

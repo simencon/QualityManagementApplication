@@ -54,6 +54,15 @@ class ProductsRepository @Inject constructor(
 
     suspend fun syncProductBases() = crudeOperations.syncRecordsAll(database.productBaseDao) { service.getProductBases() }
     suspend fun syncCharacteristicGroups() = crudeOperations.syncRecordsAll(database.characteristicGroupDao) { service.getCharacteristicGroups() }
+    fun CoroutineScope.deleteCharGroup(charSubGroupId: ID): ReceiveChannel<Event<Resource<DomainCharGroup>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicGroup(charSubGroupId) }) { r -> database.characteristicGroupDao.deleteRecord(r) }
+    }
+    fun CoroutineScope.insertCharGroup(record: DomainCharGroup) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristicGroup(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicGroupDao.insertRecord(r) }
+    }
+    fun CoroutineScope.updateCharGroup(record: DomainCharGroup) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editCharacteristicGroup(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicGroupDao.updateRecord(r) }
+    }
 
 
     suspend fun syncCharacteristicSubGroups() = crudeOperations.syncRecordsAll(database.characteristicSubGroupDao) { service.getCharacteristicSubGroups() }
@@ -122,7 +131,7 @@ class ProductsRepository @Inject constructor(
     val charGroups: (ID) -> Flow<List<DomainCharGroup.DomainCharGroupComplete>> = { pId ->
         database.characteristicGroupDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val charGroupById: (ID) -> DomainCharGroup.DomainCharGroupComplete = { id -> database.characteristicGroupDao.getRecordCompleteById(id).toDomainModel() }
+    val charGroupById: suspend (ID) -> DomainCharGroup.DomainCharGroupComplete = { id -> database.characteristicGroupDao.getRecordCompleteById(id).toDomainModel() }
 
     val charSubGroups: (ID) -> Flow<List<DomainCharSubGroup.DomainCharSubGroupComplete>> = { pId ->
         database.characteristicSubGroupDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }

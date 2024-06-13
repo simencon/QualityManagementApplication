@@ -56,7 +56,7 @@ class CharacteristicsViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     var mainPageHandler: MainPageHandler? = null
-    fun onEntered(route: Route.Main.ProductLines.Characteristics.CharacteristicsList) {
+    fun onEntered(route: Route.Main.ProductLines.Characteristics.CharacteristicGroupList) {
         viewModelScope.launch {
             if (mainPageHandler == null) {
                 _productLine.value = route.productLineId
@@ -187,44 +187,66 @@ class CharacteristicsViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteCharSubGroupClick(id: ID) = viewModelScope.launch {
+    fun onDeleteCharSubGroupClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-        withContext(Dispatchers.IO) {
-            repository.run {
-                deleteCharSubGroup(id).consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                            Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
-                        }
+        repository.run {
+            deleteCharSubGroup(id).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                     }
                 }
             }
         }
     }
 
-    fun onDeleteCharacteristicClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteCharacteristicClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        repository.run {
+            deleteCharGroup(id).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteMetricClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    private fun updateCharacteristicsData() {
-        TODO("Not yet implemented")
+    private fun updateCharacteristicsData() = viewModelScope.launch {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.apply {
+                syncCharacteristicGroups()
+                syncCharacteristicSubGroups()
+                syncCharacteristics()
+                syncMetrics()
+            }
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddCharGroupClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditCharGroup(productLineId = it.first, charGroupId = it.second))
     }
 
     fun onAddCharSubGroupClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit(charGroupId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditCharSubGroup(charGroupId = it))
     }
 
     fun onAddCharacteristicClick(it: ID) {
@@ -236,11 +258,11 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onEditCharGroupClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditCharGroup(productLineId = it.first, charGroupId = it.second))
     }
 
     fun onEditCharSubGroupClick(it: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.CharSubGroupAddEdit(charGroupId = it.first, charSubGroupId = it.second))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditCharSubGroup(charGroupId = it.first, charSubGroupId = it.second))
     }
 
     fun onEditCharacteristicClick(it: Pair<ID, ID>) {

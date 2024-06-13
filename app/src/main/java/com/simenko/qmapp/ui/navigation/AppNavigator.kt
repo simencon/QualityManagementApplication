@@ -20,9 +20,9 @@ interface AppNavigator {
     suspend fun navigateTo(
         route: Route,
         popUpToRoute: Route?,
-        popUpToId: Int?,
-        inclusive: Boolean,
-        isSingleTop: Boolean
+        popUpToId: Int? = null,
+        inclusive: Boolean = false,
+        isSingleTop: Boolean = false
     )
 
     fun tryNavigateTo(
