@@ -139,6 +139,13 @@ class CharacteristicViewModel @Inject constructor(
                 )
                 _fillInErrors.value = _fillInErrors.value.copy(charSubGroupError = false)
                 _fillInState.value = FillInInitialState
+            } ?: run {
+                _characteristic.value = _characteristic.value.copy(
+                    characteristicSubGroup = _characteristic.value.characteristicSubGroup.copy(charSubGroup = DomainCharSubGroup()),
+                    characteristic = _characteristic.value.characteristic.copy(ishSubCharId = NoRecord.num)
+                )
+                _fillInErrors.value = _fillInErrors.value.copy(charSubGroupError = false)
+                _fillInState.value = FillInInitialState
             }
         }
     }

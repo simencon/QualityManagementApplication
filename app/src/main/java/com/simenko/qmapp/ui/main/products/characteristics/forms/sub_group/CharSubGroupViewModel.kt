@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
@@ -18,6 +19,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.Rounder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +33,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -42,6 +43,7 @@ class CharSubGroupViewModel @Inject constructor(
     private val repository: ProductsRepository,
 ) : ViewModel() {
     private val _charSubGroup = MutableStateFlow(DomainCharSubGroup.DomainCharSubGroupComplete())
+    private val _subGroupRelatedTime = MutableStateFlow(NoString.str)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -49,7 +51,14 @@ class CharSubGroupViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: Route.Main.ProductLines.Characteristics.AddEditCharSubGroup) = viewModelScope.launch(Dispatchers.IO) {
-        if (route.charSubGroupId == NoRecord.num) prepareCharSubGroup(route.charGroupId) else _charSubGroup.value = repository.charSubGroupById(route.charSubGroupId)
+        if (route.charSubGroupId == NoRecord.num) {
+            prepareCharSubGroup(route.charGroupId)
+        } else {
+            _charSubGroup.value = repository.charSubGroupById(route.charSubGroupId)
+            with(_charSubGroup.value.charSubGroup) {
+                _subGroupRelatedTime.value = measurementGroupRelatedTime?.let { Rounder.withToleranceStrCustom(it, 2) } ?: _subGroupRelatedTime.value
+            }
+        }
         mainPageHandler = MainPageHandler.Builder(if (route.charSubGroupId == NoRecord.num) Page.ADD_PRODUCT_LINE_CHAR_SUB_GROUP else Page.EDIT_PRODUCT_LINE_CHAR_SUB_GROUP, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction { validateInput() }
@@ -68,9 +77,10 @@ class CharSubGroupViewModel @Inject constructor(
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
     val charSubGroup get() = _charSubGroup.asStateFlow()
+    val subGroupRelatedTime get() = _subGroupRelatedTime.asStateFlow()
 
     private val _charGroups = _charSubGroup.flatMapLatest { charSubGroup ->
-        repository.charGroups(charSubGroup.charGroup.charGroup.productLineId)
+        repository.charGroups(charSubGroup.charGroup.productLine.manufacturingProject.id)
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     val charGroups = _charGroups.flatMapLatest { charGroups ->
@@ -79,34 +89,44 @@ class CharSubGroupViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setCharGroup(id: ID) {
+    fun onSetCharGroup(id: ID) {
         if (_charSubGroup.value.charSubGroup.charGroupId != id) {
             _charGroups.value.find { it.charGroup.id == id }?.let {
                 _charSubGroup.value = _charSubGroup.value.copy(charGroup = it, charSubGroup = _charSubGroup.value.charSubGroup.copy(charGroupId = id))
+                _fillInErrors.value = _fillInErrors.value.copy(charGroupError = false)
+                _fillInState.value = FillInInitialState
+            } ?: run {
+                _charSubGroup.value = _charSubGroup.value.copy(
+                    charGroup = _charSubGroup.value.charGroup.copy(charGroup = DomainCharGroup()),
+                    charSubGroup = _charSubGroup.value.charSubGroup.copy(charGroupId = NoRecord.num)
+                )
                 _fillInErrors.value = _fillInErrors.value.copy(charGroupError = false)
                 _fillInState.value = FillInInitialState
             }
         }
     }
 
-    fun setCharSubGroupDescription(it: String) {
+    fun onSetCharSubGroupDescription(it: String) {
         _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(ishElement = it))
         _fillInErrors.value = _fillInErrors.value.copy(charSubGroupDescriptionError = false)
         _fillInState.value = FillInInitialState
     }
 
-    fun setCharSubGroupMeasurementTime(value: String) {
-        value.toDoubleOrNull()?.let { time ->
-            _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = time))
-            _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = false)
-            _fillInState.value = FillInInitialState
-        } ?: run {
-            if (value.isNotEmpty() && value != NoString.str) {
-                _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = true)
-            } else {
-                _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = null))
+    fun onSetCharSubGroupMeasurementTime(value: String) {
+        if (_subGroupRelatedTime.value != value) {
+            _subGroupRelatedTime.value = value
+            value.toDoubleOrNull()?.let { time ->
+                _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = time))
                 _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = false)
                 _fillInState.value = FillInInitialState
+            } ?: run {
+                _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = null))
+                if (value.isNotEmpty() && value != NoString.str) {
+                    _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = true)
+                } else {
+                    _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = false)
+                    _fillInState.value = FillInInitialState
+                }
             }
         }
     }

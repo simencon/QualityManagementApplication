@@ -56,18 +56,15 @@ fun CharacteristicSubGroupForm(
     LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
     val charSubGroup by viewModel.charSubGroup.collectAsStateWithLifecycle()
+    val time by viewModel.subGroupRelatedTime.collectAsStateWithLifecycle()
+
+
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
     val charGroups by viewModel.charGroups.collectAsStateWithLifecycle()
 
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
-
-    var time by rememberSaveable { mutableStateOf(NoString.str) }
-
-    LaunchedEffect(charSubGroup) {
-        time = charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str
-    }
 
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
@@ -102,7 +99,7 @@ fun CharacteristicSubGroupForm(
                 modifier = Modifier.width(320.dp),
                 options = charGroups,
                 isError = fillInErrors.charGroupError,
-                onDropdownMenuItemClick = { viewModel.setCharGroup(it) },
+                onDropdownMenuItemClick = { viewModel.onSetCharGroup(it) },
                 keyboardNavigation = Pair(groupFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.SquareFoot, "Characteristic group", "Select group"),
@@ -110,7 +107,7 @@ fun CharacteristicSubGroupForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(charSubGroup.charSubGroup.ishElement ?: EmptyString.str, fillInErrors.charSubGroupDescriptionError) { viewModel.setCharSubGroupDescription(it) },
+                valueParam = Triple(charSubGroup.charSubGroup.ishElement ?: EmptyString.str, fillInErrors.charSubGroupDescriptionError) { viewModel.onSetCharSubGroupDescription(it) },
                 keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Char. sub group description", "Enter description")
@@ -121,15 +118,12 @@ fun CharacteristicSubGroupForm(
                     .width(320.dp)
                     .onFocusChanged {
                         if (it.isFocused) {
-                            if (time == NoString.str) time = EmptyString.str
+                            if (time == NoString.str) viewModel.onSetCharSubGroupMeasurementTime(EmptyString.str)
                         } else {
-                            if (time == EmptyString.str) time = NoString.str
+                            if (time == EmptyString.str) viewModel.onSetCharSubGroupMeasurementTime(NoString.str)
                         }
                     },
-                valueParam = Triple(time, fillInErrors.charSubGroupRelatedTimeError) {
-                    viewModel.setCharSubGroupMeasurementTime(it)
-                    time = it
-                },
+                valueParam = Triple(time, fillInErrors.charSubGroupRelatedTimeError) { viewModel.onSetCharSubGroupMeasurementTime(it) },
                 keyboardNavigation = Pair(timeFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Timer, "Sub group related time (minutes)", "Enter time in minutes"),
