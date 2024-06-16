@@ -151,21 +151,27 @@ class CharacteristicViewModel @Inject constructor(
     }
 
     fun onSetOrder(order: Int) {
-        _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charOrder = order))
-        _fillInErrors.value = _fillInErrors.value.copy(charOrderError = false)
-        _fillInState.value = FillInInitialState
+        if (_characteristic.value.characteristic.charOrder != order) {
+            _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charOrder = order))
+            _fillInErrors.value = _fillInErrors.value.copy(charOrderError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     fun onSetCharDesignation(it: String) {
-        _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charDesignation = it))
-        _fillInErrors.value = _fillInErrors.value.copy(charDesignationError = false)
-        _fillInState.value = FillInInitialState
+        if (_characteristic.value.characteristic.charDesignation != it) {
+            _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charDesignation = it))
+            _fillInErrors.value = _fillInErrors.value.copy(charDesignationError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     fun onSetCharDescription(it: String) {
-        _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charDescription = it))
-        _fillInErrors.value = _fillInErrors.value.copy(charDescriptionError = false)
-        _fillInState.value = FillInInitialState
+        if (_characteristic.value.characteristic.charDescription != it) {
+            _characteristic.value = _characteristic.value.copy(characteristic = _characteristic.value.characteristic.copy(charDescription = it))
+            _fillInErrors.value = _fillInErrors.value.copy(charDescriptionError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     fun onSetSampleRelatedTime(value: String) {

@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -68,7 +67,7 @@ class CharacteristicsViewModel @Inject constructor(
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_CHARACTERISTICS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddCharGroupClick(Pair(route.productLineId, NoRecord.num)) }
+                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddMetricClick(_characteristicVisibility.value.first.num) else onAddCharGroupClick(Pair(route.productLineId, NoRecord.num)) }
                 .setOnPullRefreshAction { updateCharacteristicsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -228,8 +227,19 @@ class CharacteristicsViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteMetricClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteMetricClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        repository.run {
+            deleteMetric(id).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                    }
+                }
+            }
+        }
     }
 
     private fun updateCharacteristicsData() = viewModelScope.launch {
@@ -264,8 +274,8 @@ class CharacteristicsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditChar(charSubGroupId = it))
     }
 
-    fun onAddMetricClick(it: ID) {
-        TODO("Not yet implemented")
+    private fun onAddMetricClick(it: ID) {
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.Characteristics.AddEditMetric(characteristicId = it))
     }
 
     fun onEditCharGroupClick(it: Pair<ID, ID>) {
@@ -281,6 +291,6 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onEditMetricClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(Route.Main.ProductLines.Characteristics.AddEditMetric(characteristicId = it.first, metricId = it.second))
     }
 }

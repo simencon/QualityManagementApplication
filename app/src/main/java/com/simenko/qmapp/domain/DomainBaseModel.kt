@@ -53,8 +53,6 @@ value class SelectedString(val str: String)
 
 val NoString = SelectedString("-")
 val EmptyString = SelectedString("")
-val FalseStr = SelectedString("false")
-val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
 @JvmInline

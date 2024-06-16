@@ -34,4 +34,7 @@ abstract class MetricDao : DaoBaseModel<ID, ID, DatabaseMetrix> {
                 "substr(it.fId, 1, 1) = :prefix"
     )
     abstract suspend fun getMetricsByPrefixVersionIdActualityCharId(prefix: String, versionId: String, actual: String, charId: String): List<DatabaseMetrix>
+
+    @Query("select * from metricWithParents where metricId = :id")
+    abstract suspend fun getRecordCompleteById(id: ID): DatabaseMetrix.DatabaseMetricWithParents
 }

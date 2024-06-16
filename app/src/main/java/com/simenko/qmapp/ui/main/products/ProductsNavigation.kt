@@ -12,6 +12,8 @@ import com.simenko.qmapp.ui.main.products.characteristics.forms.characteristic.C
 import com.simenko.qmapp.ui.main.products.characteristics.forms.characteristic.CharacteristicViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupForm
 import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupViewModel
+import com.simenko.qmapp.ui.main.products.characteristics.forms.metric.MetricForm
+import com.simenko.qmapp.ui.main.products.characteristics.forms.metric.MetricViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharSubGroupViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharacteristicSubGroupForm
 import com.simenko.qmapp.ui.main.products.kinds.ProductKinds
@@ -180,6 +182,11 @@ inline fun <reified T : Route> NavGraphBuilder.productLineCharacteristicsNavigat
         composable<Route.Main.ProductLines.Characteristics.AddEditChar> {
             val viewModel: CharacteristicViewModel = hiltViewModel()
             CharacteristicForm(viewModel = viewModel, route = it.toRoute())
+        }
+
+        composable<Route.Main.ProductLines.Characteristics.AddEditMetric> {
+            val viewModel: MetricViewModel = hiltViewModel()
+            MetricForm(viewModel = viewModel, route = it.toRoute())
         }
     }
 }

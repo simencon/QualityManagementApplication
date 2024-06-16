@@ -121,6 +121,17 @@ interface ProductsService {
     @GET(METRICS)
     suspend fun getMetrics(): Response<List<NetworkMetrix>>
 
+    @POST(METRICS)
+    suspend fun insertMetric(@Body record: NetworkMetrix): Response<NetworkMetrix>
+
+    @DELETE("${METRICS}/{id}")
+    suspend fun deleteMetric(@Path("id") id: ID): Response<NetworkMetrix>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("${METRICS}/{id}")
+    suspend fun editMetric(@Path("id") id: ID, @Body body: NetworkMetrix): Response<NetworkMetrix>
+
+
     @GET(VERSION_STATUSES)
     suspend fun getVersionStatuses(): Response<List<NetworkVersionStatus>>
 

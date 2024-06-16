@@ -94,7 +94,21 @@ class ProductsRepository @Inject constructor(
         responseHandlerForSingleRecord({ service.editCharacteristic(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicDao.updateRecord(r) }
     }
 
+
     suspend fun syncMetrics() = crudeOperations.syncRecordsAll(database.metricDao) { service.getMetrics() }
+    fun CoroutineScope.deleteMetric(id: ID): ReceiveChannel<Event<Resource<DomainMetrix>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteMetric(id) }) { r -> database.metricDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertMetric(record: DomainMetrix) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertMetric(record.toDatabaseModel().toNetworkModel()) }) { r -> database.metricDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateMetric(record: DomainMetrix) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editMetric(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.metricDao.updateRecord(r) }
+    }
+
+
     suspend fun syncVersionStatuses() = crudeOperations.syncRecordsAll(database.versionStatusDao) { service.getVersionStatuses() }
 
 
@@ -168,6 +182,7 @@ class ProductsRepository @Inject constructor(
     val metricsByPrefixVersionIdActualityCharId: suspend (String, ID, Boolean, ID) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
         database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }
     }
+    val metricById: suspend (ID) -> DomainMetrix.DomainMetricWithParents = { database.metricDao.getRecordCompleteById(it).toDomainModel() }
 
     val productLineKeys: (ID) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId ->
         database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
