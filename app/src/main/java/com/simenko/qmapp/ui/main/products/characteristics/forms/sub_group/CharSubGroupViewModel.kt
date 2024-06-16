@@ -48,15 +48,13 @@ class CharSubGroupViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: Route.Main.ProductLines.Characteristics.AddEditCharSubGroup) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (route.charSubGroupId == NoRecord.num) prepareCharSubGroup(route.charGroupId) else _charSubGroup.value = repository.charSubGroupById(route.charSubGroupId)
-            mainPageHandler = MainPageHandler.Builder(if (route.charSubGroupId == NoRecord.num) Page.ADD_PRODUCT_LINE_CHAR_SUB_GROUP else Page.EDIT_PRODUCT_LINE_CHAR_SUB_GROUP, mainPageState)
-                .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { validateInput() }
-                .build()
-                .apply { setupMainPage(0, true) }
-        }
+    fun onEntered(route: Route.Main.ProductLines.Characteristics.AddEditCharSubGroup) = viewModelScope.launch(Dispatchers.IO) {
+        if (route.charSubGroupId == NoRecord.num) prepareCharSubGroup(route.charGroupId) else _charSubGroup.value = repository.charSubGroupById(route.charSubGroupId)
+        mainPageHandler = MainPageHandler.Builder(if (route.charSubGroupId == NoRecord.num) Page.ADD_PRODUCT_LINE_CHAR_SUB_GROUP else Page.EDIT_PRODUCT_LINE_CHAR_SUB_GROUP, mainPageState)
+            .setOnNavMenuClickAction { appNavigator.navigateBack() }
+            .setOnFabClickAction { validateInput() }
+            .build()
+            .apply { setupMainPage(0, true) }
     }
 
     private suspend fun prepareCharSubGroup(groupId: ID) {
@@ -141,33 +139,32 @@ class CharSubGroupViewModel @Inject constructor(
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-        repository.run { if (_charSubGroup.value.charSubGroup.id == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup) }
-            .consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
-                        Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
-                            _fillInState.value = FillInInitialState
-                        }
+        repository.run {
+            if (_charSubGroup.value.charSubGroup.id == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup)
+        }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                    Status.ERROR -> {
+                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        _fillInState.value = FillInInitialState
                     }
                 }
             }
+        }
     }
 
     private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-        withContext(Dispatchers.Main) {
-            id?.let {
-                val productLine = _charSubGroup.value.charGroup.productLine.manufacturingProject.id
-                val charGroupId = _charSubGroup.value.charGroup.charGroup.id
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.ProductLines.Characteristics.CharacteristicGroupList(productLineId = productLine, charGroupId = charGroupId, charSubGroupId = it),
-                    popUpToRoute = Route.Main.ProductLines.Characteristics,
-                    inclusive = true
-                )
-            }
+        id?.let {
+            val productLine = _charSubGroup.value.charGroup.productLine.manufacturingProject.id
+            val charGroupId = _charSubGroup.value.charGroup.charGroup.id
+            appNavigator.navigateTo(
+                route = Route.Main.ProductLines.Characteristics.CharacteristicGroupList(productLineId = productLine, charGroupId = charGroupId, charSubGroupId = it),
+                popUpToRoute = Route.Main.ProductLines.Characteristics,
+                inclusive = true
+            )
         }
     }
 }

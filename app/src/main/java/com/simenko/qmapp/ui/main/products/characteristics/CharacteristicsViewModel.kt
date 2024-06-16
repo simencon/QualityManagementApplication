@@ -183,8 +183,19 @@ class CharacteristicsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteCharGroupClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteCharGroupClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        repository.run {
+            deleteCharGroup(id).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteCharSubGroupClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
@@ -205,7 +216,7 @@ class CharacteristicsViewModel @Inject constructor(
     fun onDeleteCharacteristicClick(id: ID) = viewModelScope.launch(Dispatchers.IO) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         repository.run {
-            deleteCharGroup(id).consumeEach { event ->
+            deleteCharacteristic(id).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
@@ -250,7 +261,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onAddCharacteristicClick(it: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditChar(charSubGroupId = it))
     }
 
     fun onAddMetricClick(it: ID) {
@@ -266,7 +277,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onEditCharacteristicClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.Characteristics.AddEditChar(charSubGroupId = it.first, characteristicId = it.second))
     }
 
     fun onEditMetricClick(it: Pair<ID, ID>) {

@@ -8,6 +8,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.characteristics.forms.characteristic.CharacteristicForm
+import com.simenko.qmapp.ui.main.products.characteristics.forms.characteristic.CharacteristicViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupForm
 import com.simenko.qmapp.ui.main.products.characteristics.forms.group.CharGroupViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharSubGroupViewModel
@@ -96,6 +98,7 @@ inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPad
         productKindProductsNavigation<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances>(mainScreenPadding)
     }
 }
+
 /**
  * Product kinds navigation
  * */
@@ -172,6 +175,11 @@ inline fun <reified T : Route> NavGraphBuilder.productLineCharacteristicsNavigat
         composable<Route.Main.ProductLines.Characteristics.AddEditCharSubGroup> {
             val viewModel: CharSubGroupViewModel = hiltViewModel()
             CharacteristicSubGroupForm(viewModel = viewModel, route = it.toRoute())
+        }
+
+        composable<Route.Main.ProductLines.Characteristics.AddEditChar> {
+            val viewModel: CharacteristicViewModel = hiltViewModel()
+            CharacteristicForm(viewModel = viewModel, route = it.toRoute())
         }
     }
 }

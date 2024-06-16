@@ -25,4 +25,8 @@ abstract class CharacteristicDao : DaoBaseModel<ID, ID, DatabaseCharacteristic> 
     @Transaction
     @Query("select * from characteristic_complete where ishSubCharId = :parentId ")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM `7_characteristics` WHERE id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseCharacteristic.DatabaseCharacteristicComplete
 }

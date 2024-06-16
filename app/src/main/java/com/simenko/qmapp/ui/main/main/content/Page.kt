@@ -288,6 +288,9 @@ enum class Page(
     ADD_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new char. sub group", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_LINE_CHAR_SUB_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit char. sub group", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_PRODUCT_LINE_CHAR(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add characteristic", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_LINE_CHAR(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit characteristic", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
     ADD_SUB_ORDER(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new sub order", null, null, null, null, Icons.Filled.Save, null),

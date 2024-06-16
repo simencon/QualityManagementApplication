@@ -74,7 +74,7 @@ data class DomainCharSubGroup (
 data class DomainCharacteristic(
     var id: ID = NoRecord.num,
     var ishSubCharId: ID = NoRecord.num,
-    var charOrder: Int? = null,
+    var charOrder: Int? = NoRecord.num.toInt(),
     var charDesignation: String? = null,
     var charDescription: String? = null,
     var sampleRelatedTime: Double? = null,

@@ -48,20 +48,26 @@ import retrofit2.http.Path
 interface ProductsService {
     @GET(PRODUCT_LINES)
     suspend fun getProductLines(): Response<List<NetworkProductLine>>
+
     @POST(PRODUCT_LINES)
     suspend fun insertProductLine(@Body value: NetworkProductLine): Response<NetworkProductLine>
+
     @DELETE("$PRODUCT_LINES/{id}")
     suspend fun deleteProductLine(@Path("id") id: ID): Response<NetworkProductLine>
+
     @PUT("$PRODUCT_LINES/{id}")
     suspend fun editProductLine(@Path("id") id: ID, @Body value: NetworkProductLine): Response<NetworkProductLine>
 
 
     @GET(PRODUCTS_KEYS)
     suspend fun getKeys(): Response<List<NetworkKey>>
+
     @POST(PRODUCTS_KEYS)
     suspend fun insertProductLineKey(@Body value: NetworkKey): Response<NetworkKey>
+
     @DELETE("$PRODUCTS_KEYS/{id}")
     suspend fun deleteProductLineKey(@Path("id") id: ID): Response<NetworkKey>
+
     @PUT("$PRODUCTS_KEYS/{id}")
     suspend fun editProductLineKey(@Path("id") id: ID, @Body value: NetworkKey): Response<NetworkKey>
 
@@ -97,8 +103,20 @@ interface ProductsService {
     @PUT("${CHARACTERISTICS_SUB_GROUPS}/{id}")
     suspend fun editCharacteristicSubGroup(@Path("id") id: ID, @Body body: NetworkCharSubGroup): Response<NetworkCharSubGroup>
 
+
     @GET(CHARACTERISTICS)
     suspend fun getCharacteristics(): Response<List<NetworkCharacteristic>>
+
+    @POST(CHARACTERISTICS)
+    suspend fun insertCharacteristic(@Body record: NetworkCharacteristic): Response<NetworkCharacteristic>
+
+    @DELETE("${CHARACTERISTICS}/{id}")
+    suspend fun deleteCharacteristic(@Path("id") id: ID): Response<NetworkCharacteristic>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("${CHARACTERISTICS}/{id}")
+    suspend fun editCharacteristic(@Path("id") id: ID, @Body body: NetworkCharacteristic): Response<NetworkCharacteristic>
+
 
     @GET(METRICS)
     suspend fun getMetrics(): Response<List<NetworkMetrix>>
@@ -109,10 +127,13 @@ interface ProductsService {
 
     @GET(PRODUCT_KINDS)
     suspend fun getProductKinds(): Response<List<NetworkProductKind>>
+
     @POST(PRODUCT_KINDS)
     suspend fun insertProductKind(@Body value: NetworkProductKind): Response<NetworkProductKind>
+
     @DELETE("$PRODUCT_KINDS/{id}")
     suspend fun deleteProductKind(@Path("id") id: ID): Response<NetworkProductKind>
+
     @PUT("$PRODUCT_KINDS/{id}")
     suspend fun editProductKind(@Path("id") id: ID, @Body value: NetworkProductKind): Response<NetworkProductKind>
 

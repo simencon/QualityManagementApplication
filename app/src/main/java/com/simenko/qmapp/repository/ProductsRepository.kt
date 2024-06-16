@@ -57,9 +57,11 @@ class ProductsRepository @Inject constructor(
     fun CoroutineScope.deleteCharGroup(charSubGroupId: ID): ReceiveChannel<Event<Resource<DomainCharGroup>>> = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteCharacteristicGroup(charSubGroupId) }) { r -> database.characteristicGroupDao.deleteRecord(r) }
     }
+
     fun CoroutineScope.insertCharGroup(record: DomainCharGroup) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.insertCharacteristicGroup(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicGroupDao.insertRecord(r) }
     }
+
     fun CoroutineScope.updateCharGroup(record: DomainCharGroup) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.editCharacteristicGroup(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicGroupDao.updateRecord(r) }
     }
@@ -80,6 +82,18 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncCharacteristics() = crudeOperations.syncRecordsAll(database.characteristicDao) { service.getCharacteristics() }
+    fun CoroutineScope.deleteCharacteristic(id: ID): ReceiveChannel<Event<Resource<DomainCharacteristic>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristic(id) }) { r -> database.characteristicDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertCharacteristic(record: DomainCharacteristic) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristic(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateCharacteristic(record: DomainCharacteristic) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editCharacteristic(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicDao.updateRecord(r) }
+    }
+
     suspend fun syncMetrics() = crudeOperations.syncRecordsAll(database.metricDao) { service.getMetrics() }
     suspend fun syncVersionStatuses() = crudeOperations.syncRecordsAll(database.versionStatusDao) { service.getVersionStatuses() }
 
@@ -88,9 +102,11 @@ class ProductsRepository @Inject constructor(
     fun CoroutineScope.deleteProductKind(id: ID): ReceiveChannel<Event<Resource<DomainProductKind>>> = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteProductKind(id) }) { r -> database.productKindDao.deleteRecord(r) }
     }
+
     fun CoroutineScope.insertProductKind(record: DomainProductKind) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.insertProductKind(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindDao.insertRecord(r) }
     }
+
     fun CoroutineScope.updateProductKind(record: DomainProductKind) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.editProductKind(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindDao.updateRecord(r) }
     }
@@ -136,12 +152,16 @@ class ProductsRepository @Inject constructor(
     val charSubGroups: (ID) -> Flow<List<DomainCharSubGroup.DomainCharSubGroupComplete>> = { pId ->
         database.characteristicSubGroupDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val charSubGroupById: (ID) -> DomainCharSubGroup.DomainCharSubGroupComplete = { id -> database.characteristicSubGroupDao.getRecordCompleteById(id).toDomainModel() }
+    val charSubGroupById: suspend (ID) -> DomainCharSubGroup.DomainCharSubGroupComplete = { id -> database.characteristicSubGroupDao.getRecordCompleteById(id).toDomainModel() }
 
+
+    val characteristicById: suspend (ID) -> DomainCharacteristic.DomainCharacteristicComplete = { id -> database.characteristicDao.getRecordCompleteById(id).toDomainModel() }
     val characteristicsByParent: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { pId ->
         database.characteristicDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
     val characteristics = database.characteristicDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+
+
     val metrics: (ID) -> Flow<List<DomainMetrix>> = { pId ->
         database.metricDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
