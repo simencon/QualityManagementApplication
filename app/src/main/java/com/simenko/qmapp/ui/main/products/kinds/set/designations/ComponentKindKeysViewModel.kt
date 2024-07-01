@@ -2,9 +2,13 @@ package com.simenko.qmapp.ui.main.products.kinds.set.designations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
+import com.simenko.qmapp.domain.entities.products.DomainComponentKindKey
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -16,10 +20,14 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,9 +39,13 @@ class ComponentKindKeysViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
-    private val _componentKindId = MutableStateFlow(NoRecord.num)
+    private val _componentKind = MutableStateFlow(DomainComponentKind.DomainComponentKindComplete())
     private val _componentKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
-    private val _componentKindKeys = _componentKindId.flatMapLatest { repository.componentKindKeys(it) }
+    private val _componentKindKeys = _componentKind.flatMapLatest { repository.componentKindKeys(it.componentKind.id) }
+
+    private val _isAddItemDialogVisible = MutableStateFlow(false)
+    private val _itemToAddId: MutableStateFlow<ID> = MutableStateFlow(NoRecord.num)
+    private val _itemToAddSearchStr: MutableStateFlow<String> = MutableStateFlow(EmptyString.str)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -41,15 +53,15 @@ class ComponentKindKeysViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.ComponentKindKeysList) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (mainPageHandler == null) {
-                _componentKindId.value = route.componentKindId
+                _componentKind.value = repository.componentKind(route.componentKindId)
                 _componentKindKeysVisibility.value = Pair(SelectedNumber(route.componentKindKeyId), NoRecord)
             }
 
             mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddComponentKindKeyClick(route.componentKindId) }
+                .setOnFabClickAction { onAddComponentKindKeyClick() }
                 .setOnPullRefreshAction { updateCompanyProductsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -66,7 +78,7 @@ class ComponentKindKeysViewModel @Inject constructor(
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val componentKind get() = _componentKindId.flatMapLatest { flow { emit(repository.componentKind(it)) } }.flowOn(Dispatchers.IO)
+    val componentKind = _componentKind.asStateFlow()
 
     val componentKindKeys = _componentKindKeys.flatMapLatest { productKindKeys ->
         _componentKindKeysVisibility.flatMapLatest { visibility ->
@@ -75,23 +87,115 @@ class ComponentKindKeysViewModel @Inject constructor(
             }
             flow { emit(cpy) }
         }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val availableKeys = _componentKind.flatMapLatest { componentKind ->
+        _componentKindKeys.flatMapLatest { addedKeys ->
+            _itemToAddSearchStr.flatMapLatest { searchStr ->
+                _itemToAddId.flatMapLatest { id ->
+                    repository.productLineKeys(componentKind.productKind.productLine.manufacturingProject.id).map { list ->
+                        list
+                            .subtract(addedKeys.map { it.key }.toSet())
+                            .filter {
+                                if (searchStr.isNotEmpty()) {
+                                    it.productLineKey.componentKeyDescription?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                            || it.productLineKey.componentKey.lowercase().contains(searchStr.lowercase())
+                                } else {
+                                    true
+                                }
+                            }
+                            .map { item -> item.copy(isSelected = item.productLineKey.id == id) }
+                    }
+                }
+            }
+        }
+    }
+
+    val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
+    fun setAddItemDialogVisibility(value: Boolean) {
+        if (!value) {
+            _itemToAddSearchStr.value = EmptyString.str
+            _itemToAddId.value = NoRecord.num
+        }
+        _isAddItemDialogVisible.value = value
+    }
+
+    val itemToAddSearchStr = _itemToAddSearchStr.asStateFlow()
+    fun setItemToAddSearchStr(value: String) {
+        if (_itemToAddSearchStr.value != value) _itemToAddSearchStr.value = value
     }
 
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteComponentKindKeyClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteComponentKindKeyClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        componentKindKeys.value.find { it.key.isExpanded }?.let { itemToDelete ->
+            if (itemToDelete.componentKindKey.keyId == it)
+                with(repository) {
+                    deleteComponentKindKey(itemToDelete.componentKindKey.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+        }
     }
 
-    private fun updateCompanyProductsData() {
-        TODO("Not yet implemented")
+    private fun updateCompanyProductsData() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.syncComponentKindsKeys()
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddComponentKindKeyClick(it: ID) {
-        TODO("Not yet implemented")
+    private fun onAddComponentKindKeyClick() {
+        _isAddItemDialogVisible.value = true
+    }
+
+    fun onItemSelect(id: ID) {
+        _itemToAddId.value = id
+    }
+
+    fun onAddItemClick() = viewModelScope.launch(Dispatchers.IO) {
+        val componentKindId = _componentKind.value.componentKind.id
+        val keyId = _itemToAddId.value
+        if (componentKindId != NoRecord.num && keyId != NoRecord.num) {
+            //  make record!
+            with(repository) {
+                _isAddItemDialogVisible.value = false
+                _itemToAddId.value = NoRecord.num
+                insertComponentKindKey(
+                    DomainComponentKindKey(
+                        id = NoRecord.num,
+                        componentKindId = componentKindId,
+                        keyId = keyId
+                    )
+                ).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                resource.data?.let { setComponentKindKeysVisibility(dId = SelectedNumber(it.keyId)) }
+                            }
+
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
     }
 }

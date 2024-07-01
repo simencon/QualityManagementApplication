@@ -190,7 +190,7 @@ class ProductKindKeysViewModel @Inject constructor(
                             Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                             Status.SUCCESS -> {
                                 mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                resource.data?.id?.let { setProductKindKeysVisibility(dId = SelectedNumber(it)) }
+                                resource.data?.let { setProductKindKeysVisibility(dId = SelectedNumber(it.keyId)) }
                             }
 
                             Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))

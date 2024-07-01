@@ -41,8 +41,8 @@ fun ProductKindKeys(
 ) {
     val product by viewModel.productKind.collectAsStateWithLifecycle()
     val items: List<DomainProductKindKey.DomainProductKindKeyComplete> by viewModel.productKindKeys.collectAsStateWithLifecycle(listOf())
-    val availableItems by viewModel.availableKeys.collectAsStateWithLifecycle(listOf())
 
+    val availableItems by viewModel.availableKeys.collectAsStateWithLifecycle(listOf())
     val isAddItemDialogVisible by viewModel.isAddItemDialogVisible.collectAsStateWithLifecycle()
     val searchString by viewModel.itemToAddSearchStr.collectAsStateWithLifecycle()
 

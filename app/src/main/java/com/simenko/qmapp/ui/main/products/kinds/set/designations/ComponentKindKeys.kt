@@ -1,8 +1,10 @@
 package com.simenko.qmapp.ui.main.products.kinds.set.designations
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +29,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
+import com.simenko.qmapp.ui.common.SingleChoiceDialog
 import com.simenko.qmapp.ui.main.products.designations.KeyCard
 import com.simenko.qmapp.ui.navigation.Route
 
@@ -39,6 +42,10 @@ fun ComponentKindKeys(
     val componentKind by viewModel.componentKind.collectAsStateWithLifecycle(DomainComponentKind.DomainComponentKindComplete())
     val items by viewModel.componentKindKeys.collectAsStateWithLifecycle(listOf())
 
+    val availableItems by viewModel.availableKeys.collectAsStateWithLifecycle(listOf())
+    val isAddItemDialogVisible by viewModel.isAddItemDialogVisible.collectAsStateWithLifecycle()
+    val searchString by viewModel.itemToAddSearchStr.collectAsStateWithLifecycle()
+
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindKeysVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentKindKeyClick(it) } }
 
@@ -46,20 +53,36 @@ fun ComponentKindKeys(
 
     val listState = rememberLazyListState()
 
-    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
-        Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
-        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-            items(items = items, key = { it.componentKindKey.id }) { key ->
-                KeyCard(
-                    key = key.key,
-                    onClickActions = { onClickActionsLambda(it) },
-                    onClickDelete = { onClickDeleteLambda(it) },
-                    actionButtonsImages = arrayOf(Icons.Filled.Delete),
-                )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(all = 0.dp)
+    ) {
+        if (isAddItemDialogVisible) SingleChoiceDialog(
+            items = availableItems,
+            addIsEnabled = availableItems.any { it.isSelected },
+            onDismiss = { viewModel.setAddItemDialogVisibility(false) },
+            searchString = searchString,
+            onSearch = viewModel::setItemToAddSearchStr,
+            onItemSelect = { viewModel.onItemSelect(it) },
+            onAddClick = { viewModel.onAddItemClick() }
+        )
+
+        Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+            Spacer(modifier = Modifier.height(10.dp))
+            InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
+            InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+                items(items = items, key = { it.componentKindKey.id }) { key ->
+                    KeyCard(
+                        key = key.key,
+                        onClickActions = { onClickActionsLambda(it) },
+                        onClickDelete = { onClickDeleteLambda(it) },
+                        actionButtonsImages = arrayOf(Icons.Filled.Delete),
+                    )
+                }
             }
         }
     }
