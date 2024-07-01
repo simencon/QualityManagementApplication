@@ -138,7 +138,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseOrderShort::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

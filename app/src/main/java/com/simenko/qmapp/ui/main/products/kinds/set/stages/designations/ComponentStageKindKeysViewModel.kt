@@ -94,8 +94,4 @@ class ComponentStageKindKeysViewModel @Inject constructor(
     private fun onAddComponentStageKindKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
-
-    fun onEditComponentStageKindKeyClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
-    }
 }

@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -75,7 +76,8 @@ fun KeyCard(
     key: DomainKey.DomainKeyComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
-    onClickEdit: (Pair<ID, ID>) -> Unit
+    onClickEdit: ((Pair<ID, ID>) -> Unit)? = null,
+    vararg actionButtonsImages: ImageVector = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -84,7 +86,7 @@ fun KeyCard(
         onClickDelete = onClickDelete,
         onClickEdit = onClickEdit,
         contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
-        actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
+        actionButtonsImages = actionButtonsImages,
     ) {
         Key(key = key)
     }

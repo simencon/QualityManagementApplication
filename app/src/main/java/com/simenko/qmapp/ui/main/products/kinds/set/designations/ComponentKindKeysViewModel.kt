@@ -94,8 +94,4 @@ class ComponentKindKeysViewModel @Inject constructor(
     private fun onAddComponentKindKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
-
-    fun onEditComponentKindKeyClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
-    }
 }

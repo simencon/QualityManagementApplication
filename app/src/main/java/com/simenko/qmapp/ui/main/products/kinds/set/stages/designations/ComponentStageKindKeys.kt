@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -39,7 +41,6 @@ fun ComponentStageKindKeys(
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStageKindKeysVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageKindKeyClick(it) } }
-    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentStageKindKeyClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
@@ -62,7 +63,7 @@ fun ComponentStageKindKeys(
                     key = key.key,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
-                    onClickEdit = { onClickEditLambda(it) },
+                    actionButtonsImages = arrayOf(Icons.Filled.Delete),
                 )
             }
         }

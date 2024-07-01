@@ -34,7 +34,6 @@ data class DomainInputForOrder constructor(
     var operationDesignation: String,
     var operationOrder: Int,
     var charId: ID,
-    var ishCharId: ID,
     var ishSubChar: ID,
     var charDescription: String,
     var charDesignation: String? = null,

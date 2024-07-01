@@ -93,8 +93,4 @@ class ProductKindKeysViewModel @Inject constructor(
     private fun onAddProductKindKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
-
-    fun onEditProductKindKeyClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
-    }
 }

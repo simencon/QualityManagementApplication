@@ -50,11 +50,11 @@ object AppModule {
     @Provides
     fun provideQualityDB(
         @ApplicationContext context: Context
-    ) = Room.databaseBuilder(
-        context.applicationContext,
-        QualityManagementDB::class.java,
-        DATABASE_NAME
-    ).build()
+    ) = Room.databaseBuilder(context.applicationContext, QualityManagementDB::class.java, DATABASE_NAME)
+//        .addMigrations(
+//            MigrationUtil.MIGRATION_1_2
+//        )
+        .build()
 
     @Singleton
     @Provides
