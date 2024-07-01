@@ -7,6 +7,8 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
+import com.simenko.qmapp.domain.entities.products.DomainProductKindKey
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -18,11 +20,14 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -82,7 +87,7 @@ class ProductKindKeysViewModel @Inject constructor(
             }
             flow { emit(cpy) }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val availableKeys = _productKind.flatMapLatest { productKind ->
         _productKindKeys.flatMapLatest { addedKeys ->
@@ -124,18 +129,38 @@ class ProductKindKeysViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductKindKeyClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteProductKindKeyClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        productKindKeys.value.find { it.key.isExpanded }?.let { itemToDelete ->
+            if (itemToDelete.productKindKey.keyId == it)
+                with(repository) {
+                    deleteProductKindKey(itemToDelete.productKindKey.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+        }
     }
 
-    private fun updateCompanyProductsData() {
-        TODO("Not yet implemented")
+    private fun updateCompanyProductsData() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.syncProductKindsKeys()
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-
 
     private fun onAddProductKindKeyClick() {
         _isAddItemDialogVisible.value = true
@@ -145,9 +170,34 @@ class ProductKindKeysViewModel @Inject constructor(
         _itemToAddId.value = id
     }
 
-    fun onAddItemClick() {
-        if (productKind.value.productKind.id != NoRecord.num && _itemToAddId.value != NoRecord.num) {
+    fun onAddItemClick() = viewModelScope.launch(Dispatchers.IO) {
+        val productKindId = _productKind.value.productKind.id
+        val keyId = _itemToAddId.value
+        if (productKindId != NoRecord.num && keyId != NoRecord.num) {
             //  make record!
+            with(repository) {
+                _isAddItemDialogVisible.value = false
+                _itemToAddId.value = NoRecord.num
+                insertProductKindKey(
+                    DomainProductKindKey(
+                        id = NoRecord.num,
+                        productKindId = productKindId,
+                        keyId = keyId
+                    )
+                ).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                resource.data?.id?.let { setProductKindKeysVisibility(dId = SelectedNumber(it)) }
+                            }
+
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
         }
     }
 }

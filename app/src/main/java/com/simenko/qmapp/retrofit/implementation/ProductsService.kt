@@ -159,11 +159,31 @@ interface ProductsService {
     @GET(PRODUCT_KINDS_KEYS)
     suspend fun getProductKindsKeys(): Response<List<NetworkProductKindKey>>
 
+    @POST(PRODUCT_KINDS_KEYS)
+    suspend fun insertProductKindKey(@Body record: NetworkProductKindKey): Response<NetworkProductKindKey>
+
+    @DELETE("${PRODUCT_KINDS_KEYS}/{id}")
+    suspend fun deleteProductKindKey(@Path("id") id: ID): Response<NetworkProductKindKey>
+
+
     @GET(COMPONENT_KINDS_KEYS)
     suspend fun getComponentKindsKeys(): Response<List<NetworkComponentKindKey>>
 
+    @POST(COMPONENT_KINDS_KEYS)
+    suspend fun insertComponentKindKey(@Body record: NetworkComponentKindKey): Response<NetworkComponentKindKey>
+
+    @DELETE("${COMPONENT_KINDS_KEYS}/{id}")
+    suspend fun deleteComponentKindKey(@Path("id") id: ID): Response<NetworkComponentKindKey>
+
+
     @GET(COMPONENT_STAGE_KINDS_KEYS)
     suspend fun getComponentStageKindsKeys(): Response<List<NetworkComponentStageKindKey>>
+
+    @POST(COMPONENT_STAGE_KINDS_KEYS)
+    suspend fun insertComponentStageKindKey(@Body record: NetworkComponentStageKindKey): Response<NetworkComponentStageKindKey>
+
+    @DELETE("${COMPONENT_STAGE_KINDS_KEYS}/{id}")
+    suspend fun deleteComponentStageKindKey(@Path("id") id: ID): Response<NetworkComponentStageKindKey>
 
 
     @GET(CHARACTERISTICS_PRODUCT_KINDS)

@@ -128,9 +128,38 @@ class ProductsRepository @Inject constructor(
 
     suspend fun syncComponentKinds() = crudeOperations.syncRecordsAll(database.componentKindDao) { service.getComponentKinds() }
     suspend fun syncComponentStageKinds() = crudeOperations.syncRecordsAll(database.componentStageKindDao) { service.getComponentStageKinds() }
+
+
     suspend fun syncProductKindsKeys() = crudeOperations.syncRecordsAll(database.productKindKeyDao) { service.getProductKindsKeys() }
+    fun CoroutineScope.deleteProductKindKey(id: ID): ReceiveChannel<Event<Resource<DomainProductKindKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductKindKey(id) }) { r -> database.productKindKeyDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertProductKindKey(record: DomainProductKindKey) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertProductKindKey(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindKeyDao.insertRecord(r) }
+    }
+
+
     suspend fun syncComponentKindsKeys() = crudeOperations.syncRecordsAll(database.componentKindKeyDao) { service.getComponentKindsKeys() }
+    fun CoroutineScope.deleteComponentKindKey(id: ID): ReceiveChannel<Event<Resource<DomainComponentKindKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteComponentKindKey(id) }) { r -> database.componentKindKeyDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertComponentKindKey(record: DomainComponentKindKey) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentKindKey(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindKeyDao.insertRecord(r) }
+    }
+
+
     suspend fun syncComponentStageKindsKeys() = crudeOperations.syncRecordsAll(database.componentStageKindKeyDao) { service.getComponentStageKindsKeys() }
+    fun CoroutineScope.deleteComponentStageKindKey(id: ID): ReceiveChannel<Event<Resource<DomainComponentStageKindKey>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteComponentStageKindKey(id) }) { r -> database.componentStageKindKeyDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertComponentStageKindKey(record: DomainComponentStageKindKey) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentStageKindKey(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageKindKeyDao.insertRecord(r) }
+    }
+
+
     suspend fun syncCharacteristicsProductKinds() = crudeOperations.syncRecordsAll(database.characteristicProductKindDao) { service.getCharacteristicsProductKinds() }
     suspend fun syncCharacteristicsComponentKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentKindDao) { service.getCharacteristicsComponentKinds() }
     suspend fun syncCharacteristicsComponentStageKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentStageKindDao) { service.getCharacteristicsComponentStageKinds() }
