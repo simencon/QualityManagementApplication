@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "2d9a885e9ad5ffbeeaccc6cf110c0832",
+    "identityHash": "181f565d7728f0b9b97b7d4e426a4334",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4695,7 +4695,7 @@
       },
       {
         "viewName": "characteristicWithParents",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime, \n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime\n        from `7_characteristics` as c\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.productLineId as productLineId, cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime, \n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime\n        from `7_characteristics` as c\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder"
       },
       {
         "viewName": "items_tolerances",
@@ -4824,7 +4824,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d9a885e9ad5ffbeeaccc6cf110c0832')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '181f565d7728f0b9b97b7d4e426a4334')"
     ]
   }
 }

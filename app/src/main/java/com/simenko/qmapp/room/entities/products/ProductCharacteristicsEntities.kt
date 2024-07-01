@@ -137,7 +137,7 @@ data class DatabaseCharacteristic(
     @DatabaseView(
         viewName = "characteristicWithParents",
         value = """
-        select cg.id as groupId, cg.ishElement as groupDescription,
+        select cg.productLineId as productLineId, cg.id as groupId, cg.ishElement as groupDescription,
         csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime, 
         c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime
         from `7_characteristics` as c
@@ -147,6 +147,7 @@ data class DatabaseCharacteristic(
         """
     )
     data class DatabaseCharacteristicWithParents(
+        val productLineId: ID,
         val groupId: ID,
         val groupDescription: String,
         val subGroupId: ID,

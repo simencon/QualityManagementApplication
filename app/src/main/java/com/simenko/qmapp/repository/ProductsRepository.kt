@@ -227,8 +227,12 @@ class ProductsRepository @Inject constructor(
         database.productKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val itemKindCharsComplete: (String) -> Flow<List<DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete>> = {
-        database.productKindDao.getItemVersionTolerancesComplete(it).map { list -> list.map { it.toDomainModel() } }
+    val productLineCharacteristics: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicWithParents>> = { id ->
+        database.characteristicDao.getAllCharacteristicsPerProductLine(id).map { list -> list.map { it.toDomainModel() } }
+    }
+
+    val itemKindCharsComplete: (String) -> Flow<List<DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete>> = { id ->
+        database.productKindDao.getItemKindCharacteristics(id).map { list -> list.map { it.toDomainModel() } }
     }
 
     val productKindKeys: (ID) -> Flow<List<DomainProductKindKey.DomainProductKindKeyComplete>> = { pId ->

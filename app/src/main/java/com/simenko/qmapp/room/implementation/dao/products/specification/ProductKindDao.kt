@@ -33,5 +33,5 @@ abstract class ProductKindDao : DaoBaseModel<ID, ID, DatabaseProductKind> {
 
     @Transaction
     @Query("SELECT * FROM item_kind_characteristic where itemKindFId = :itemKindFId")
-    abstract fun getItemVersionTolerancesComplete(itemKindFId: String): Flow<List<DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete>>
+    abstract fun getItemKindCharacteristics(itemKindFId: String): Flow<List<DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete>>
 }

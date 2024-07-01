@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,19 +47,22 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
-import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.SelectionGrid
 
 @Composable
 fun <DB, DM> CharacteristicChoiceDialog(
     items: List<DM>,
-    charGroups: List<Pair<String, Boolean>>,
-    onSelectCharGroup: (String) -> Unit,
-    charSubGroups: List<Pair<String, Boolean>>,
-    onSelectCharSubGroup: (String) -> Unit,
+    charGroups: List<Triple<ID, String, Boolean>>,
+    onSelectCharGroup: (ID) -> Unit,
+    charSubGroups: List<Triple<ID, String, Boolean>>,
+    onSelectCharSubGroup: (ID) -> Unit,
     addIsEnabled: Boolean,
     onDismiss: () -> Unit,
     onItemSelect: (ID) -> Unit,
@@ -153,6 +166,66 @@ fun <DB, DM> CharacteristicChoiceDialog(
 }
 
 @Composable
+fun SelectionGrid(
+    modifier: Modifier = Modifier,
+    items: List<Triple<ID, String, Boolean>>,
+    onSelect: (ID) -> Unit
+) {
+    val gritState = rememberLazyGridState()
+    var currentItem by rememberSaveable { mutableLongStateOf(NoRecord.num) }
+
+    LaunchedEffect(items) {
+        items.find { it.third }?.let {
+            currentItem = it.first
+        }
+    }
+
+    LaunchedEffect(currentItem) {
+        if (currentItem != NoRecord.num)
+            gritState.scrollToSelectedItem(
+                list = items.map { it.first }.toList(),
+                selectedId = currentItem,
+            )
+    }
+
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(1),
+        state = gritState,
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.height(60.dp)
+    ) {
+        items(items = items, key = { it.first }) { item ->
+            ItemToSelect(item, onClick = { onSelect(it) })
+        }
+    }
+}
+
+@Composable
+fun ItemToSelect(
+    item: Triple<ID, String, Boolean>,
+    onClick: (ID) -> Unit
+) {
+    val btnColors = ButtonDefaults.buttonColors(
+        contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        containerColor = if (item.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(
+            colors = btnColors,
+            elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
+            modifier = Modifier
+                .width(224.dp)
+                .height(56.dp),
+            onClick = { onClick(item.first) }
+        ) { Text(text = item.second) }
+    }
+}
+
+@Composable
 fun CharacteristicToSelect(
     itemId: ID,
     itemContent: Triple<String, String, Boolean>,
@@ -176,7 +249,7 @@ fun CharacteristicToSelect(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = itemContent.first,
+                    text = itemContent.first.ifEmpty { NoString.str },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -201,15 +274,15 @@ fun PreviewCharacteristicChoice() {
     val list = mutableListOf<DomainKey>()
     for (i in 0..100) {
         if (i % 2 == 0)
-            list.add(DomainKey(i.toLong(), 1L, "IR", "Inner ring"))
+            list.add(DomainKey(i.toLong(), 1L, EmptyString.str, "Inner ring"))
         else
             list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
     }
     CharacteristicChoiceDialog(
         items = list.toList(),
-        charGroups = listOf(Pair("Geometry", false), Pair("Material", true)),
+        charGroups = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
         onSelectCharGroup = {},
-        charSubGroups = listOf(Pair("Mechanical", false), Pair("Chemical", true)),
+        charSubGroups = listOf(Triple(1L, "Mechanical", false), Triple(2L, "Chemical", true)),
         onSelectCharSubGroup = {},
         addIsEnabled = true,
         onDismiss = {},

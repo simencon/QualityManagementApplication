@@ -41,7 +41,7 @@ data class DomainCharGroup(
 }
 
 @Stable
-data class DomainCharSubGroup (
+data class DomainCharSubGroup(
     var id: ID = NoRecord.num,
     val charGroupId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str,
@@ -87,13 +87,26 @@ data class DomainCharacteristic(
     override fun getParentId() = ishSubCharId
     override fun hasParentId(pId: ID) = pId != 0L
 
+    override fun getIdentityName(): String {
+        return charDesignation ?: EmptyString.str
+    }
+
+    override fun getName(): String {
+        return charDescription ?: EmptyString.str
+    }
+
     override fun setIsSelected(value: Boolean) {
         isSelected = value
+    }
+
+    override fun getIsSelected(): Boolean {
+        return isSelected
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristic::class, DatabaseCharacteristic::class).transform(this)
 
     data class DomainCharacteristicWithParents(
+        val productLineId: ID,
         val groupId: ID,
         val groupDescription: String,
         val subGroupId: ID,

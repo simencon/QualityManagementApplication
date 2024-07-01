@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -20,9 +21,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,11 +38,21 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
-    private val _productKindId = MutableStateFlow(NoRecord.num)
+    private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
     private val _charGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _charSubGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
-    private val _itemKindCharsComplete = _productKindId.flatMapLatest { repository.itemKindCharsComplete("p$it") }
+    private val _itemKindCharsComplete = _productKind.flatMapLatest { repository.itemKindCharsComplete("p$it") }
+
+    private val _isAddItemDialogVisible = MutableStateFlow(false)
+    private val _characteristicToAdd = MutableStateFlow(Triple(NoRecord.num, NoRecord.num, NoRecord.num))
+    private val _allCharacteristics = _productKind.flatMapLatest { productKind ->
+        _itemKindCharsComplete.flatMapLatest { itemCharacteristics ->
+            repository.productLineCharacteristics(productKind.productLine.manufacturingProject.id).map { list ->
+                list.subtract(itemCharacteristics.map { it.characteristicWithParents }.toSet()).toList()
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -46,15 +60,15 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
     var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics.ProductKindCharacteristicsList) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (mainPageHandler == null) {
-                _productKindId.value = route.productKindId
+                _productKind.value = repository.productKind(route.productKindId)
                 _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
             }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_CHARACTERISTICS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddCharacteristicClick(Pair(route.productKindId, NoRecord.num)) }
+                .setOnFabClickAction { onAddCharacteristicClick() }
                 .setOnPullRefreshAction { updateCharacteristicsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -64,7 +78,7 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productKind = _productKindId.flatMapLatest { flow { emit(repository.productKind(it)) } }.flowOn(Dispatchers.IO)
+    val productKind = _productKind.asStateFlow()
 
     fun setGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _charGroupVisibility.value = _charGroupVisibility.value.setVisibility(dId, aId)
@@ -142,6 +156,63 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
         }
     }
 
+    val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
+    fun setAddItemDialogVisibility(value: Boolean) {
+        if (!value) {
+            _characteristicToAdd.value = Triple(NoRecord.num, NoRecord.num, NoRecord.num)
+        }
+        _isAddItemDialogVisible.value = value
+    }
+
+    val isReadyToAdd = _characteristicToAdd.flatMapLatest { charToAdd ->
+        flow { emit(charToAdd.third != NoRecord.num) }
+    }
+
+    val charGroupsFilter = _allCharacteristics.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow { emit(list.distinctBy { it.groupId }.map { Triple(it.groupId, it.groupDescription, it.groupId == charToAdd.first) }) }
+        }
+    }
+
+    val charSubGroupsFilter = _allCharacteristics.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow { emit(list.distinctBy { it.subGroupId }.filter { it.groupId == charToAdd.first }.map { Triple(it.subGroupId, it.subGroupDescription, it.subGroupId == charToAdd.second) }) }
+        }
+    }
+
+    val charsFilter = _allCharacteristics.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow {
+                emit(
+                    list.distinctBy { it.charId }.filter { it.subGroupId == charToAdd.second }.map {
+                        DomainCharacteristic(
+                            id = it.charId,
+                            ishSubCharId = it.subGroupId,
+                            charOrder = it.charOrder,
+                            charDesignation = it.charDesignation,
+                            charDescription = it.charDescription,
+                            sampleRelatedTime = it.sampleRelatedTime,
+                            measurementRelatedTime = it.measurementRelatedTime,
+                            isSelected = it.charId == charToAdd.third
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    fun onSelectCharGroup(value: ID) {
+        if (value != _characteristicToAdd.value.first) _characteristicToAdd.value = _characteristicToAdd.value.copy(first = value, second = NoRecord.num, third = NoRecord.num)
+    }
+
+    fun onSelectCharSubGroup(value: ID) {
+        if (value != _characteristicToAdd.value.second) _characteristicToAdd.value = _characteristicToAdd.value.copy(second = value, third = NoRecord.num)
+    }
+
+    fun onSelectChar(value: ID) {
+        if (value != _characteristicToAdd.value.third) _characteristicToAdd.value = _characteristicToAdd.value.copy(third = value)
+    }
+
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -153,11 +224,17 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddCharacteristicClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
-    }
 
     fun onDeleteCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
+
+    private fun onAddCharacteristicClick() {
+        _isAddItemDialogVisible.value = true
+    }
+
+    fun onAddItemClick() = viewModelScope.launch(Dispatchers.IO) {
+
+    }
+
 }
