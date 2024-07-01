@@ -8,6 +8,7 @@ typealias ID = Long
 abstract class DomainBaseModel<out T> {
     open var detailsVisibility: Boolean = false
     open var isExpanded: Boolean = false
+
     @Stable
     abstract fun getRecordId(): Any
 
@@ -24,7 +25,13 @@ abstract class DomainBaseModel<out T> {
     abstract fun setIsSelected(value: Boolean)
 
     @Stable
-    open fun getName(): String = "will be returned any string"
+    open fun getIsSelected(): Boolean = false
+
+    @Stable
+    open fun getIdentityName(): String = EmptyString.str
+
+    @Stable
+    open fun getName(): String = EmptyString.str
 
     @Stable
     abstract fun toDatabaseModel(): T

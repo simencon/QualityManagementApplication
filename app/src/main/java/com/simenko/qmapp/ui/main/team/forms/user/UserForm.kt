@@ -83,8 +83,7 @@ fun UserForm(
             .padding(all = 0.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        if (isAddRoleDialogVisible)
-            AddRole(userModel = viewModel)
+        if (isAddRoleDialogVisible) AddRole(userModel = viewModel)
 
         Column(
             verticalArrangement = Arrangement.Center,

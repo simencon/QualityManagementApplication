@@ -2,9 +2,11 @@ package com.simenko.qmapp.ui.main.products.kinds.designations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -17,9 +19,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,9 +34,14 @@ class ProductKindKeysViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
-    private val _productKindId = MutableStateFlow(NoRecord.num)
+    private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
     private val _productKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
-    private val _productKindKeys = _productKindId.flatMapLatest { repository.productKindKeys(it) }
+    private val _productKindKeys = _productKind.flatMapLatest { repository.productKindKeys(it.productKind.id) }
+
+    private val _isAddItemDialogVisible = MutableStateFlow(false)
+    private val _itemToAddId: MutableStateFlow<ID> = MutableStateFlow(NoRecord.num)
+    private val _itemToAddSearchStr: MutableStateFlow<String> = MutableStateFlow(EmptyString.str)
+
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -41,15 +49,15 @@ class ProductKindKeysViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductKindKeys.ProductKindKeysList) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (mainPageHandler == null) {
-                _productKindId.value = route.productKindId
+                _productKind.value = repository.productKind(route.productKindId)
                 _productKindKeysVisibility.value = Pair(SelectedNumber(route.productKindKeyId), NoRecord)
             }
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddProductKindKeyClick(route.productKindId) }
+                .setOnFabClickAction { onAddProductKindKeyClick() }
                 .setOnPullRefreshAction { updateCompanyProductsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -66,7 +74,7 @@ class ProductKindKeysViewModel @Inject constructor(
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productKind = _productKindId.flatMapLatest { flow { emit(repository.productKind(it)) } }.flowOn(Dispatchers.IO)
+    val productKind = _productKind.asStateFlow()
     val productKindKeys = _productKindKeys.flatMapLatest { productKindKeys ->
         _productKindKeysVisibility.flatMapLatest { visibility ->
             val cpy = productKindKeys.map {
@@ -74,6 +82,43 @@ class ProductKindKeysViewModel @Inject constructor(
             }
             flow { emit(cpy) }
         }
+    }
+
+    val availableKeys = _productKind.flatMapLatest { productKind ->
+        _productKindKeys.flatMapLatest { addedKeys ->
+            _itemToAddSearchStr.flatMapLatest { searchStr ->
+                _itemToAddId.flatMapLatest { id ->
+                    repository.productLineKeys(productKind.productLine.manufacturingProject.id).map { list ->
+                        list
+                            .subtract(addedKeys.map { it.key }.toSet())
+                            .filter {
+                                if (searchStr.isNotEmpty()) {
+                                    it.productLineKey.componentKeyDescription?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                            || it.productLineKey.componentKey.lowercase().contains(searchStr.lowercase())
+                                } else {
+                                    true
+                                }
+                            }
+                            .map { item -> item.copy(isSelected = item.productLineKey.id == id) }
+                    }
+                }
+            }
+        }
+    }
+
+
+    val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
+    fun setAddItemDialogVisibility(value: Boolean) {
+        if (!value) {
+            _itemToAddSearchStr.value = EmptyString.str
+            _itemToAddId.value = NoRecord.num
+        }
+        _isAddItemDialogVisible.value = value
+    }
+
+    val itemToAddSearchStr = _itemToAddSearchStr.asStateFlow()
+    fun setItemToAddSearchStr(value: String) {
+        if (_itemToAddSearchStr.value != value) _itemToAddSearchStr.value = value
     }
 
     /**
@@ -90,7 +135,19 @@ class ProductKindKeysViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductKindKeyClick(it: ID) {
-        TODO("Not yet implemented")
+
+
+    private fun onAddProductKindKeyClick() {
+        _isAddItemDialogVisible.value = true
+    }
+
+    fun onItemSelect(id: ID) {
+        _itemToAddId.value = id
+    }
+
+    fun onAddItemClick() {
+        if (productKind.value.productKind.id != NoRecord.num && _itemToAddId.value != NoRecord.num) {
+            //  make record!
+        }
     }
 }
