@@ -29,7 +29,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductKindKey
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
-import com.simenko.qmapp.ui.common.SingleChoiceDialog
+import com.simenko.qmapp.ui.common.dialog.SingleChoiceDialog
 import com.simenko.qmapp.ui.main.products.designations.KeyCard
 import com.simenko.qmapp.ui.navigation.Route
 

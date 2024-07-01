@@ -1,36 +1,25 @@
 package com.simenko.qmapp.ui.common
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -67,7 +56,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -91,13 +79,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
@@ -106,7 +91,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -114,175 +98,6 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.utils.dp
 import kotlin.math.round
 import kotlin.math.roundToInt
-
-@Composable
-fun <DB, DM> SingleChoiceDialog(
-    items: List<DM>,
-    addIsEnabled: Boolean,
-    onDismiss: () -> Unit,
-    searchString: String,
-    onSearch: (String) -> Unit,
-    onItemSelect: (ID) -> Unit,
-    onAddClick: () -> Unit
-) where DM : DomainBaseModel<DB> {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = true),
-    ) {
-        Card(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(10.dp, 10.dp, 10.dp, 10.dp),
-            shape = RoundedCornerShape(10.dp),
-            elevation = CardDefaults.cardElevation(8.dp)
-        ) {
-            val listState = rememberLazyListState()
-
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.onPrimary),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                val (searchFR) = FocusRequester.createRefs()
-                val (footerFR) = FocusRequester.createRefs()
-
-                Column(modifier = Modifier.weight(1f, false)) {
-                    RecordFieldItem(
-                        modifier = Modifier.width(300.dp),
-                        valueParam = Triple(searchString, false) { onSearch(it) },
-                        keyboardNavigation = Pair(searchFR) { footerFR.requestFocus() },
-                        keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
-                        contentDescription = Triple(Icons.Outlined.Search, "Search", "Search"),
-                        isMandatoryField = false,
-                    )
-
-                    LazyColumn(state = listState) {
-                        items(items = items, key = { it.getRecordId() }) { item ->
-                            ItemToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
-                                onItemSelect.invoke(selectedName)
-                            }
-                        }
-                    }
-                }
-
-
-                Row(
-                    Modifier
-                        .height(IntrinsicSize.Min)
-                        .width(300.dp)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .focusRequester(footerFR),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    TextButton(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                    ) {
-                        Text(
-                            "Cancel",
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    VerticalDivider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(1.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    TextButton(
-                        enabled = addIsEnabled,
-                        modifier = Modifier.weight(1f),
-                        onClick = onAddClick,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                    ) {
-                        Text(
-                            "Add",
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ItemToSelect(
-    itemId: ID,
-    itemContent: Triple<String, String, Boolean>,
-    onClick: (ID) -> Unit
-) {
-    val btnColors = ButtonDefaults.buttonColors(
-        contentColor = if (itemContent.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-        containerColor = if (itemContent.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-    )
-    Row(
-        modifier = Modifier.padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(
-            colors = btnColors,
-            elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
-            modifier = Modifier
-                .width((300 - DEFAULT_SPACE * 2).dp)
-                .wrapContentHeight(),
-            onClick = { onClick(itemId) }
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = itemContent.first,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = itemContent.second,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
-}
-
-@Preview(
-    name = "Light Mode",
-    showBackground = true,
-    uiMode = UI_MODE_NIGHT_NO
-)
-@Composable
-fun PreviewListItem() {
-    val list = mutableListOf<DomainKey>()
-    for (i in 0..100) {
-        if (i % 2 == 0)
-            list.add(DomainKey(i.toLong(), 1L, "IR", "Inner ring"))
-        else
-            list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
-    }
-    SingleChoiceDialog(
-        items = list.toList(),
-        addIsEnabled = true,
-        onDismiss = {},
-        searchString = EmptyString.str,
-        onSearch = {},
-        onItemSelect = {},
-        onAddClick = {}
-    )
-    // Your Composable here
-}
 
 @Composable
 fun RecordFieldItem(
