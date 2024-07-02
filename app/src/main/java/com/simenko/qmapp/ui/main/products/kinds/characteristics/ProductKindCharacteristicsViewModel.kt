@@ -286,5 +286,4 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
             }
         }
     }
-
 }
