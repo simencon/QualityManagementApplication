@@ -46,6 +46,8 @@ import com.simenko.qmapp.ui.main.products.kinds.set.forms.ComponentKindForm
 import com.simenko.qmapp.ui.main.products.kinds.set.forms.ComponentKindViewModel
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.kinds.set.stages.forms.ComponentStageKindForm
+import com.simenko.qmapp.ui.main.products.kinds.set.stages.forms.ComponentStageKindViewModel
 import com.simenko.qmapp.ui.navigation.Route
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -133,6 +135,10 @@ inline fun <reified T : Route> NavGraphBuilder.productKindSpecificationNavigatio
         composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentKind> {
             val viewModel: ComponentKindViewModel = hiltViewModel()
             ComponentKindForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentStageKind> {
+            val viewModel: ComponentStageKindViewModel = hiltViewModel()
+            ComponentStageKindForm(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.ComponentKindKeysList> {
             val viewModel: ComponentKindKeysViewModel = hiltViewModel()

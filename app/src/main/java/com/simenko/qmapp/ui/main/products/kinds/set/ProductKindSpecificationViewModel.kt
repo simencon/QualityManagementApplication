@@ -108,12 +108,32 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
 
-    fun onDeleteComponentStageKindClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteComponentStageKindClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) {
+            deleteComponentStageKind(it).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                    }
+                }
+            }
+        }
     }
 
-    private fun updateCompanyProductsData() {
-        TODO("Not yet implemented")
+    private fun updateCompanyProductsData() = viewModelScope.launch {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.syncProductKinds()
+            repository.syncComponentKinds()
+            repository.syncComponentStageKinds()
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
     }
 
     /**
@@ -124,7 +144,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
     fun onAddComponentStageKindClick(it: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentStageKind(componentKindId = it))
     }
 
     fun onEditComponentKindClick(it: Pair<ID, ID>) {
@@ -132,7 +152,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
     fun onEditComponentStageKindClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentStageKind(componentKindId = it.first, componentStageKindId = it.second))
     }
 
     fun onComponentKindKeysClick(it: ID) {
