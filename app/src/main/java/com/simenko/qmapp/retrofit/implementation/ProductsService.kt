@@ -189,11 +189,31 @@ interface ProductsService {
     @GET(CHARACTERISTICS_PRODUCT_KINDS)
     suspend fun getCharacteristicsProductKinds(): Response<List<NetworkCharacteristicProductKind>>
 
+    @POST(CHARACTERISTICS_PRODUCT_KINDS)
+    suspend fun insertCharacteristicProductKind(@Body record: NetworkCharacteristicProductKind): Response<NetworkCharacteristicProductKind>
+
+    @DELETE("${CHARACTERISTICS_PRODUCT_KINDS}/{id}")
+    suspend fun deleteCharacteristicProductKind(@Path("id") id: ID): Response<NetworkCharacteristicProductKind>
+
+
     @GET(CHARACTERISTICS_COMPONENT_KINDS)
     suspend fun getCharacteristicsComponentKinds(): Response<List<NetworkCharacteristicComponentKind>>
 
+    @POST(CHARACTERISTICS_COMPONENT_KINDS)
+    suspend fun insertCharacteristicComponentKind(@Body record: NetworkCharacteristicComponentKind): Response<NetworkCharacteristicComponentKind>
+
+    @DELETE("${CHARACTERISTICS_COMPONENT_KINDS}/{id}")
+    suspend fun deleteCharacteristicComponentKind(@Path("id") id: ID): Response<NetworkCharacteristicComponentKind>
+
+
     @GET(CHARACTERISTICS_COMPONENT_STAGE_KINDS)
     suspend fun getCharacteristicsComponentStageKinds(): Response<List<NetworkCharacteristicComponentStageKind>>
+
+    @POST(CHARACTERISTICS_COMPONENT_STAGE_KINDS)
+    suspend fun insertCharacteristicComponentStageKind(@Body record: NetworkCharacteristicComponentStageKind): Response<NetworkCharacteristicComponentStageKind>
+
+    @DELETE("${CHARACTERISTICS_COMPONENT_STAGE_KINDS}/{id}")
+    suspend fun deleteCharacteristicComponentStageKind(@Path("id") id: ID): Response<NetworkCharacteristicComponentStageKind>
 
 
     @GET(PRODUCTS)

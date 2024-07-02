@@ -61,7 +61,7 @@ class ComponentStageKindKeysViewModel @Inject constructor(
 
             mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_STAGE_KIND_KEYS, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddComponentStageKindKeyClick() }
+                .setOnFabClickAction { setAddItemDialogVisibility(true) }
                 .setOnPullRefreshAction { updateCompanyProductsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -125,9 +125,25 @@ class ComponentStageKindKeysViewModel @Inject constructor(
         if (_itemToAddSearchStr.value != value) _itemToAddSearchStr.value = value
     }
 
+    fun onItemSelect(id: ID) {
+        _itemToAddId.value = id
+    }
+
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    private fun updateCompanyProductsData() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+            repository.syncComponentStageKindsKeys()
+
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        } catch (e: Exception) {
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+        }
+    }
+
     fun onDeleteComponentStageKindKeyClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
         componentStageKindKeys.value.find { it.key.isExpanded }?.let { itemToDelete ->
             if (itemToDelete.componentStageKindKey.keyId == it)
@@ -143,29 +159,6 @@ class ComponentStageKindKeysViewModel @Inject constructor(
                     }
                 }
         }
-    }
-
-    private fun updateCompanyProductsData() = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-
-            repository.syncComponentStageKindsKeys()
-
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-        } catch (e: Exception) {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
-        }
-    }
-
-    /**
-     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    private fun onAddComponentStageKindKeyClick() {
-        _isAddItemDialogVisible.value = true
-    }
-
-    fun onItemSelect(id: ID) {
-        _itemToAddId.value = id
     }
 
     fun onAddItemClick() = viewModelScope.launch(Dispatchers.IO) {

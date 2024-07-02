@@ -175,7 +175,7 @@ abstract class QualityManagementDB : RoomDatabase() {
 
     abstract val characteristicProductKindDao: CharacteristicProductKindDao
     abstract val characteristicComponentKindDao: CharacteristicComponentKindDao
-    abstract val characteristicComponentStageKindDao: CharacteristicComponentStageKindDao
+    abstract val charComponentStageKindDao: CharacteristicComponentStageKindDao
 
 
     abstract val productDao: ProductDao

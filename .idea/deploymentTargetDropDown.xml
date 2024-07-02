@@ -2,6 +2,12 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="PreviewCharacteristicChoice">
+        <State />
+      </entry>
+      <entry key="PreviewListItem">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>

@@ -161,8 +161,35 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncCharacteristicsProductKinds() = crudeOperations.syncRecordsAll(database.characteristicProductKindDao) { service.getCharacteristicsProductKinds() }
+    fun CoroutineScope.deleteProductKindCharacteristic(id: ID): ReceiveChannel<Event<Resource<DomainCharacteristicProductKind>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicProductKind(id) }) { r -> database.characteristicProductKindDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertProductKindCharacteristic(record: DomainCharacteristicProductKind) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristicProductKind(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicProductKindDao.insertRecord(r) }
+    }
+
+
     suspend fun syncCharacteristicsComponentKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentKindDao) { service.getCharacteristicsComponentKinds() }
-    suspend fun syncCharacteristicsComponentStageKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentStageKindDao) { service.getCharacteristicsComponentStageKinds() }
+    fun CoroutineScope.deleteComponentKindCharacteristic(id: ID): ReceiveChannel<Event<Resource<DomainCharacteristicComponentKind>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicComponentKind(id) }) { r -> database.characteristicComponentKindDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertComponentKindCharacteristic(record: DomainCharacteristicComponentKind) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristicComponentKind(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicComponentKindDao.insertRecord(r) }
+    }
+
+
+    suspend fun syncCharacteristicsComponentStageKinds() = crudeOperations.syncRecordsAll(database.charComponentStageKindDao) { service.getCharacteristicsComponentStageKinds() }
+    fun CoroutineScope.deleteComponentStageKindCharacteristic(id: ID): ReceiveChannel<Event<Resource<DomainCharacteristicComponentStageKind>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicComponentStageKind(id) }) { r -> database.charComponentStageKindDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertComponentStageKindCharacteristic(record: DomainCharacteristicComponentStageKind) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristicComponentStageKind(record.toDatabaseModel().toNetworkModel()) }) { r -> database.charComponentStageKindDao.insertRecord(r) }
+    }
+
+
     suspend fun syncProducts() = crudeOperations.syncRecordsAll(database.productDao) { service.getProducts() }
     suspend fun syncComponents() = crudeOperations.syncRecordsAll(database.componentDao) { service.getComponents() }
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
