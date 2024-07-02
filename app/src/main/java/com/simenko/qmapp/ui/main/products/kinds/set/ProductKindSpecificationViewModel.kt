@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -15,6 +16,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -51,9 +53,10 @@ class ProductKindSpecificationViewModel @Inject constructor(
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_SPECIFICATION, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { onAddComponentKindClick(Pair(route.productKindId, NoRecord.num)) }
+                .setOnFabClickAction { onAddComponentKindClick(route.productKindId) }
                 .setOnPullRefreshAction { updateCompanyProductsData() }
                 .build()
+                .apply { setupMainPage(0, true) }
         }
     }
 
@@ -90,9 +93,20 @@ class ProductKindSpecificationViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteComponentKindClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteComponentKindClick(it: ID) = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) {
+            deleteComponentKind(it).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                    }
+                }
+            }
+        }
     }
+
 
     fun onDeleteComponentStageKindClick(it: ID) {
         TODO("Not yet implemented")
@@ -105,8 +119,8 @@ class ProductKindSpecificationViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddComponentKindClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+    private fun onAddComponentKindClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentKind(productKindId = it))
     }
 
     fun onAddComponentStageKindClick(it: ID) {
@@ -114,7 +128,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
     fun onEditComponentKindClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentKind(productKindId = it.first, componentKindId = it.second))
     }
 
     fun onEditComponentStageKindClick(it: Pair<ID, ID>) {
@@ -130,7 +144,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
     fun onComponentKindCharacteristicsClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ProductSpecificationList(componentKindId = it))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ComponentKindCharacteristicsList(componentKindId = it))
     }
 
     fun onComponentStageKindCharacteristicsClick(it: ID) {

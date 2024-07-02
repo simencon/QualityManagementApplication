@@ -146,13 +146,10 @@ sealed interface Route {
                     data class ProductSpecificationList(val productKindId: ID = NoRecord.num, val componentKindId: ID = NoRecord.num, val componentStageKindId: ID = NoRecord.num) : Route
 
                     @Serializable
-                    data class ProductKindAddEdit(val productLineId: ID, val productKindId: ID = NoRecord.num) : Route
+                    data class AddEditComponentKind(val productKindId: ID, val componentKindId: ID = NoRecord.num) : Route
 
                     @Serializable
-                    data class ComponentKindAddEdit(val productKindId: ID, val componentKindId: ID = NoRecord.num) : Route
-
-                    @Serializable
-                    data class ComponentStageKindAddEdit(val componentKindId: ID, val componentStageKindId: ID = NoRecord.num) : Route
+                    data class AddEditComponentStageKind(val componentKindId: ID, val componentStageKindId: ID = NoRecord.num) : Route
 
                     @Serializable
                     data object ComponentKindKeys : Route {
@@ -163,7 +160,7 @@ sealed interface Route {
                     @Serializable
                     data object ComponentKindCharacteristics : Route {
                         @Serializable
-                        data class ProductSpecificationList(val componentKindId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num) : Route
+                        data class ComponentKindCharacteristicsList(val componentKindId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num) : Route
                     }
 
                     @Serializable

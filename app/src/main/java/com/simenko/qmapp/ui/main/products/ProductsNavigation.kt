@@ -42,6 +42,8 @@ import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerancesViewModel
 import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.kinds.set.forms.ComponentKindForm
+import com.simenko.qmapp.ui.main.products.kinds.set.forms.ComponentKindViewModel
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsMain
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.characteristics.ComponentStageKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.navigation.Route
@@ -128,11 +130,15 @@ inline fun <reified T : Route> NavGraphBuilder.productKindSpecificationNavigatio
             val viewModel: ProductKindSpecificationViewModel = hiltViewModel()
             ProductKindSpecification(viewModel = viewModel, route = it.toRoute())
         }
+        composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentKind> {
+            val viewModel: ComponentKindViewModel = hiltViewModel()
+            ComponentKindForm(viewModel = viewModel, route = it.toRoute())
+        }
         composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.ComponentKindKeysList> {
             val viewModel: ComponentKindKeysViewModel = hiltViewModel()
             ComponentKindKeys(viewModel = viewModel, route = it.toRoute())
         }
-        composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ProductSpecificationList> {
+        composable<Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ComponentKindCharacteristicsList> {
             val viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel()
             ComponentKindCharacteristicsMain(viewModel = viewModel, route = it.toRoute())
         }

@@ -26,7 +26,7 @@ import com.simenko.qmapp.ui.navigation.Route
 fun ComponentKindCharacteristicsMain(
     modifier: Modifier = Modifier,
     viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel(),
-    route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ProductSpecificationList
+    route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ComponentKindCharacteristicsList
 ) {
     val componentKind by viewModel.componentKind.collectAsStateWithLifecycle(DomainComponentKind.DomainComponentKindComplete())
 

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.kinds.forms
+package com.simenko.qmapp.ui.main.products.kinds.set.forms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,7 +8,7 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.entities.products.DomainProductKind
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -25,27 +25,27 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductKindViewModel @Inject constructor(
+class ComponentKindViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
 ) : ViewModel() {
-    private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
+    private val _componentKind = MutableStateFlow(DomainComponentKind.DomainComponentKindComplete())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: Route.Main.ProductLines.ProductKinds.AddEditProductKind) {
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.AddEditComponentKind) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (route.productKindId == NoRecord.num) {
-                prepareProductKind(route.productLineId)
+            if (route.componentKindId == NoRecord.num) {
+                prepareComponentKind(route.productKindId)
             } else {
-                _productKind.value = repository.productKind(route.productKindId)
+                _componentKind.value = repository.componentKind(route.componentKindId)
             }
 
-            mainPageHandler = MainPageHandler.Builder(if (route.productKindId == NoRecord.num) Page.ADD_PRODUCT_KIND else Page.EDIT_PRODUCT_KIND, mainPageState)
+            mainPageHandler = MainPageHandler.Builder(if (route.componentKindId == NoRecord.num) Page.ADD_COMPONENT_KIND else Page.EDIT_COMPONENT_KIND, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
                 .setOnFabClickAction { validateInput() }
                 .build()
@@ -53,11 +53,11 @@ class ProductKindViewModel @Inject constructor(
         }
     }
 
-    private suspend fun prepareProductKind(productLineId: ID) {
-        val productLine = repository.productLineById(productLineId)
-        _productKind.value = DomainProductKind.DomainProductKindComplete(
-            productLine = productLine,
-            productKind = DomainProductKind(projectId = productLine.manufacturingProject.id)
+    private suspend fun prepareComponentKind(productLineId: ID) {
+        val productKind = repository.productKind(productLineId)
+        _componentKind.value = DomainComponentKind.DomainComponentKindComplete(
+            productKind = productKind,
+            componentKind = DomainComponentKind(productKindId = productKind.productKind.id)
         )
     }
 
@@ -65,20 +65,21 @@ class ProductKindViewModel @Inject constructor(
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    val productKind get() = _productKind.asStateFlow()
+    val productKind get() = _componentKind.asStateFlow()
 
-    fun onSetProductKindDesignation(designation: String) {
-        if (_productKind.value.productKind.productKindDesignation != designation) {
-            _productKind.value = _productKind.value.copy(productKind = _productKind.value.productKind.copy(productKindDesignation = designation))
-            _fillInErrors.value = _fillInErrors.value.copy(productKindDesignationError = false)
+    fun onSetComponentKindOrder(order: String) {
+        val orderInt = order.toIntOrNull()?: NoRecord.num.toInt()
+        if (_componentKind.value.componentKind.componentKindOrder != orderInt) {
+            _componentKind.value = _componentKind.value.copy(componentKind = _componentKind.value.componentKind.copy(componentKindOrder = orderInt))
+            _fillInErrors.value = _fillInErrors.value.copy(componentKindOrderError = false)
             _fillInState.value = FillInInitialState
         }
     }
 
-    fun onSetProductKindIndustry(industry: String) {
-        if (_productKind.value.productKind.comments != industry) {
-            _productKind.value = _productKind.value.copy(productKind = _productKind.value.productKind.copy(comments = industry))
-            _fillInErrors.value = _fillInErrors.value.copy(productKindIndustryError = false)
+    fun onSetComponentKindDescription(description: String) {
+        if (_componentKind.value.componentKind.componentKindDescription != description) {
+            _componentKind.value = _componentKind.value.copy(componentKind = _componentKind.value.componentKind.copy(componentKindDescription = description))
+            _fillInErrors.value = _fillInErrors.value.copy(componentKindDescriptionError = false)
             _fillInState.value = FillInInitialState
         }
     }
@@ -94,14 +95,14 @@ class ProductKindViewModel @Inject constructor(
 
     private fun validateInput() {
         val errorMsg = buildString {
-            with(_productKind.value.productKind) {
-                if (productKindDesignation.isEmpty()) {
-                    _fillInErrors.value = _fillInErrors.value.copy(productKindDesignationError = true)
-                    append("Product designation field is mandatory\n")
+            with(_componentKind.value.componentKind) {
+                if (componentKindOrder == NoRecord.num.toInt()) {
+                    _fillInErrors.value = _fillInErrors.value.copy(componentKindOrderError = true)
+                    append("Component order field is mandatory\n")
                 }
-                if (comments.isNullOrEmpty()) {
-                    _fillInErrors.value = _fillInErrors.value.copy(productKindIndustryError = true)
-                    append("Product industry field is mandatory\n")
+                if (componentKindDescription.isEmpty()) {
+                    _fillInErrors.value = _fillInErrors.value.copy(componentKindDescriptionError = true)
+                    append("Component description field is mandatory\n")
                 }
             }
         }
@@ -110,7 +111,7 @@ class ProductKindViewModel @Inject constructor(
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
         with(repository) {
-            if (_productKind.value.productKind.id == NoRecord.num) insertProductKind(_productKind.value.productKind) else updateProductKind(_productKind.value.productKind)
+            if (_componentKind.value.componentKind.id == NoRecord.num) insertComponentKind(_componentKind.value.componentKind) else updateComponentKind(_componentKind.value.componentKind)
         }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
@@ -128,10 +129,10 @@ class ProductKindViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: ID?) {
         id?.let {
             mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-            val productLineId = _productKind.value.productKind.projectId
-            val productKindId = it
+            val productKindId = _componentKind.value.componentKind.productKindId
+            val componentKindId = it
             appNavigator.navigateTo(
-                route = Route.Main.ProductLines.ProductKinds.ProductKindsList(productLineId, productKindId),
+                route = Route.Main.ProductLines.ProductKinds.ProductSpecification.ProductSpecificationList(productKindId, componentKindId),
                 popUpToRoute = Route.Main.ProductLines,
                 inclusive = true
             )
@@ -140,6 +141,6 @@ class ProductKindViewModel @Inject constructor(
 }
 
 data class FillInErrors(
-    var productKindDesignationError: Boolean = false,
-    var productKindIndustryError: Boolean = false,
+    var componentKindOrderError: Boolean = false,
+    var componentKindDescriptionError: Boolean = false,
 )

@@ -273,13 +273,13 @@ enum class Page(
     ADD_PRODUCT_LINE_KEY(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add product line design.", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_LINE_KEY(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product line design.", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add product kind", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_COMPONENT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new component kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_COMPONENT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add component kind", null, null, null, null, Icons.Filled.Save, null),
     EDIT_COMPONENT_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit component kind", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
+    ADD_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add component stage kind", null, null, null, null, Icons.Filled.Save, null),
     EDIT_COMPONENT_STAGE_KIND(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
 
     ADD_PRODUCT_LINE_CHAR_GROUP(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add char. group", null, null, null, null, Icons.Filled.Save, null),

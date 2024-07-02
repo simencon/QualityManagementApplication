@@ -64,7 +64,7 @@ class ComponentKindCharacteristicsViewModel @Inject constructor(
      * */
     private var mainPageHandler: MainPageHandler? = null
 
-    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ProductSpecificationList) {
+    fun onEntered(route: Route.Main.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.ComponentKindCharacteristicsList) {
         viewModelScope.launch(Dispatchers.IO) {
             if (mainPageHandler == null) {
                 _componentKind.value = repository.componentKind(route.componentKindId)
