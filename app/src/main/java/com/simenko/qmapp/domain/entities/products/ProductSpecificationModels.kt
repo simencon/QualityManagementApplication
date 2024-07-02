@@ -57,7 +57,8 @@ data class DomainKey(
     var id: ID = NoRecord.num,
     var projectId: ID = NoRecord.num,
     var componentKey: String = EmptyString.str,
-    var componentKeyDescription: String? = EmptyString.str
+    var componentKeyDescription: String? = EmptyString.str,
+    var isSelected: Boolean = false,
 ) : DomainBaseModel<DatabaseKey>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -66,10 +67,15 @@ data class DomainKey(
     }
 
     override fun getName(): String {
-        return componentKeyDescription?: EmptyString.str
+        return componentKeyDescription ?: EmptyString.str
     }
 
-    override fun setIsSelected(value: Boolean) {}
+    override fun setIsSelected(value: Boolean) {
+        isSelected = value
+    }
+
+
+
     override fun toDatabaseModel() = ObjectTransformer(DomainKey::class, DatabaseKey::class).transform(this)
 
     data class DomainKeyComplete(
@@ -103,9 +109,9 @@ data class DomainKey(
 }
 
 data class DomainProductBase(
-    var id: ID,
-    var projectId: ID?,
-    var componentBaseDesignation: String?
+    var id: ID = NoRecord.num,
+    var projectId: ID? = NoRecord.num,
+    var componentBaseDesignation: String? = EmptyString.str
 ) : DomainBaseModel<DatabaseProductBase>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -271,19 +277,19 @@ data class DomainComponentStageKindKey(
 }
 
 data class DomainProduct(
-    var id: ID,
-    var productBaseId: ID,
-    var keyId: ID,
-    var productDesignation: String
+    var id: ID = NoRecord.num,
+    var productBaseId: ID = NoRecord.num,
+    var keyId: ID = NoRecord.num,
+    var productDesignation: String = EmptyString.str
 ) : DomainBaseModel<DatabaseProduct>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProduct::class, DatabaseProduct::class).transform(this)
     data class DomainProductComplete(
-        val product: DomainProduct,
-        val productBase: DomainProductBase,
-        val key: DomainKey
+        val product: DomainProduct = DomainProduct(),
+        val productBase: DomainProductBase = DomainProductBase(),
+        val key: DomainKey = DomainKey()
     ) : DomainBaseModel<DatabaseProduct.DatabaseProductComplete>() {
         override fun getRecordId() = product.id
         override fun getParentId() = key.projectId
@@ -345,19 +351,19 @@ data class DomainComponentStage(
 }
 
 data class DomainProductKindProduct(
-    val id: ID,
-    val productKindId: ID,
-    val productId: ID
+    val id: ID = NoRecord.num,
+    val productKindId: ID = NoRecord.num,
+    val productId: ID = NoRecord.num
 ) : DomainBaseModel<DatabaseProductKindProduct>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProductKindProduct::class, DatabaseProductKindProduct::class).transform(this)
     data class DomainProductKindProductComplete(
-        val productKindProduct: DomainProductKindProduct,
-        val productKind: DomainProductKind,
-        val product: DomainProduct.DomainProductComplete,
-        val versions: List<DomainProductVersion>,
+        val productKindProduct: DomainProductKindProduct = DomainProductKindProduct(),
+        val productKind: DomainProductKind = DomainProductKind(),
+        val product: DomainProduct.DomainProductComplete = DomainProduct.DomainProductComplete(),
+        val versions: List<DomainProductVersion> = emptyList(),
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseProductKindProduct.DatabaseProductKindProductComplete>() {

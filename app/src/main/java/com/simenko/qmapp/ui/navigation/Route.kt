@@ -186,6 +186,9 @@ sealed interface Route {
                     ) : Route
 
                     @Serializable
+                    data class AddEditProduct(val productKindId: ID = NoRecord.num, val productId: ID = NoRecord.num): Route
+
+                    @Serializable
                     data object VersionTolerances : Route {
                         @Serializable
                         data class VersionTolerancesDetails(

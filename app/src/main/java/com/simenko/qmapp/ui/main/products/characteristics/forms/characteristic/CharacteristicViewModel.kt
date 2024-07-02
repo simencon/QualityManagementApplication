@@ -87,6 +87,7 @@ class CharacteristicViewModel @Inject constructor(
     private val _charGroups = _characteristic.flatMapLatest { char ->
         repository.charGroups(char.characteristicSubGroup.charGroup.productLine.manufacturingProject.id)
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
     val charGroups = _charGroups.flatMapLatest { charGroups ->
         _characteristic.flatMapLatest { char ->
             flow { emit(charGroups.map { it.charGroup.run { Triple(first = id, second = ishElement ?: EmptyString.str, third = id == char.characteristicSubGroup.charGroup.charGroup.id) } }) }
@@ -121,9 +122,11 @@ class CharacteristicViewModel @Inject constructor(
         }
     }
 
+
     private val _charSubGroups = _characteristic.flatMapLatest { char ->
         repository.charSubGroups(char.characteristicSubGroup.charGroup.charGroup.id)
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
     val charSubGroups = _charSubGroups.flatMapLatest { charSubGroups ->
         _characteristic.flatMapLatest { char ->
             flow { emit(charSubGroups.map { it.charSubGroup.run { Triple(first = id, second = ishElement ?: EmptyString.str, third = id == char.characteristicSubGroup.charSubGroup.id) } }) }

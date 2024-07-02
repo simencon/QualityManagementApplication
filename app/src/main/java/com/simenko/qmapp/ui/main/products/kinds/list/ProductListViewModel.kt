@@ -280,12 +280,12 @@ class ProductListViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    private fun onAddProduct(productKindId: ID) {
-        TODO("Not yet implemented")
+    private fun onAddProduct(id: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
     }
 
     fun onEditProductClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = it.first, productId = it.second))
     }
 
     fun onAddComponentClick(it: Pair<ID, ID>) {
