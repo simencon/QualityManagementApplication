@@ -72,6 +72,9 @@ class MainPageHandler private constructor(
         mainPageState.trySendLoadingState(it)
     }
     val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
+    val setFabVisibilityState: (Boolean) -> Unit = {
+        mainPageState.trySendFabVisibility(it)
+    }
 }
 
 

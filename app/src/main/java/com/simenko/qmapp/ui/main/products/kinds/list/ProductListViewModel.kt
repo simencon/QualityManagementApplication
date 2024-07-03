@@ -85,7 +85,7 @@ class ProductListViewModel @Inject constructor(
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProduct(route.productKindId) }
+                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProductKindProduct(route.productKindId) }
                 .setOnPullRefreshAction { updateProductsData() }
                 .build()
                 .apply { setupMainPage(0, true) }
@@ -152,6 +152,13 @@ class ProductListViewModel @Inject constructor(
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
+    private val _bottomSheetState = MutableStateFlow(Pair(false, NoRecord.num))
+    fun onShowHideBottomSheet(isVisible: Boolean) {
+        _bottomSheetState.value = _bottomSheetState.value.copy(first = isVisible)
+    }
+
+    val bottomSheetState = _bottomSheetState.asStateFlow()
 
     val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
         _products.flatMapLatest { products ->
@@ -296,7 +303,17 @@ class ProductListViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    private fun onAddProduct(id: ID) {
+    private fun onAddProductKindProduct(id: ID) {
+        _bottomSheetState.value = _bottomSheetState.value.copy(first = true, second = id)
+    }
+
+    fun onAddNewProduct(id: ID) {
+        _bottomSheetState.value = _bottomSheetState.value.copy(first = false, second = NoRecord.num)
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
+    }
+
+    fun onSelectExistingProduct(id: ID) {
+        _bottomSheetState.value = _bottomSheetState.value.copy(first = false, second = NoRecord.num)
         appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
     }
 
