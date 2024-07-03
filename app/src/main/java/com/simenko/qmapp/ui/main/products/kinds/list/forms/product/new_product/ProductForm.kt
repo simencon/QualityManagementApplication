@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.kinds.list.forms.product
+package com.simenko.qmapp.ui.main.products.kinds.list.forms.product.new_product
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

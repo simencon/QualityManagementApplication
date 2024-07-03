@@ -314,7 +314,7 @@ class ProductListViewModel @Inject constructor(
 
     fun onSelectExistingProduct(id: ID) {
         _bottomSheetState.value = _bottomSheetState.value.copy(first = false, second = NoRecord.num)
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddProductKindProduct(productKindId = id))
     }
 
     fun onEditProductClick(it: Pair<ID, ID>) {
