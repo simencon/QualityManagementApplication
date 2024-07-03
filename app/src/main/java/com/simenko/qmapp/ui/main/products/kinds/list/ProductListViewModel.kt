@@ -153,6 +153,14 @@ class ProductListViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
+    private val _isBottomSheetExpanded = MutableStateFlow(false)
+    fun onShowHideBottomSheet(isVisible: Boolean) {
+        mainPageHandler?.setFabVisibilityState?.invoke(!isVisible)
+        _isBottomSheetExpanded.value = isVisible
+    }
+
+    val isBottomSheetExpanded = _isBottomSheetExpanded.asStateFlow()
+
     val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
         _products.flatMapLatest { products ->
             _versionListIsInitialized.flatMapLatest { sl ->
@@ -297,7 +305,8 @@ class ProductListViewModel @Inject constructor(
      * */
 
     private fun onAddProduct(id: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
+        _isBottomSheetExpanded.value = true
+//        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = id))
     }
 
     fun onEditProductClick(it: Pair<ID, ID>) {
