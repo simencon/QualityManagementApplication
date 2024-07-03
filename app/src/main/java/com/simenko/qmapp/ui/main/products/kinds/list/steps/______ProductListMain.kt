@@ -13,17 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +63,7 @@ fun ProductKindProducts(
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
     val productKind by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
-    val isBottomSheetExpanded by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
+    val isBottomSheetExpanded by viewModel.bottomSheetState.collectAsStateWithLifecycle()
     val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
 
@@ -73,21 +71,10 @@ fun ProductKindProducts(
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
      * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember { mutableStateOf(animator.getRequiredScreenWidth(if (isSecondRowVisible) 1 else 0)) }
-
-    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false))
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
     LaunchedEffect(Unit) { viewModel.onEntered(route) }
-    LaunchedEffect(key1 = isBottomSheetExpanded) {
-        if (isBottomSheetExpanded) scaffoldState.bottomSheetState.expand() else scaffoldState.bottomSheetState.hide()
-    }
-
-    LaunchedEffect(key1 = scaffoldState.bottomSheetState) {
-        if (scaffoldState.bottomSheetState.currentValue == SheetValue.Hidden) {
-            viewModel.onShowHideBottomSheet(false)
-        }
-    }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
@@ -108,33 +95,43 @@ fun ProductKindProducts(
         }
     }
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        sheetContent = {
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-                val btnColors = ButtonDefaults.buttonColors(contentColor = MaterialTheme.colorScheme.onPrimary, containerColor = MaterialTheme.colorScheme.primary)
-                TextButton(
-                    colors = btnColors,
-                    elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
-                    modifier = Modifier
-                        .width(224.dp)
-                        .height(56.dp),
-                    onClick = { }
-                ) { Text(text = "Select existing item") }
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                TextButton(
-                    colors = btnColors,
-                    elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
-                    modifier = Modifier
-                        .width(224.dp)
-                        .height(56.dp),
-                    onClick = { }
-                ) { Text(text = "Add new item") }
-                Spacer(modifier = Modifier.height((DEFAULT_SPACE * 5).dp))
+        color = MaterialTheme.colorScheme.background
+    ) {
+        if (isBottomSheetExpanded.first) {
+            ModalBottomSheet(
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismissRequest = { viewModel.onShowHideBottomSheet(false) }
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    val btnColors = ButtonDefaults.buttonColors(contentColor = MaterialTheme.colorScheme.onPrimary, containerColor = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.height((DEFAULT_SPACE * 3).dp))
+                    TextButton(
+                        colors = btnColors,
+                        elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
+                        modifier = Modifier
+                            .width(224.dp)
+                            .height(56.dp),
+                        onClick = { viewModel.onAddNewProduct(isBottomSheetExpanded.second) }
+                    ) { Text(text = "Add new item".uppercase()) }
+                    Spacer(modifier = Modifier.height((DEFAULT_SPACE * 3).dp))
+                    TextButton(
+                        colors = btnColors,
+                        elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
+                        modifier = Modifier
+                            .width(224.dp)
+                            .height(56.dp),
+                        onClick = { viewModel.onSelectExistingProduct(isBottomSheetExpanded.second) }
+                    ) { Text(text = "Select existing item".uppercase()) }
+                    Spacer(modifier = Modifier.height((DEFAULT_SPACE * 15).dp))
+                }
             }
         }
-    ) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
             Column(modifier = Modifier.onGloballyPositioned {
                 titleHeightDp = with(localDensity) { it.size.height.toDp() }
