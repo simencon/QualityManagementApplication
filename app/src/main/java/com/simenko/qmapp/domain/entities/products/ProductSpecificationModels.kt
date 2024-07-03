@@ -75,7 +75,6 @@ data class DomainKey(
     }
 
 
-
     override fun toDatabaseModel() = ObjectTransformer(DomainKey::class, DatabaseKey::class).transform(this)
 
     data class DomainKeyComplete(
@@ -289,11 +288,19 @@ data class DomainProduct(
     data class DomainProductComplete(
         val product: DomainProduct = DomainProduct(),
         val productBase: DomainProductBase = DomainProductBase(),
-        val key: DomainKey = DomainKey()
+        val key: DomainKey = DomainKey(),
+        var isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseProduct.DatabaseProductComplete>() {
         override fun getRecordId() = product.id
         override fun getParentId() = key.projectId
-        override fun setIsSelected(value: Boolean) {}
+        override fun getIdentityName() = product.productDesignation
+        override fun getName() = productBase.componentBaseDesignation ?: NoString.str
+
+        override fun setIsSelected(value: Boolean) {
+            isSelected = value
+        }
+
+        override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseProduct.DatabaseProductComplete(
             product = this.product.toDatabaseModel(),
             productBase = this.productBase.toDatabaseModel(),

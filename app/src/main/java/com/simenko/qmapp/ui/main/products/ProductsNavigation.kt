@@ -7,9 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.entities.products.DomainKey
-import com.simenko.qmapp.ui.common.dialog.CharacteristicChoiceDialog
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.characteristics.forms.characteristic.CharacteristicForm
@@ -42,6 +39,7 @@ import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindChara
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindForm
 import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductDialog
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.new_product.ProductForm
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.new_product.ProductViewModel
@@ -178,27 +176,8 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
         }
         dialog<Route.Main.ProductLines.ProductKinds.Products.AddProductKindProduct> {
             val viewModel: ProductKindProductViewModel = hiltViewModel()
-            viewModel.onEntered(it.toRoute())
-            val list = mutableListOf<DomainKey>()
-            for (i in 0..100) {
-                if (i % 2 == 0)
-                    list.add(DomainKey(i.toLong(), 1L, EmptyString.str, "Inner ring"))
-                else
-                    list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
-            }
-            CharacteristicChoiceDialog(
-                items = list.toList(),
-                charGroups = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
-                onSelectCharGroup = {},
-                charSubGroups = listOf(Triple(1L, "Mechanical", false), Triple(2L, "Chemical", true)),
-                onSelectCharSubGroup = {},
-                addIsEnabled = true,
-                onDismiss = { viewModel.navBack() },
-                onItemSelect = {},
-                onAddClick = {}
-            )
+            ProductKindProductDialog(viewModel = viewModel, route = it.toRoute())
         }
-
         composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
             VersionTolerances(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())

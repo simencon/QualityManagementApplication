@@ -341,6 +341,9 @@ class ProductsRepository @Inject constructor(
     val productKindProductById: suspend (ID, ID) -> DomainProductKindProduct.DomainProductKindProductComplete = { pkId, pId ->
         database.productKindProductDao.getRecordCompleteById(pkId, pId)?.toDomainModel() ?: DomainProductKindProduct.DomainProductKindProductComplete()
     }
+    val allProductKindProducts: () -> Flow<List<DomainProductKindProduct.DomainProductKindProductComplete>> = {
+        database.productKindProductDao.getAllRecordsComplete().map { list -> list.map { it.toDomainModel() } }
+    }
 
 
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->

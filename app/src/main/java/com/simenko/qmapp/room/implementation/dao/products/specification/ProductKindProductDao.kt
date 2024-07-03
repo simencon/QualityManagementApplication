@@ -23,6 +23,10 @@ abstract class ProductKindProductDao : DaoBaseModel<ID, ID, DatabaseProductKindP
     abstract fun getRecordById(id: ID): DatabaseProductKindProduct?
 
     @Transaction
+    @Query("select * from product_kinds_products_complete")
+    abstract fun getAllRecordsComplete(): Flow<List<DatabaseProductKindProduct.DatabaseProductKindProductComplete>>
+
+    @Transaction
     @Query("select * from product_kinds_products_complete where productKindId = :pId")
     abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseProductKindProduct.DatabaseProductKindProductComplete>>
 
