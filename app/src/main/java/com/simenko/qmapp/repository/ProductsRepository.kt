@@ -8,10 +8,16 @@ import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.domain.entities.products.DomainProductLine.DomainProductLineComplete
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +25,8 @@ import javax.inject.Singleton
 class ProductsRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val crudeOperations: CrudeOperations,
-    private val service: ProductsService
+    private val service: ProductsService,
+    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>,
 ) {
     /**
      * Update Products from the network
@@ -215,12 +222,48 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncProducts() = crudeOperations.syncRecordsAll(database.productDao) { service.getProducts() }
+    fun CoroutineScope.insertProduct(record: DomainProduct) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertProduct(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateProduct(record: DomainProduct) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editProduct(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productDao.updateRecord(r) }
+    }
+
+
     suspend fun syncComponents() = crudeOperations.syncRecordsAll(database.componentDao) { service.getComponents() }
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
     suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { service.getComponentStagesToLines() }
+
+
     suspend fun syncProductKindsProducts() = crudeOperations.syncRecordsAll(database.productKindProductDao) { service.getProductKindsProducts() }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.deleteProductKindProduct(id: ID): ReceiveChannel<Event<Resource<DomainProductKindProduct>>> {
+        return produce(Dispatchers.IO) {
+            send(Event(Resource.loading(null)))
+            val response = service.deleteProductKindProduct(id)
+            if (response.isSuccessful) {
+                response.body()?.let { result ->
+                    database.productKindProductDao.deleteRecord(result.productKindProduct.toDatabaseModel())
+                    result.product?.let { database.productDao.deleteRecord(it.toDatabaseModel()) }
+                    send(Event(Resource.success(result.productKindProduct.toDatabaseModel().toDomainModel())))
+                } ?: run {
+                    send(Event(Resource.error("No response body", null)))
+                }
+            } else {
+                send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+            }
+        }
+    }
+
+    fun CoroutineScope.insertProductKindProduct(record: DomainProductKindProduct) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertProductKindProduct(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindProductDao.insertRecord(r) }
+    }
+
+
     suspend fun syncComponentKindsComponents() = crudeOperations.syncRecordsAll(database.componentKindComponentDao) { service.getComponentKindsComponents() }
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
     suspend fun syncProductsComponents() = crudeOperations.syncRecordsAll(database.productComponentDao) { service.getProductsComponents() }

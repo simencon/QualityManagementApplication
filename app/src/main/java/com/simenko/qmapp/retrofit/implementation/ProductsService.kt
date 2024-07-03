@@ -35,6 +35,8 @@ import com.simenko.qmapp.other.Constants.PRODUCT_KINDS_PRODUCTS
 import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
+import com.simenko.qmapp.other.Constants.WITH_RELATED_RECORDS
+import com.simenko.qmapp.retrofit.entities.adapters.ProductKindProductWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.products.*
 import retrofit2.Response
 import retrofit2.http.Body
@@ -238,6 +240,13 @@ interface ProductsService {
     @GET(PRODUCTS)
     suspend fun getProducts(): Response<List<NetworkProduct>>
 
+    @POST(PRODUCTS)
+    suspend fun insertProduct(@Body value: NetworkProduct): Response<NetworkProduct>
+
+    @PUT("$PRODUCTS/{id}")
+    suspend fun editProduct(@Path("id") id: ID, @Body value: NetworkProduct): Response<NetworkProduct>
+
+
     @GET(COMPONENTS)
     suspend fun getComponents(): Response<List<NetworkComponent>>
 
@@ -257,6 +266,13 @@ interface ProductsService {
 
     @GET(PRODUCT_KINDS_PRODUCTS)
     suspend fun getProductKindsProducts(): Response<List<NetworkProductKindProduct>>
+
+    @POST(PRODUCT_KINDS_PRODUCTS)
+    suspend fun insertProductKindProduct(@Body record: NetworkProductKindProduct): Response<NetworkProductKindProduct>
+
+    @DELETE("${PRODUCT_KINDS_PRODUCTS}/${WITH_RELATED_RECORDS}/{id}")
+    suspend fun deleteProductKindProduct(@Path("id") id: ID): Response<ProductKindProductWithRelatedRecordsResponse>
+
 
     @GET(COMPONENT_KINDS_COMPONENTS)
     suspend fun getComponentKindsComponents(): Response<List<NetworkComponentKindComponent>>

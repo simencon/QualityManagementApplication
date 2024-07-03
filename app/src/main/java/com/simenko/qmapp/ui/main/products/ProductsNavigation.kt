@@ -103,7 +103,7 @@ inline fun <reified T : Any> NavGraphBuilder.productKindNavigation(mainScreenPad
         productKindKeysNavigation<Route.Main.ProductLines.ProductKinds.ProductKindKeys>()
         productKindCharacteristicsNavigation<Route.Main.ProductLines.ProductKinds.ProductKindCharacteristics>()
         productKindSpecificationNavigation<Route.Main.ProductLines.ProductKinds.ProductSpecification>()
-        productKindProductsNavigation<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances>(mainScreenPadding)
+        productKindProductsNavigation<Route.Main.ProductLines.ProductKinds.Products>(mainScreenPadding)
     }
 }
 

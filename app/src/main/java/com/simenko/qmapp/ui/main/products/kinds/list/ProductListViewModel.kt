@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -20,6 +21,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -191,7 +193,7 @@ class ProductListViewModel @Inject constructor(
             val cpy = products.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
             flow { emit(cpy) }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val componentKindsVisibility = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
@@ -260,8 +262,22 @@ class ProductListViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteProductClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteProductClick(it: ID) = viewModelScope.launch {
+        products.value.find { it.isExpanded }?.let { productKindProduct ->
+            if (productKindProduct.product.product.id == it) {
+                with(repository) {
+                    deleteProductKindProduct(productKindProduct.productKindProduct.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteComponentClick(it: ID) {

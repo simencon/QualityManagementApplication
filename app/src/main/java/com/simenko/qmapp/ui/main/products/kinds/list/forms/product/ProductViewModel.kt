@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.products.DomainProductKindProduct
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -19,6 +20,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -171,9 +174,47 @@ class ProductViewModel @Inject constructor(
     }
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
+        val product = _productKindProduct.value.product.product
+        val isNewRecord = product.id == NoRecord.num
+        with(repository) {
+            if (isNewRecord) insertProduct(product) else updateProduct(product)
+        }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeProductKindProduct(it) else navBackToRecord(it) }
+                    Status.ERROR -> {
+                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        _fillInState.value = FillInInitialState
+                    }
+                }
+            }
+        }
     }
 
-    private suspend fun navBackToRecord(id: ID?) {
+    private suspend fun makeProductKindProduct(productId: ID) = withContext(Dispatchers.IO) {
+        val productKindProduct = _productKindProduct.value.productKindProduct.copy(productId = productId)
+        with(repository) { insertProductKindProduct(productKindProduct) }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(productId) }
+                    Status.ERROR -> {
+                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        _fillInState.value = FillInInitialState
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord(id: ID) {
+        val productKindId = _productKindProduct.value.productKind.id
+        appNavigator.navigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = productKindId, productId = id),
+            popUpToRoute = Route.Main.ProductLines.ProductKinds.Products,
+            inclusive = true
+        )
     }
 }
 

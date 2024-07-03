@@ -116,7 +116,7 @@ fun ProductForm(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(productKindProduct.product.product.productDesignation, fillInErrors.productDescriptionError) { viewModel.onSetProductDescription(it) },
                 keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Product name", "Enter product name")
             )
             Spacer(modifier = Modifier.height(10.dp))

@@ -205,7 +205,7 @@ class ProductLineViewModel @Inject constructor(
             id?.let {
                 val companyId = _productLine.value.manufacturingProject.companyId
                 val productLineId = it
-                appNavigator.tryNavigateTo(
+                appNavigator.navigateTo(
                     route = Route.Main.ProductLines.ProductLinesList(companyId, productLineId),
                     popUpToRoute = Route.Main.ProductLines,
                     inclusive = true

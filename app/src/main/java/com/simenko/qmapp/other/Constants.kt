@@ -31,6 +31,7 @@ object Constants {
     const val DEFAULT_REST_API_URL = "https://no.api.yet.com"
 
     const val BASED_ON_ACCESS = "basedOnAccess"
+    const val WITH_RELATED_RECORDS = "withRelatedRecords"
 
     const val PRINCIPLES = "principles"
     const val COMPANY_DATA = "companyData"
