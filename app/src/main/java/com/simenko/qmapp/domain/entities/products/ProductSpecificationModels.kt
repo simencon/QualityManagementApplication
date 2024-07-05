@@ -449,7 +449,7 @@ data class DomainProductComponent(
     override fun toDatabaseModel() = ObjectTransformer(DomainProductComponent::class, DatabaseProductComponent::class).transform(this)
     data class DomainProductComponentComplete(
         val productComponent: DomainProductComponent = DomainProductComponent(),
-        val product: DomainProduct = DomainProduct(),
+        val product: DomainProduct.DomainProductComplete = DomainProduct.DomainProductComplete(),
         val component: DomainComponentKindComponent.DomainComponentKindComponentComplete = DomainComponentKindComponent.DomainComponentKindComponentComplete(),
         val versions: List<DomainComponentVersion> = emptyList(),
         override var detailsVisibility: Boolean = false,

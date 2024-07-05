@@ -70,7 +70,7 @@ class ComponentViewModel @Inject constructor(
         val product = repository.productById(productId)
         val componentKind = repository.componentKind(componentKindId).componentKind
         _productComponent.value = DomainProductComponent.DomainProductComponentComplete(
-            productComponent = DomainProductComponent(productId = product.id),
+            productComponent = DomainProductComponent(productId = product.product.id),
             product = product,
             component = DomainComponentKindComponent.DomainComponentKindComponentComplete(
                 componentKindComponent = DomainComponentKindComponent(componentKindId = componentKind.id),
@@ -143,14 +143,23 @@ class ComponentViewModel @Inject constructor(
     }
 
     fun onSetProductComponentQuantity(value: String) {
-        val finalValue = value.toIntOrNull() ?: ZeroValue.num.toInt()
-        if (_productComponent.value.productComponent.countOfComponents != finalValue) {
-            val productComponent = _productComponent.value.productComponent
-            _productComponent.value = _productComponent.value.copy(
-                productComponent = productComponent.copy(countOfComponents = finalValue)
-            )
-            _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
-            _fillInState.value = FillInInitialState
+        val productComponent = _productComponent.value.productComponent
+        value.toIntOrNull()?.let { finalValue ->
+            if (_productComponent.value.productComponent.countOfComponents != finalValue) {
+                _productComponent.value = _productComponent.value.copy(
+                    productComponent = productComponent.copy(countOfComponents = finalValue)
+                )
+                _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
+                _fillInState.value = FillInInitialState
+            }
+        }?:run {
+            if (value.isEmpty()) {
+                _productComponent.value = _productComponent.value.copy(
+                    productComponent = productComponent.copy(countOfComponents = ZeroValue.num.toInt())
+                )
+                _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
+                _fillInState.value = FillInInitialState
+            }
         }
     }
 

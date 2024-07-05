@@ -879,11 +879,11 @@ data class DatabaseProductComponent(
         @Embedded
         val productComponent: DatabaseProductComponent,
         @Relation(
-            entity = DatabaseProduct::class,
+            entity = DatabaseProduct.DatabaseProductComplete::class,
             parentColumn = "productId",
             entityColumn = "id"
         )
-        val product: DatabaseProduct,
+        val product: DatabaseProduct.DatabaseProductComplete,
         @Relation(
             entity = DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete::class,
             parentColumn = "componentId",

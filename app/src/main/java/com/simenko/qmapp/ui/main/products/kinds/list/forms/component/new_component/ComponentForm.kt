@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,15 +31,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.StringUtils
 
 @Composable
 fun ComponentForm(
@@ -48,7 +53,7 @@ fun ComponentForm(
 ) {
 
     val productKind by viewModel.productKind.collectAsStateWithLifecycle()
-    val productKindProduct by viewModel.productComponent.collectAsStateWithLifecycle()
+    val productComponent by viewModel.productComponent.collectAsStateWithLifecycle()
 
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
@@ -80,7 +85,16 @@ fun ComponentForm(
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product kind", body = productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = productKind.productKind.productKindDesignation)
+        InfoLine(
+            modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp),
+            title = "Product item",
+            body = buildString {
+                append(productComponent.product.let { StringUtils.concatTwoStrings3(it.key.componentKey, it.product.productDesignation) })
+                append(" (${productComponent.product.productBase.componentBaseDesignation ?: NoString.str})")
+            }
+        )
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = productComponent.component.componentKind.componentKindDescription)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
             verticalArrangement = Arrangement.Top,
@@ -103,7 +117,7 @@ fun ComponentForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(productKindProduct.component.component.component.componentDesignation, fillInErrors.componentDescriptionError) { viewModel.onSetComponentDescription(it) },
+                valueParam = Triple(productComponent.component.component.component.componentDesignation, fillInErrors.componentDescriptionError) { viewModel.onSetComponentDescription(it) },
                 keyboardNavigation = Pair(productComponentQntFR) { descriptionFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Component name", "Enter component name")
@@ -111,10 +125,13 @@ fun ComponentForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(productKindProduct.productComponent.countOfComponents.toString(), fillInErrors.productComponentQntError) { viewModel.onSetProductComponentQuantity(it) },
+                valueParam = Triple(
+                    productComponent.productComponent.countOfComponents.let { if (it == ZeroValue.num.toInt()) EmptyString.str else it.toString() },
+                    fillInErrors.productComponentQntError
+                ) { viewModel.onSetProductComponentQuantity(it) },
                 keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Quantity in product", "Enter quantity")
+                contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity in product", "Enter quantity")
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != UserError.NO_ERROR.error)
