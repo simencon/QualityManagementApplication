@@ -232,6 +232,13 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponents() = crudeOperations.syncRecordsAll(database.componentDao) { service.getComponents() }
+    fun CoroutineScope.insertComponent(record: DomainComponent) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateComponent(record: DomainComponent) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.updateRecord(r) }
+    }
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
@@ -265,8 +272,18 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponentKindsComponents() = crudeOperations.syncRecordsAll(database.componentKindComponentDao) { service.getComponentKindsComponents() }
+    fun CoroutineScope.insertComponentKindComponent(record: DomainComponentKindComponent) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentKindComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindComponentDao.insertRecord(r) }
+    }
+
+
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
     suspend fun syncProductsComponents() = crudeOperations.syncRecordsAll(database.productComponentDao) { service.getProductsComponents() }
+    fun CoroutineScope.insertProductComponent(record: DomainProductComponent) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertProductComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
+    }
+
+
     suspend fun syncComponentsComponentStages() = crudeOperations.syncRecordsAll(database.componentComponentStageDao) { service.getComponentsComponentStages() }
     suspend fun syncProductVersions() = crudeOperations.syncRecordsAll(database.productVersionDao) { service.getProductVersions() }
     suspend fun syncComponentVersions() = crudeOperations.syncRecordsAll(database.componentVersionDao) { service.getComponentVersions() }
@@ -344,6 +361,9 @@ class ProductsRepository @Inject constructor(
     val allProductKindProducts: () -> Flow<List<DomainProductKindProduct.DomainProductKindProductComplete>> = {
         database.productKindProductDao.getAllRecordsComplete().map { list -> list.map { it.toDomainModel() } }
     }
+    val productById: suspend (ID) -> DomainProduct = { id ->
+        database.productDao.getRecordById(id)?.toDomainModel() ?: DomainProduct()
+    }
 
 
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
@@ -357,6 +377,9 @@ class ProductsRepository @Inject constructor(
     }
     val components: (ID, ID) -> Flow<List<DomainProductComponent.DomainProductComponentComplete>> = { pId, ckId ->
         database.productComponentDao.getRecordsCompleteForUI(pId, ckId).map { list -> list.map { it.toDomainModel() } }
+    }
+    val productComponentById: suspend (ID, ID, ID) -> DomainProductComponent.DomainProductComponentComplete = { productId, compKindId, componentId ->
+        database.productComponentDao.getRecordCompleteById(productId, compKindId, componentId)?.toDomainModel() ?: DomainProductComponent.DomainProductComponentComplete()
     }
 
 

@@ -194,7 +194,6 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    val productsVisibility = _productsVisibility.asStateFlow()
     val products = _products.flatMapLatest { products ->
         _productsVisibility.flatMapLatest { visibility ->
             val cpy = products.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
@@ -202,7 +201,6 @@ class ProductListViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val componentKindsVisibility = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
         _componentsAll.flatMapLatest { components ->
             _componentKindsVisibility.flatMapLatest { visibility ->
@@ -321,12 +319,13 @@ class ProductListViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = it.first, productId = it.second))
     }
 
-    fun onAddComponentClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+    fun onAddComponentClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(productKindId = _productKindId.value, productId = _productsVisibility.value.first.num, componentKindId = _componentKindsVisibility.value.first.num))
     }
 
-    fun onEditComponentClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+    fun onEditComponentClick(id: ID) {
+
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(productKindId = _productKindId.value, productId = _productsVisibility.value.first.num, componentKindId = _componentKindsVisibility.value.first.num, componentId = id))
     }
 
     fun onAddComponentStageClick(it: Pair<ID, ID>) {

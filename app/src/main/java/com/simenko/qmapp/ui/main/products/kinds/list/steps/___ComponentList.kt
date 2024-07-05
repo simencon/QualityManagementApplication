@@ -55,16 +55,14 @@ import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ComponentList(viewModel: ProductListViewModel = hiltViewModel()) {
-    val productsVisibility by viewModel.productsVisibility.collectAsStateWithLifecycle()
-    val componentKindsVisibility by viewModel.componentKindsVisibility.collectAsStateWithLifecycle()
     val versionsForItem by viewModel.versionsForItem.collectAsStateWithLifecycle()
     val items by viewModel.components.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentsVisibility(aId = SelectedNumber(it)) } }
-    val onClickAddLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onAddComponentClick(it) } }
+    val onClickAddLambda = remember { { viewModel.onAddComponentClick() } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentClick(it) } }
-    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentClick(it) } }
+    val onClickEditLambda = remember<(ID) -> Unit> { { viewModel.onEditComponentClick(it) } }
     val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ComponentPref.char.toString() + it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(2, true) }
@@ -88,7 +86,7 @@ fun ComponentList(viewModel: ProductListViewModel = hiltViewModel()) {
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            onClick = { onClickAddLambda(Pair(productsVisibility.first.num, componentKindsVisibility.first.num)) },
+            onClick = { onClickAddLambda() },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }
@@ -102,7 +100,7 @@ fun ComponentCard(
     component: DomainProductComponent.DomainProductComponentComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
-    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickEdit: (ID) -> Unit,
     onClickDetails: (ID) -> Unit,
     onClickVersions: (ID) -> Unit
 ) {
@@ -111,7 +109,7 @@ fun ComponentCard(
         item = component,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
-        onClickEdit = onClickEdit,
+        onClickEdit = { onClickEdit(it.second) },
         contentColors = Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {

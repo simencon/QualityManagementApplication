@@ -36,6 +36,7 @@ import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
 import com.simenko.qmapp.other.Constants.WITH_RELATED_RECORDS
+import com.simenko.qmapp.retrofit.entities.adapters.ProductComponentWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.adapters.ProductKindProductWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.products.*
 import retrofit2.Response
@@ -250,6 +251,13 @@ interface ProductsService {
     @GET(COMPONENTS)
     suspend fun getComponents(): Response<List<NetworkComponent>>
 
+    @POST(COMPONENTS)
+    suspend fun insertComponent(@Body value: NetworkComponent): Response<NetworkComponent>
+
+    @PUT("$COMPONENTS/{id}")
+    suspend fun editComponent(@Path("id") id: ID, @Body value: NetworkComponent): Response<NetworkComponent>
+
+
     @GET(COMPONENTS_IN_STAGE)
     suspend fun getComponentStages(): Response<List<NetworkComponentStage>>
 
@@ -277,12 +285,23 @@ interface ProductsService {
     @GET(COMPONENT_KINDS_COMPONENTS)
     suspend fun getComponentKindsComponents(): Response<List<NetworkComponentKindComponent>>
 
+    @POST(COMPONENT_KINDS_COMPONENTS)
+    suspend fun insertComponentKindComponent(@Body record: NetworkComponentKindComponent): Response<NetworkComponentKindComponent>
+
+
     @GET(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
     suspend fun getComponentStageKindsComponentStages(): Response<List<NetworkComponentStageKindComponentStage>>
 
 
     @GET(PRODUCTS_COMPONENTS)
     suspend fun getProductsComponents(): Response<List<NetworkProductComponent>>
+
+    @POST(PRODUCTS_COMPONENTS)
+    suspend fun insertProductComponent(@Body record: NetworkProductComponent): Response<NetworkProductComponent>
+
+    @DELETE("${PRODUCTS_COMPONENTS}/${WITH_RELATED_RECORDS}/{id}")
+    suspend fun deleteProductComponent(@Path("id") id: ID): Response<NetworkProductComponent>
+
 
     @GET(COMPONENTS_COMPONENT_STAGES)
     suspend fun getComponentsComponentStages(): Response<List<NetworkComponentComponentStage>>
