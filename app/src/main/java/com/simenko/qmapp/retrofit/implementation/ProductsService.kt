@@ -298,6 +298,8 @@ interface ProductsService {
 
     @POST(PRODUCTS_COMPONENTS)
     suspend fun insertProductComponent(@Body record: NetworkProductComponent): Response<NetworkProductComponent>
+    @PUT("$PRODUCTS_COMPONENTS/{id}")
+    suspend fun editProductComponent(@Path("id") id: ID, @Body value: NetworkProductComponent): Response<NetworkProductComponent>
 
     @DELETE("${PRODUCTS_COMPONENTS}/${WITH_RELATED_RECORDS}/{id}")
     suspend fun deleteProductComponent(@Path("id") id: ID): Response<NetworkProductComponent>

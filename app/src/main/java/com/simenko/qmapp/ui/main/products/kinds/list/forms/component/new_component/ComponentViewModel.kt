@@ -52,7 +52,7 @@ class ComponentViewModel @Inject constructor(
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.AddEditComponent) {
         viewModelScope.launch(Dispatchers.IO) {
             _productKind.value = repository.productKind(route.productKindId)
-            if (route.productId == NoRecord.num) {
+            if (route.componentId == NoRecord.num) {
                 prepareProductComponent(route.productId, route.componentKindId)
             } else {
                 _productComponent.value = repository.productComponentById(route.productId, route.componentKindId, route.componentId)
@@ -143,7 +143,7 @@ class ComponentViewModel @Inject constructor(
     }
 
     fun onSetProductComponentQuantity(value: String) {
-        val finalValue = value.toIntOrNull()?: ZeroValue.num.toInt()
+        val finalValue = value.toIntOrNull() ?: ZeroValue.num.toInt()
         if (_productComponent.value.productComponent.countOfComponents != finalValue) {
             val productComponent = _productComponent.value.productComponent
             _productComponent.value = _productComponent.value.copy(
@@ -192,7 +192,25 @@ class ComponentViewModel @Inject constructor(
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeComponentKindComponent(it) else navBackToRecord(it) }
+                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(it, isNewRecord) }
+                    Status.ERROR -> {
+                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        _fillInState.value = FillInInitialState
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun makeProductComponent(componentId: ID, isNewRecord: Boolean) = withContext(Dispatchers.IO) {
+        val productComponent = _productComponent.value.productComponent.copy(componentId = componentId)
+        with(repository) {
+            if (isNewRecord) insertProductComponent(productComponent) else updateProductComponent(productComponent)
+        }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeComponentKindComponent(componentId) else navBackToRecord(it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -205,22 +223,6 @@ class ComponentViewModel @Inject constructor(
     private suspend fun makeComponentKindComponent(componentId: ID) = withContext(Dispatchers.IO) {
         val componentKindComponent = _productComponent.value.component.componentKindComponent.copy(componentId = componentId)
         with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
-            event.getContentIfNotHandled()?.let { resource ->
-                when (resource.status) {
-                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(componentId) }
-                    Status.ERROR -> {
-                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
-                        _fillInState.value = FillInInitialState
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun makeProductComponent(componentId: ID) = withContext(Dispatchers.IO) {
-        val productComponent = _productComponent.value.productComponent.copy(componentId = componentId)
-        with(repository) { insertProductComponent(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))

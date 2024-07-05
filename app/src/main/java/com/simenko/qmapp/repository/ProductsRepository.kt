@@ -239,6 +239,7 @@ class ProductsRepository @Inject constructor(
     fun CoroutineScope.updateComponent(record: DomainComponent) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.editComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.updateRecord(r) }
     }
+
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
@@ -281,6 +282,10 @@ class ProductsRepository @Inject constructor(
     suspend fun syncProductsComponents() = crudeOperations.syncRecordsAll(database.productComponentDao) { service.getProductsComponents() }
     fun CoroutineScope.insertProductComponent(record: DomainProductComponent) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.insertProductComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateProductComponent(record: DomainProductComponent) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editProductComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
     }
 
 
