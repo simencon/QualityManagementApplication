@@ -302,7 +302,7 @@ interface ProductsService {
     suspend fun editProductComponent(@Path("id") id: ID, @Body value: NetworkProductComponent): Response<NetworkProductComponent>
 
     @DELETE("${PRODUCTS_COMPONENTS}/${WITH_RELATED_RECORDS}/{id}")
-    suspend fun deleteProductComponent(@Path("id") id: ID): Response<NetworkProductComponent>
+    suspend fun deleteProductComponent(@Path("id") id: ID): Response<ProductComponentWithRelatedRecordsResponse>
 
 
     @GET(COMPONENTS_COMPONENT_STAGES)

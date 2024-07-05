@@ -280,6 +280,26 @@ class ProductsRepository @Inject constructor(
 
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
     suspend fun syncProductsComponents() = crudeOperations.syncRecordsAll(database.productComponentDao) { service.getProductsComponents() }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.deleteProductComponent(id: ID): ReceiveChannel<Event<Resource<DomainProductComponent>>> {
+        return produce(Dispatchers.IO) {
+            send(Event(Resource.loading(null)))
+            val response = service.deleteProductComponent(id)
+            if (response.isSuccessful) {
+                response.body()?.let { result ->
+                    database.productComponentDao.deleteRecord(result.productComponent.toDatabaseModel())
+                    result.component?.let { database.componentDao.deleteRecord(it.toDatabaseModel()) }
+                    send(Event(Resource.success(result.productComponent.toDatabaseModel().toDomainModel())))
+                } ?: run {
+                    send(Event(Resource.error("No response body", null)))
+                }
+            } else {
+                send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+            }
+        }
+    }
+
     fun CoroutineScope.insertProductComponent(record: DomainProductComponent) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.insertProductComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
     }

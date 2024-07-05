@@ -223,7 +223,7 @@ class ProductListViewModel @Inject constructor(
                 components.map { it.copy(detailsVisibility = it.productComponent.componentId == visibility.first.num, isExpanded = it.productComponent.componentId == visibility.second.num) }
             flow { emit(cpy) }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val componentStageKindsVisibility = _componentStageKindsVisibility.asStateFlow()
     val componentStageKinds = _componentStageKinds.flatMapLatest { componentStageKinds ->
@@ -285,8 +285,22 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteComponentClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteComponentClick(it: ID) = viewModelScope.launch {
+        components.value.find { it.isExpanded }?.let { productComponent ->
+            if (productComponent.productComponent.componentId == it) {
+                with(repository) {
+                    deleteProductComponent(productComponent.productComponent.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteComponentStageClick(it: ID) {
@@ -320,12 +334,25 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onAddComponentClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(productKindId = _productKindId.value, productId = _productsVisibility.value.first.num, componentKindId = _componentKindsVisibility.value.first.num))
+        appNavigator.tryNavigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(
+                productKindId = _productKindId.value,
+                productId = _productsVisibility.value.first.num,
+                componentKindId = _componentKindsVisibility.value.first.num
+            )
+        )
     }
 
     fun onEditComponentClick(id: ID) {
 
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(productKindId = _productKindId.value, productId = _productsVisibility.value.first.num, componentKindId = _componentKindsVisibility.value.first.num, componentId = id))
+        appNavigator.tryNavigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(
+                productKindId = _productKindId.value,
+                productId = _productsVisibility.value.first.num,
+                componentKindId = _componentKindsVisibility.value.first.num,
+                componentId = id
+            )
+        )
     }
 
     fun onAddComponentStageClick(it: Pair<ID, ID>) {
