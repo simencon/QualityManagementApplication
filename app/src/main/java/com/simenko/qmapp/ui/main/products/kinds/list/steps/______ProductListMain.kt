@@ -41,6 +41,7 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.SheetInputData
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
@@ -63,7 +64,7 @@ fun ProductKindProducts(
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
     val productKind by viewModel.productKind.collectAsStateWithLifecycle(DomainProductKind.DomainProductKindComplete())
-    val isBottomSheetExpanded by viewModel.bottomSheetState.collectAsStateWithLifecycle()
+    val bottomSheetInputData by viewModel.bottomSheetState.collectAsStateWithLifecycle()
     val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
 
@@ -99,10 +100,10 @@ fun ProductKindProducts(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        if (isBottomSheetExpanded.first) {
+        if (bottomSheetInputData !is SheetInputData.Nothing) {
             ModalBottomSheet(
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = { viewModel.onShowHideBottomSheet(false) }
+                onDismissRequest = { viewModel.onHideBottomSheet() }
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -115,19 +116,19 @@ fun ProductKindProducts(
                         colors = btnColors,
                         elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
                         modifier = Modifier
-                            .width(224.dp)
+                            .fillMaxWidth(0.9f)
                             .height(56.dp),
-                        onClick = { viewModel.onAddNewProduct(isBottomSheetExpanded.second) }
-                    ) { Text(text = "Add new item".uppercase()) }
+                        onClick = { viewModel.onAddNewItem(bottomSheetInputData) }
+                    ) { Text(text = bottomSheetInputData.addItemBtnText.uppercase()) }
                     Spacer(modifier = Modifier.height((DEFAULT_SPACE * 3).dp))
                     TextButton(
                         colors = btnColors,
                         elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
                         modifier = Modifier
-                            .width(224.dp)
+                            .fillMaxWidth(0.9f)
                             .height(56.dp),
-                        onClick = { viewModel.onSelectExistingProduct(isBottomSheetExpanded.second) }
-                    ) { Text(text = "Select existing item".uppercase()) }
+                        onClick = { viewModel.onSelectExistingItem(bottomSheetInputData) }
+                    ) { Text(text = bottomSheetInputData.selectExistingItemBtnText.uppercase()) }
                     Spacer(modifier = Modifier.height((DEFAULT_SPACE * 15).dp))
                 }
             }
