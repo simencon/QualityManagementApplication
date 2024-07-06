@@ -1,19 +1,20 @@
-package com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product
+package com.simenko.qmapp.ui.main.products.kinds.list.forms.component.existing_component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.ui.common.dialog.ProductSingleChoiceDialog
+import com.simenko.qmapp.ui.common.dialog.ComponentSingleChoiceDialog
 import com.simenko.qmapp.ui.navigation.Route
 
 @Composable
-fun ProductKindProductDialog(viewModel: ProductKindProductViewModel, route: Route.Main.ProductLines.ProductKinds.Products.AddProductKindProduct) {
+fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Main.ProductLines.ProductKinds.Products.AddProductComponent) {
 
-    val productKinds by viewModel.availableProductKinds.collectAsStateWithLifecycle(initialValue = emptyList())
     val designations by viewModel.availableDesignations.collectAsStateWithLifecycle(initialValue = emptyList())
+    val products by viewModel.availableProducts.collectAsStateWithLifecycle(initialValue = emptyList())
+
     val searchValue by viewModel.searchValue.collectAsStateWithLifecycle()
-    val items by viewModel.availableProducts.collectAsStateWithLifecycle(initialValue = emptyList())
+    val items by viewModel.availableComponents.collectAsStateWithLifecycle(initialValue = emptyList())
     val isReadyToAdd by viewModel.isReadyToAdd.collectAsStateWithLifecycle(initialValue = false)
 
 
@@ -21,17 +22,17 @@ fun ProductKindProductDialog(viewModel: ProductKindProductViewModel, route: Rout
         viewModel.onEntered(route)
     }
 
-    ProductSingleChoiceDialog(
+    ComponentSingleChoiceDialog(
         items = items,
-        productLines = productKinds,
-        onSelectProductLine = viewModel::onSelectProductKind,
         designations = designations,
         onSelectDesignation = viewModel::onSelectDesignation,
+        products = products,
+        onSelectProduct = viewModel::onSelectProductKind,
         searchString = searchValue,
         onSearch = viewModel::onChangeSearchValue,
         addIsEnabled = isReadyToAdd,
         onDismiss = viewModel::navBack,
-        onItemSelect = viewModel::onSelectProduct,
+        onItemSelect = viewModel::onSelectComponent,
         onAddClick = viewModel::makeRecord
     )
 }

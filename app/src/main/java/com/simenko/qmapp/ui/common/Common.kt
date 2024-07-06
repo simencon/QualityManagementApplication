@@ -158,6 +158,7 @@ fun RecordFieldItemWithMenu(
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     contentDescription: Triple<ImageVector?, String?, String>,
     isMandatoryField: Boolean = true,
+    containerColor: Color? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -181,6 +182,7 @@ fun RecordFieldItemWithMenu(
             keyBoardTypeAction = keyBoardTypeAction,
             contentDescription = contentDescription,
             isMandatoryField = isMandatoryField,
+            containerColor = containerColor,
             readOnly = true,
             trailingIcon = {
                 IconToggleButton(
@@ -198,7 +200,7 @@ fun RecordFieldItemWithMenu(
                             if (it is PressInteraction.Release) expanded = !expanded
                         }
                     }
-                }
+                },
         )
 
         if (expanded) {

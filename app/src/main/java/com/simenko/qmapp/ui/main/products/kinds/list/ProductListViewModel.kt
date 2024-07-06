@@ -361,7 +361,12 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddExistingComponent -> {
-
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductKinds.Products.AddProductComponent(
+                        productId = inputData.productId,
+                        componentKindId = inputData.componentKindId
+                    )
+                )
             }
 
             is SheetInputData.AddExistingComponentStage -> {

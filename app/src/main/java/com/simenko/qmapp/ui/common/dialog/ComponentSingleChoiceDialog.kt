@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,17 +48,18 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
 
 @Composable
-fun <DB, DM> SingleChoiceDialogWithExtraFiltration(
+fun <DB, DM> ComponentSingleChoiceDialog(
     items: List<DM>,
-
-    productLines: List<Triple<ID, String, Boolean>>,
-    onSelectProductLine: (ID) -> Unit,
 
     designations: List<Triple<ID, String, Boolean>>,
     onSelectDesignation: (ID) -> Unit,
+
+    products: List<Triple<ID, String, Boolean>>,
+    onSelectProduct: (ID) -> Unit,
 
     searchString: String,
     onSearch: (String) -> Unit,
@@ -76,6 +78,7 @@ fun <DB, DM> SingleChoiceDialogWithExtraFiltration(
             shape = RoundedCornerShape(10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
+            val (parentFR) = FocusRequester.createRefs()
             val (searchFR) = FocusRequester.createRefs()
             val keyboardController = LocalSoftwareKeyboardController.current
             val listState = rememberLazyListState()
@@ -89,12 +92,29 @@ fun <DB, DM> SingleChoiceDialogWithExtraFiltration(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f, false)) {
-                    Section(title = "Select product line", isError = false, modifier = Modifier.width(300.dp)) {
-                        SelectionGrid(modifier = Modifier.padding(top = 0.dp), productLines) { onSelectProductLine(it) }
-                    }
                     Section(title = "Select designation", isError = false, modifier = Modifier.width(300.dp)) {
                         SelectionGrid(modifier = Modifier.padding(top = 0.dp), designations) { onSelectDesignation(it) }
                     }
+                    Text(
+                        text = "Belongs to product".uppercase(),
+                        style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
+                        color = Color.Unspecified,
+                        modifier = Modifier
+                            .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                            .padding(horizontal = 16.dp)
+                    )
+                    RecordFieldItemWithMenu(
+                        modifier = Modifier.width(300.dp),
+                        options = products,
+                        isError = false,
+                        isMandatoryField = false,
+                        containerColor = MaterialTheme.colorScheme.onPrimary,
+                        onDropdownMenuItemClick = { onSelectProduct(it) },
+                        keyboardNavigation = Pair(parentFR) { parentFR.requestFocus() },
+                        keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Search),
+                        contentDescription = Triple(Icons.Outlined.Info, "Product item", "Select product item"),
+                    )
+
                     Text(
                         text = "Select item".uppercase(),
                         style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
@@ -182,7 +202,7 @@ fun <DB, DM> SingleChoiceDialogWithExtraFiltration(
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
-fun PreviewSingleChoiceDialogWithExtraFiltration() {
+fun PreviewComponentSingleChoiceDialog() {
     val list = mutableListOf<DomainKey>()
     for (i in 0..100) {
         if (i % 2 == 0)
@@ -190,10 +210,10 @@ fun PreviewSingleChoiceDialogWithExtraFiltration() {
         else
             list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
     }
-    SingleChoiceDialogWithExtraFiltration(
+    ComponentSingleChoiceDialog(
         items = list.toList(),
-        productLines = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
-        onSelectProductLine = {},
+        products = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
+        onSelectProduct = {},
         designations = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
         onSelectDesignation = {},
         searchString = "Mechanical",

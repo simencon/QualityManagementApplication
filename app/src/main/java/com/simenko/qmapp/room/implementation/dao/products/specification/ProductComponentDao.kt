@@ -35,4 +35,8 @@ abstract class ProductComponentDao : DaoBaseModel<ID, ID, DatabaseProductCompone
                 "where pcc.productId = :pId and ckc.componentKindId = :ckId and pcc.componentId = :cId"
     )
     abstract suspend fun getRecordCompleteById(pId: ID, ckId: ID, cId: ID): DatabaseProductComponent.DatabaseProductComponentComplete?
+
+    @Transaction
+    @Query("select pcc.* from products_components_complete as pcc")
+    abstract fun getAllRecordsComplete(): Flow<List<DatabaseProductComponent.DatabaseProductComponentComplete>>
 }

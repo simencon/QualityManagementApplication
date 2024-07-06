@@ -39,6 +39,8 @@ import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindChara
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindForm
 import com.simenko.qmapp.ui.main.products.kinds.forms.ProductKindViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.existing_component.ProductComponentDialog
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.existing_component.ProductComponentViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.new_component.ComponentForm
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.new_component.ComponentViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductDialog
@@ -183,6 +185,10 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
         composable<Route.Main.ProductLines.ProductKinds.Products.AddEditComponent> {
             val viewModel: ComponentViewModel = hiltViewModel()
             ComponentForm(viewModel = viewModel, route = it.toRoute())
+        }
+        dialog<Route.Main.ProductLines.ProductKinds.Products.AddProductComponent> {
+            val viewModel: ProductComponentViewModel = hiltViewModel()
+            ProductComponentDialog(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
