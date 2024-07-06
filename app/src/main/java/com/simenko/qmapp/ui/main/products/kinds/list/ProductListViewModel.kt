@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.products.kinds.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
@@ -43,6 +44,7 @@ class ProductListViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
+    private val _searchString = MutableStateFlow(EmptyString.str)
     private val _productKindId = MutableStateFlow(NoRecord.num)
     private val _productsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
@@ -87,6 +89,7 @@ class ProductListViewModel @Inject constructor(
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
                 .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProductKindProduct(route.productKindId) }
                 .setOnPullRefreshAction { updateProductsData() }
+                .setOnSearchClickAction { _searchString.value = it.stringToSearch ?: EmptyString.str }
                 .build()
                 .apply { setupMainPage(0, true) }
         }
@@ -195,9 +198,15 @@ class ProductListViewModel @Inject constructor(
     }
 
     val products = _products.flatMapLatest { products ->
-        _productsVisibility.flatMapLatest { visibility ->
-            val cpy = products.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
-            flow { emit(cpy) }
+        _searchString.flatMapLatest { searchString ->
+            _productsVisibility.flatMapLatest { visibility ->
+                val cpy = products.filter {
+                    searchString.isEmpty() ||
+                            it.product.product.productDesignation.lowercase().contains(searchString.lowercase()) ||
+                            (it.product.productBase.componentBaseDesignation ?: EmptyString.str).lowercase().contains(searchString.lowercase())
+                }.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
+                flow { emit(cpy) }
+            }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
