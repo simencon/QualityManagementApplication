@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductComponent
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -14,6 +16,7 @@ import com.simenko.qmapp.utils.StringUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,11 +34,13 @@ class ProductComponentViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
 ) : ViewModel() {
+    private val _productAndComponentKind = MutableStateFlow(Pair(NoRecord.num, NoRecord.num))
+    private val _productComponent = MutableStateFlow(DomainProductComponent())
     private val _filterKeyId = MutableStateFlow(NoRecord.num)
     private val _filterProductId = MutableStateFlow(NoRecord.num)
-    private val _productComponent = MutableStateFlow(DomainProductComponent())
     private val _searchValue = MutableStateFlow(EmptyString.str)
     private val _availableKeys = MutableStateFlow<List<DomainProductComponent.DomainProductComponentComplete>>(emptyList())
+    private val _productExistingComponents = MutableStateFlow<List<Long>>(emptyList())
     private val _availableProductComponents = MutableStateFlow<List<DomainProductComponent.DomainProductComponentComplete>>(emptyList())
 
     /**
@@ -44,15 +49,41 @@ class ProductComponentViewModel @Inject constructor(
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.AddProductComponent) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            _productComponent.value = _productComponent.value.copy(productId = route.productId,)
-
-            repository.allProductComponents().collect { list ->
-                _availableKeys.value = list.filter { it.component.componentKindComponent.id == route.componentKindId }.distinctBy { it.component.component.key.id }
+            _productComponent.value = _productComponent.value.copy(productId = route.productId)
+            repository.componentKind(route.componentKindId).let {
+                _productAndComponentKind.value = Pair(it.productKind.productKind.id, it.componentKind.id)
             }
 
-            _availableKeys.combine(repository.allProductComponents()) { keys, list ->
-                _availableProductComponents.value = list.filter { productComponent ->
-                    keys.any { it.component.component.key.id == productComponent.component.componentKind.id }
+            launch {
+                repository.allProductComponents().collect { list ->
+                    _productExistingComponents.value = list
+                        .filter { it.productComponent.productId == route.productId }
+                        .distinctBy { it.component.component.component.id }
+                        .map { it.component.component.component.id }
+                }
+            }
+
+            launch {
+                combine(repository.allProductComponents(), _productExistingComponents) { list, productExistingComponentIds ->
+                    list
+                        .filter { productComponent ->
+                            productComponent.component.componentKindComponent.componentKindId == route.componentKindId &&
+                                    !productExistingComponentIds.any { it == productComponent.component.component.component.id }
+                        }
+                        .distinctBy { it.component.component.key.id }
+                }.collect {
+                    _availableKeys.value = it
+                }
+            }
+
+            launch {
+                combine(_availableKeys, repository.allProductComponents(), _productExistingComponents) { keys, list, productExistingComponentIds ->
+                    list.filter { productComponent ->
+                        keys.any { it.component.component.key.id == productComponent.component.component.key.id } &&
+                                !productExistingComponentIds.any { it == productComponent.component.component.component.id }
+                    }
+                }.collect {
+                    _availableProductComponents.value = it
                 }
             }
         }
@@ -64,7 +95,7 @@ class ProductComponentViewModel @Inject constructor(
     val availableDesignations = _availableKeys.flatMapLatest { list ->
         _filterKeyId.flatMapLatest { keyId ->
             flow {
-                emit(list.map { Triple(it.component.component.key.id, it.product.key.componentKey, it.component.component.key.id == keyId) })
+                emit(list.map { Triple(it.component.component.key.id, it.component.component.key.componentKey, it.component.component.key.id == keyId) })
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -102,10 +133,10 @@ class ProductComponentViewModel @Inject constructor(
                                 .filter {
                                     it.component.component.key.id == keyId &&
                                             (it.product.product.id == productId || productId == NoRecord.num) &&
-                                            (searchValue.isNotEmpty() || it.component.component.component.componentDesignation.lowercase().contains(searchValue.lowercase()))
+                                            (searchValue.isEmpty() || it.component.component.component.componentDesignation.lowercase().contains(searchValue.lowercase()))
                                 }
                                 .distinctBy { it.component.component.component.id }
-                                .map { it.product.copy(isSelected = it.component.component.component.id == productComponent.componentId) })
+                                .map { it.component.component.copy(isSelected = it.component.component.component.id == productComponent.componentId) })
                         }
                     }
                 }
@@ -115,17 +146,38 @@ class ProductComponentViewModel @Inject constructor(
 
     fun onSelectComponent(id: ID) {
         if (_productComponent.value.componentId != id) {
-            _availableProductComponents.value.firstOrNull { it.product.product.id == id }?.let {
+            _productComponent.value = _productComponent.value.copy(componentId = id)
+        }
+    }
+
+    val quantityInProduct = _productComponent.flatMapLatest {
+        flow {
+            emit(if (it.countOfComponents == ZeroValue.num.toInt()) EmptyString.str else it.countOfComponents.toString())
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EmptyString.str)
+
+    fun onSetProductComponentQuantity(value: String) {
+        value.toIntOrNull()?.let { finalValue ->
+            if (_productComponent.value.countOfComponents != finalValue) {
                 _productComponent.value = _productComponent.value.copy(
-                    componentId = id
+                    countOfComponents = finalValue
+                )
+            }
+        } ?: run {
+            if (value.isEmpty()) {
+                _productComponent.value = _productComponent.value.copy(
+                    countOfComponents = ZeroValue.num.toInt()
                 )
             }
         }
     }
 
     val isReadyToAdd = _productComponent.flatMapLatest {
-        flow { emit(it.productId != NoRecord.num && it.componentId != NoRecord.num) }
+        flow { emit(it.productId != NoRecord.num && it.componentId != NoRecord.num && it.countOfComponents > ZeroValue.num.toInt()) }
     }
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
 
     /**
@@ -133,23 +185,31 @@ class ProductComponentViewModel @Inject constructor(
      * */
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-//        with(repository) { insertProductKindProduct(_productComponent.value.productKindProduct) }.consumeEach { event ->
-//            event.getContentIfNotHandled()?.let { resource ->
-//                when (resource.status) {
-//                    Status.LOADING -> mainPageState.sendLoadingState(Pair(true, null))
-//                    Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productKindId, it.productId)) }
-//                    Status.ERROR -> mainPageState.sendLoadingState(Pair(true, resource.message))
-//                }
-//            }
-//        }
+        with(repository) { insertProductComponent(_productComponent.value) }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> {
+                        mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                    }
+
+                    Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productId, it.componentId)) }
+
+                    Status.ERROR -> {
+                        mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                    }
+                }
+            }
+        }
     }
 
     private suspend fun navBackToRecord(record: Pair<ID, ID>) {
-//        appNavigator.navigateTo(
-//            route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = record.first, productId = record.second),
-//            popUpToRoute = Route.Main.ProductLines.ProductKinds.Products,
-//            inclusive = true
-//        )
+        val productKindId = _productAndComponentKind.value.first
+        val componentKindId = _productAndComponentKind.value.second
+        appNavigator.navigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = productKindId, productId = record.first, componentKindId = componentKindId, componentId = record.second),
+            popUpToRoute = Route.Main.ProductLines.ProductKinds.Products,
+            inclusive = true
+        )
     }
 
     fun navBack() {

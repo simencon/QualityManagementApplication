@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
+import com.simenko.qmapp.utils.StringUtils
 
 data class DomainProductLine(
     var id: ID = NoRecord.num,
@@ -321,11 +322,26 @@ data class DomainComponent(
     override fun toDatabaseModel() = ObjectTransformer(DomainComponent::class, DatabaseComponent::class).transform(this)
     data class DomainComponentComplete(
         val component: DomainComponent = DomainComponent(),
-        val key: DomainKey = DomainKey()
+        val key: DomainKey = DomainKey(),
+        var isSelected: Boolean = false
     ) : DomainBaseModel<DatabaseComponent.DatabaseComponentComplete>() {
         override fun getRecordId() = component.id
         override fun getParentId() = key.projectId
-        override fun setIsSelected(value: Boolean) {}
+
+        override fun getIdentityName(): String {
+            return NoString.str
+        }
+
+        override fun getName(): String {
+            return StringUtils.concatTwoStrings3(key.componentKey, component.componentDesignation)
+        }
+
+        override fun setIsSelected(value: Boolean) {
+            isSelected = value
+        }
+
+        override fun getIsSelected() = isSelected
+
         override fun toDatabaseModel() = DatabaseComponent.DatabaseComponentComplete(
             component = this.component.toDatabaseModel(),
             key = this.key.toDatabaseModel()

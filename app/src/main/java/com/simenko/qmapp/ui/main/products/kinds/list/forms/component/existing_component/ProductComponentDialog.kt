@@ -15,7 +15,9 @@ fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Ma
 
     val searchValue by viewModel.searchValue.collectAsStateWithLifecycle()
     val items by viewModel.availableComponents.collectAsStateWithLifecycle(initialValue = emptyList())
+    val quantityInProduct by viewModel.quantityInProduct.collectAsStateWithLifecycle()
     val isReadyToAdd by viewModel.isReadyToAdd.collectAsStateWithLifecycle(initialValue = false)
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(key1 = Unit) {
@@ -30,9 +32,12 @@ fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Ma
         onSelectProduct = viewModel::onSelectProductKind,
         searchString = searchValue,
         onSearch = viewModel::onChangeSearchValue,
+        quantity = quantityInProduct,
+        onEnterQuantity = viewModel::onSetProductComponentQuantity,
         addIsEnabled = isReadyToAdd,
-        onDismiss = viewModel::navBack,
+        isLoadingState = isLoading,
+        onDismiss = { if (!isLoading) viewModel.navBack() },
         onItemSelect = viewModel::onSelectComponent,
-        onAddClick = viewModel::makeRecord
+        onAddClick = { if (!isLoading) viewModel.makeRecord() }
     )
 }
