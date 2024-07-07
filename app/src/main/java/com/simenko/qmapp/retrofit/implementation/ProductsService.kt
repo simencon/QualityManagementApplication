@@ -77,6 +77,8 @@ interface ProductsService {
 
     @GET(PRODUCT_BASES)
     suspend fun getProductBases(): Response<List<NetworkProductBase>>
+    @POST(PRODUCT_BASES)
+    suspend fun insertProductBase(@Body value: NetworkProductBase): Response<NetworkProductBase>
 
 
     @GET(CHARACTERISTICS_GROUPS)

@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
@@ -53,6 +54,9 @@ fun ProductForm(
     val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
     val productBases by viewModel.availableProductBases.collectAsStateWithLifecycle()
+    val isAddProductBaseDialogVisible by viewModel.isAddProductBaseDialogVisible.collectAsStateWithLifecycle()
+    val productBaseToAdd by viewModel.productBaseToAdd.collectAsStateWithLifecycle()
+
     val keys by viewModel.availableKeys.collectAsStateWithLifecycle()
 
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
@@ -110,6 +114,7 @@ fun ProductForm(
                 keyboardNavigation = Pair(productBaseFR) { productBaseFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Sell, "Base product", "Select base product"),
+                onAddNewItemClick = { viewModel.onChangeAddProductLineVisibility(true) }
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
@@ -120,7 +125,7 @@ fun ProductForm(
                 contentDescription = Triple(Icons.Outlined.Info, "Product name", "Enter product name")
             )
             Spacer(modifier = Modifier.height(10.dp))
-            if (error != UserError.NO_ERROR.error)
+            if (error != UserError.NO_ERROR.error) {
                 Text(
                     modifier = Modifier
                         .padding(all = 5.dp)
@@ -129,6 +134,16 @@ fun ProductForm(
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                     textAlign = TextAlign.Center
                 )
+            }
+        }
+        if (isAddProductBaseDialogVisible) {
+            ProductBaseDialog(
+                productBaseName = productBaseToAdd.second.componentBaseDesignation?: EmptyString.str,
+                errorMsg = productBaseToAdd.first,
+                onChangeProductBaseName = viewModel::onChangeProductBaseName,
+                onDismiss = { viewModel.onChangeAddProductLineVisibility(false) },
+                onAddClick = viewModel::onAddProductBase
+            )
         }
     }
 }

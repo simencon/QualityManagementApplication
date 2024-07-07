@@ -9,6 +9,7 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.products.DomainProductBase
 import com.simenko.qmapp.domain.entities.products.DomainProductKindProduct
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
@@ -40,6 +41,8 @@ class ProductViewModel @Inject constructor(
     val repository: ProductsRepository,
 ) : ViewModel() {
     private val _productKindProduct = MutableStateFlow(DomainProductKindProduct.DomainProductKindProductComplete())
+    private val _productBaseToAdd = MutableStateFlow(Pair(EmptyString.str, DomainProductBase()))
+    private val _isAddProductBaseDialogVisible = MutableStateFlow(false)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -52,6 +55,10 @@ class ProductViewModel @Inject constructor(
                 prepareProductKindProduct(route.productKindId)
             } else {
                 _productKindProduct.value = repository.productKindProductById(route.productKindId, route.productId)
+            }
+
+            repository.productKind(route.productKindId).let {
+                _productBaseToAdd.value = _productBaseToAdd.value.copy(second = _productBaseToAdd.value.second.copy(projectId = it.productLine.manufacturingProject.id))
             }
 
             mainPageHandler = MainPageHandler.Builder(if (route.productKindId == NoRecord.num) Page.ADD_PRODUCT_KIND_PRODUCT else Page.EDIT_PRODUCT_KIND_PRODUCT, mainPageState)
@@ -116,6 +123,22 @@ class ProductViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
+    val isAddProductBaseDialogVisible = _isAddProductBaseDialogVisible.asStateFlow()
+    fun onChangeAddProductLineVisibility(isVisible: Boolean) {
+        _isAddProductBaseDialogVisible.value = isVisible
+        if (!isVisible) {
+            _productBaseToAdd.value = Pair(EmptyString.str, DomainProductBase(projectId = _productBaseToAdd.value.second.projectId))
+        }
+    }
+
+    val productBaseToAdd = _productBaseToAdd.asStateFlow()
+    fun onChangeProductBaseName(name: String) {
+        _productBaseToAdd.value = _productBaseToAdd.value.copy(
+            first = EmptyString.str,
+            second = _productBaseToAdd.value.second.copy(componentBaseDesignation = name)
+        )
+    }
+
 
     fun onSelectProductBase(id: ID) {
         if (_productKindProduct.value.product.product.productBaseId != id) {
@@ -147,6 +170,34 @@ class ProductViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onAddProductBase() = viewModelScope.launch(Dispatchers.IO) {
+        val itemToAdd = _productBaseToAdd.value
+        if (_availableProductBases.value.any {
+                it.projectId == itemToAdd.second.projectId &&
+                        (it.componentBaseDesignation ?: EmptyString.str).lowercase().trim() == (itemToAdd.second.componentBaseDesignation ?: EmptyString.str).lowercase().trim()
+            }
+        ) {
+            _productBaseToAdd.value = _productBaseToAdd.value.copy(first = "Such product base already exists")
+        } else {
+            _isAddProductBaseDialogVisible.value = false
+            with(repository) {
+                insertProductBase(itemToAdd.second).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+
+                            Status.SUCCESS -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                _productBaseToAdd.value = Pair(EmptyString.str, DomainProductBase(projectId = itemToAdd.second.projectId))
+                            }
+
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private val _fillInErrors = MutableStateFlow(FillInErrors())
     val fillInErrors get() = _fillInErrors.asStateFlow()

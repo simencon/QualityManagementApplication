@@ -60,6 +60,11 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncProductBases() = crudeOperations.syncRecordsAll(database.productBaseDao) { service.getProductBases() }
+    fun CoroutineScope.insertProductBase(record: DomainProductBase): ReceiveChannel<Event<Resource<DomainProductBase>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertProductBase(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productBaseDao.insertRecord(r) }
+    }
+
+
     suspend fun syncCharacteristicGroups() = crudeOperations.syncRecordsAll(database.characteristicGroupDao) { service.getCharacteristicGroups() }
     fun CoroutineScope.deleteCharGroup(charSubGroupId: ID): ReceiveChannel<Event<Resource<DomainCharGroup>>> = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteCharacteristicGroup(charSubGroupId) }) { r -> database.characteristicGroupDao.deleteRecord(r) }

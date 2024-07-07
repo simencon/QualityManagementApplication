@@ -158,7 +158,8 @@ fun RecordFieldItemWithMenu(
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     contentDescription: Triple<ImageVector?, String?, String>,
     isMandatoryField: Boolean = true,
-    containerColor: Color? = null
+    containerColor: Color? = null,
+    onAddNewItemClick: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -228,7 +229,13 @@ fun RecordFieldItemWithMenu(
                     val items = if (searchedOption == EmptyString.str) options else filteredOptions
 
                     DropdownMenuItem(
-                        onClick = {},
+                        onClick = {
+                            selectedOptionText = EmptyString.str
+                            onDropdownMenuItemClick(NoRecord.num)
+                            searchedOption = EmptyString.str
+                            expanded = false
+                            onAddNewItemClick()
+                        },
                         text = { Text(text = "Add item") },
                         colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     )
