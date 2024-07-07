@@ -19,6 +19,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -150,11 +151,20 @@ class ProductComponentViewModel @Inject constructor(
         }
     }
 
-    val quantityInProduct = _productComponent.flatMapLatest {
-        flow {
-            emit(if (it.countOfComponents == ZeroValue.num.toInt()) EmptyString.str else it.countOfComponents.toString())
+    private val _addWasClicked = MutableStateFlow(false)
+
+    val quantityInProduct: StateFlow<Pair<String, Boolean>> = _productComponent.flatMapLatest {
+        _addWasClicked.flatMapLatest { addWasClicked ->
+            flow {
+                emit(
+                    Pair(
+                        first = if (it.countOfComponents == ZeroValue.num.toInt()) EmptyString.str else it.countOfComponents.toString(),
+                        second = if (addWasClicked) it.countOfComponents <= ZeroValue.num.toInt() else false
+                    )
+                )
+            }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EmptyString.str)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(EmptyString.str, false))
 
     fun onSetProductComponentQuantity(value: String) {
         value.toIntOrNull()?.let { finalValue ->
@@ -163,6 +173,7 @@ class ProductComponentViewModel @Inject constructor(
                     countOfComponents = finalValue
                 )
             }
+            _addWasClicked.value = false
         } ?: run {
             if (value.isEmpty()) {
                 _productComponent.value = _productComponent.value.copy(
@@ -173,7 +184,7 @@ class ProductComponentViewModel @Inject constructor(
     }
 
     val isReadyToAdd = _productComponent.flatMapLatest {
-        flow { emit(it.productId != NoRecord.num && it.componentId != NoRecord.num && it.countOfComponents > ZeroValue.num.toInt()) }
+        flow { emit(it.productId != NoRecord.num && it.componentId != NoRecord.num) }
     }
 
     private val _isLoading = MutableStateFlow(false)
@@ -185,17 +196,20 @@ class ProductComponentViewModel @Inject constructor(
      * */
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-        with(repository) { insertProductComponent(_productComponent.value) }.consumeEach { event ->
-            event.getContentIfNotHandled()?.let { resource ->
-                when (resource.status) {
-                    Status.LOADING -> {
-                        mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
-                    }
+        _addWasClicked.value = true
+        if (_productComponent.value.let { it.productId != NoRecord.num && it.componentId != NoRecord.num && it.countOfComponents > ZeroValue.num.toInt() }) {
+            with(repository) { insertProductComponent(_productComponent.value) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                        }
 
-                    Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productId, it.componentId)) }
+                        Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productId, it.componentId)) }
 
-                    Status.ERROR -> {
-                        mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                        Status.ERROR -> {
+                            mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                        }
                     }
                 }
             }

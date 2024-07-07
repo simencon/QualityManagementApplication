@@ -72,7 +72,7 @@ fun <DB, DM> ComponentSingleChoiceDialog(
     searchString: String,
     onSearch: (String) -> Unit,
 
-    quantity: String,
+    quantity: Pair<String, Boolean>,
     onEnterQuantity: (String) -> Unit,
 
     isLoadingState: Boolean,
@@ -155,13 +155,14 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                         }
                         RecordFieldItem(
                             modifier = Modifier.width(300.dp),
-                            valueParam = Triple(quantity, false) { onEnterQuantity(it) },
+                            valueParam = Triple(quantity.first, quantity.second) { onEnterQuantity(it) },
                             keyboardNavigation = Pair(quantityFR) { keyboardController?.hide() },
                             keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
                             contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity in product", "Enter quantity"),
                             isMandatoryField = true,
                             containerColor = MaterialTheme.colorScheme.onPrimary
                         )
+                        Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE).dp))
                     }
 
 
@@ -279,7 +280,7 @@ fun PreviewComponentSingleChoiceDialog() {
         onSelectDesignation = {},
         searchString = "Mechanical",
         onSearch = {},
-        quantity = "10",
+        quantity = Pair("10", true),
         onEnterQuantity = {},
         isLoadingState = true,
         addIsEnabled = true,
