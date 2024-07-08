@@ -245,7 +245,17 @@ class ProductsRepository @Inject constructor(
         responseHandlerForSingleRecord({ service.editComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.updateRecord(r) }
     }
 
+
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
+    fun CoroutineScope.insertComponentStage(record: DomainComponentStage) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateComponentStage(record: DomainComponentStage) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editComponentStage(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageDao.updateRecord(r) }
+    }
+
+
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
     suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { service.getComponentStagesToLines() }
@@ -284,6 +294,11 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
+    fun CoroutineScope.insertComponentStageKindComponentStage(record: DomainComponentStageKindComponentStage) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentStageKindComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageKindComponentStageDao.insertRecord(r) }
+    }
+
+
     suspend fun syncProductsComponents() = crudeOperations.syncRecordsAll(database.productComponentDao) { service.getProductsComponents() }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -315,6 +330,34 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponentsComponentStages() = crudeOperations.syncRecordsAll(database.componentComponentStageDao) { service.getComponentsComponentStages() }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.deleteComponentComponentStage(id: ID): ReceiveChannel<Event<Resource<DomainComponentComponentStage>>> {
+        return produce(Dispatchers.IO) {
+            send(Event(Resource.loading(null)))
+            val response = service.deleteComponentComponentStage(id)
+            if (response.isSuccessful) {
+                response.body()?.let { result ->
+                    database.componentComponentStageDao.deleteRecord(result.componentComponentStage.toDatabaseModel())
+                    result.componentStage?.let { database.componentStageDao.deleteRecord(it.toDatabaseModel()) }
+                    send(Event(Resource.success(result.componentComponentStage.toDatabaseModel().toDomainModel())))
+                } ?: run {
+                    send(Event(Resource.error("No response body", null)))
+                }
+            } else {
+                send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+            }
+        }
+    }
+
+    fun CoroutineScope.insertComponentComponentStage(record: DomainComponentComponentStage) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertComponentComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateComponentComponentStage(record: DomainComponentComponentStage) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editComponentComponentStage(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+    }
+
+
     suspend fun syncProductVersions() = crudeOperations.syncRecordsAll(database.productVersionDao) { service.getProductVersions() }
     suspend fun syncComponentVersions() = crudeOperations.syncRecordsAll(database.componentVersionDao) { service.getComponentVersions() }
     suspend fun syncComponentStageVersions() = crudeOperations.syncRecordsAll(database.componentStageVersionDao) { service.getComponentStageVersions() }
@@ -414,6 +457,9 @@ class ProductsRepository @Inject constructor(
     val allProductComponents: () -> Flow<List<DomainProductComponent.DomainProductComponentComplete>> = {
         database.productComponentDao.getAllRecordsComplete().map { list -> list.map { it.toDomainModel() } }
     }
+    val componentById: suspend (ID) -> DomainComponent.DomainComponentComplete = { id ->
+        database.componentDao.getRecordById(id)?.toDomainModel() ?: DomainComponent.DomainComponentComplete()
+    }
 
 
     val componentStageKind: suspend (ID) -> DomainComponentStageKind.DomainComponentStageKindComplete = { id ->
@@ -428,10 +474,14 @@ class ProductsRepository @Inject constructor(
     val componentStages: (ID, ID) -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = { cId, cskId ->
         database.componentComponentStageDao.getRecordsCompleteForUI(cId, cskId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentComponentStageById: suspend (ID, ID, ID) -> DomainComponentComponentStage.DomainComponentComponentStageComplete = { componentId, compStageKindId, compStageId ->
+        database.componentComponentStageDao.getRecordCompleteById(componentId, compStageKindId, compStageId)?.toDomainModel() ?: DomainComponentComponentStage.DomainComponentComponentStageComplete()
+    }
+
+
     val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->
         database.productVersionDao.getRecordsCompleteForUI(fpId).map { list -> list.map { it.toDomainModel() } }
     }
-
     val itemVersionComplete: suspend (String) -> DomainItemVersionComplete = { fId ->
         database.productVersionDao.getRecordCompleteForUI(fId)?.toDomainModel() ?: DomainItemVersionComplete()
     }

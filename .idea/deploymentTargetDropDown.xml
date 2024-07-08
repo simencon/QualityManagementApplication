@@ -2,13 +2,13 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="PreviewCharacteristicChoice">
-        <State />
-      </entry>
-      <entry key="PreviewListItem">
+      <entry key="PreviewComponentSingleChoiceDialog">
         <State />
       </entry>
       <entry key="PreviewSingleChoiceDialogWithExtraFiltration">
+        <State />
+      </entry>
+      <entry key="ProductBaseDialogPreview">
         <State />
       </entry>
       <entry key="app">

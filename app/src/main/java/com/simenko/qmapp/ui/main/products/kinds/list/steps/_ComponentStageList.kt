@@ -51,15 +51,13 @@ import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
-    val componentsVisibility by viewModel.componentsVisibility.collectAsStateWithLifecycle()
-    val componentStageKindsVisibility by viewModel.componentStageKindsVisibility.collectAsStateWithLifecycle()
     val versionsForItem by viewModel.versionsForItem.collectAsStateWithLifecycle()
     val items by viewModel.componentStages.collectAsStateWithLifecycle(listOf())
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStagesVisibility(aId = SelectedNumber(it)) } }
-    val onClickAddLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onAddComponentStageClick(it) } }
+    val onClickAddLambda = remember { { viewModel.onAddComponentStageClick() } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageClick(it) } }
-    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentStageClick(it) } }
+    val onClickEditLambda = remember<(ID) -> Unit> { { viewModel.onEditComponentStageClick(it) } }
     val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ComponentStagePref.char.toString() + it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
@@ -81,7 +79,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            onClick = { onClickAddLambda(Pair(componentsVisibility.first.num, componentStageKindsVisibility.first.num)) },
+            onClick = { onClickAddLambda() },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }
@@ -94,7 +92,7 @@ fun ComponentStageCard(
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
-    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickEdit: (ID) -> Unit,
     onClickVersions: (ID) -> Unit
 ) {
     ItemCard(
@@ -102,7 +100,7 @@ fun ComponentStageCard(
         item = componentStage,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
-        onClickEdit = onClickEdit,
+        onClickEdit = { onClickEdit(it.second) },
         contentColors = Triple(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {

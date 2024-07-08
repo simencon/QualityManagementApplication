@@ -82,6 +82,9 @@ fun ProductLines(
                 onClickItems = { onClickItemsLambda(it) }
             )
         }
+        item {
+            Spacer(modifier = Modifier.height(100.dp))
+        }
     }
 }
 

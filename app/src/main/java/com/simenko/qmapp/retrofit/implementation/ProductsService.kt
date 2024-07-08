@@ -36,6 +36,7 @@ import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
 import com.simenko.qmapp.other.Constants.WITH_RELATED_RECORDS
+import com.simenko.qmapp.retrofit.entities.adapters.ComponentComponentStageWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.adapters.ProductComponentWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.adapters.ProductKindProductWithRelatedRecordsResponse
 import com.simenko.qmapp.retrofit.entities.products.*
@@ -262,6 +263,11 @@ interface ProductsService {
 
     @GET(COMPONENTS_IN_STAGE)
     suspend fun getComponentStages(): Response<List<NetworkComponentStage>>
+    @POST(COMPONENTS_IN_STAGE)
+    suspend fun insertComponentStage(@Body value: NetworkComponentStage): Response<NetworkComponentStage>
+
+    @PUT("$COMPONENTS_IN_STAGE/{id}")
+    suspend fun editComponentStage(@Path("id") id: ID, @Body value: NetworkComponentStage): Response<NetworkComponentStage>
 
 
     @GET(PRODUCTS_TO_LINES)
@@ -293,6 +299,8 @@ interface ProductsService {
 
     @GET(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
     suspend fun getComponentStageKindsComponentStages(): Response<List<NetworkComponentStageKindComponentStage>>
+    @POST(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
+    suspend fun insertComponentStageKindComponentStage(@Body record: NetworkComponentStageKindComponentStage): Response<NetworkComponentStageKindComponentStage>
 
 
     @GET(PRODUCTS_COMPONENTS)
@@ -309,6 +317,13 @@ interface ProductsService {
 
     @GET(COMPONENTS_COMPONENT_STAGES)
     suspend fun getComponentsComponentStages(): Response<List<NetworkComponentComponentStage>>
+    @POST(COMPONENTS_COMPONENT_STAGES)
+    suspend fun insertComponentComponentStage(@Body record: NetworkComponentComponentStage): Response<NetworkComponentComponentStage>
+    @PUT("$COMPONENTS_COMPONENT_STAGES/{id}")
+    suspend fun editComponentComponentStage(@Path("id") id: ID, @Body value: NetworkComponentComponentStage): Response<NetworkComponentComponentStage>
+
+    @DELETE("${COMPONENTS_COMPONENT_STAGES}/${WITH_RELATED_RECORDS}/{id}")
+    suspend fun deleteComponentComponentStage(@Path("id") id: ID): Response<ComponentComponentStageWithRelatedRecordsResponse>
 
 
     @GET(PRODUCT_VERSIONS)

@@ -946,11 +946,11 @@ data class DatabaseComponentComponentStage(
         @Embedded
         val componentComponentStage: DatabaseComponentComponentStage,
         @Relation(
-            entity = DatabaseComponent::class,
+            entity = DatabaseComponent.DatabaseComponentComplete::class,
             parentColumn = "componentId",
             entityColumn = "id"
         )
-        val component: DatabaseComponent,
+        val component: DatabaseComponent.DatabaseComponentComplete,
         @Relation(
             entity = DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete::class,
             parentColumn = "componentStageId",

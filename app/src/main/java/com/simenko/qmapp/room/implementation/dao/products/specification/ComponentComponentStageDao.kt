@@ -28,4 +28,11 @@ abstract class ComponentComponentStageDao : DaoBaseModel<ID, ID, DatabaseCompone
                 "where (ccs.componentId = :cId or :cId = -1) and (csk.componentStageKindId = :cskId or :cskId = -1)"
     )
     abstract fun getRecordsCompleteForUI(cId: ID, cskId: ID): Flow<List<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>>
+
+    @Transaction
+    @Query(
+        "select ccs.* from components_component_stages_complete as ccs join `5_6_component_stage_kinds_component_stages` as csk on ccs.componentStageId = csk.componentStageId " +
+                "where ccs.componentId = :cId and csk.componentStageKindId = :cskId and ccs.componentStageId = :csId"
+    )
+    abstract suspend fun getRecordCompleteById(cId: ID, cskId: ID, csId: ID): DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete?
 }

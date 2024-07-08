@@ -193,10 +193,25 @@ sealed interface Route {
                     data class AddProductKindProduct(val productKindId: ID = NoRecord.num) : Route
 
                     @Serializable
-                    data class AddEditComponent(val productKindId: ID, val productId: ID, val componentKindId: ID, val componentId: ID = NoRecord.num) : Route
+                    data class AddEditComponent(
+                        val productKindId: ID,
+                        val productId: ID,
+                        val componentKindId: ID,
+                        val componentId: ID = NoRecord.num
+                    ) : Route
 
                     @Serializable
                     data class AddProductComponent(val productId: ID, val componentKindId: ID) : Route
+
+                    @Serializable
+                    data class AddEditComponentStage(
+                        val productKindId: ID,
+                        val productId: ID,
+                        val componentKindId: ID,
+                        val componentId: ID,
+                        val componentStageKindId: ID,
+                        val componentStageId: ID = NoRecord.num
+                    ) : Route
 
                     @Serializable
                     data object VersionTolerances : Route {

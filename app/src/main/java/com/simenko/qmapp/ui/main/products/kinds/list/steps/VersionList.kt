@@ -86,6 +86,9 @@ fun Versions(modifier: Modifier = Modifier, viewModel: ProductListViewModel = hi
                 onClickSpecification = { onClickSpecificationLambda(it) }
             )
         }
+        item {
+            Spacer(modifier = Modifier.height(100.dp))
+        }
     }
 }
 

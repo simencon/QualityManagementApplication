@@ -18,6 +18,6 @@ abstract class ComponentDao: DaoBaseModel<ID, ID, DatabaseComponent> {
     @Query("select * from `4_components` where keyId = :parentId order by id  asc")
     abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponent>
 
-    @Query("SELECT * FROM `4_components` WHERE id = :id")
-    abstract fun getRecordById(id: ID): DatabaseComponent?
+    @Query("SELECT * FROM `components_complete` WHERE id = :id")
+    abstract fun getRecordById(id: ID): DatabaseComponent.DatabaseComponentComplete?
 }

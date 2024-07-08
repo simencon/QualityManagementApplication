@@ -187,7 +187,7 @@ class MainActivity : BaseActivity() {
                                 )
                             }
                             if (observerIsNetworkError != null) {
-                                Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
+                                showDialog("Error", observerIsNetworkError!!)
                                 pullRefreshSetup.onNetworkErrorShown()
                             }
                         }

@@ -87,7 +87,7 @@ class ProductListViewModel @Inject constructor(
 
             mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProductKindProduct(SheetInputData.AddExistingProduct(productKindId = route.productKindId)) }
+                .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProductKindProduct(SheetInputData.AddProductKindProduct(productKindId = route.productKindId)) }
                 .setOnPullRefreshAction { updateProductsData() }
                 .setOnSearchClickAction { _searchString.value = it.stringToSearch ?: EmptyString.str }
                 .build()
@@ -331,11 +331,11 @@ class ProductListViewModel @Inject constructor(
     fun onAddNewItem(inputData: SheetInputData) {
         _bottomSheetState.value = SheetInputData.Nothing
         when (inputData) {
-            is SheetInputData.AddExistingProduct -> {
+            is SheetInputData.AddProductKindProduct -> {
                 appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddEditProduct(productKindId = inputData.productKindId))
             }
 
-            is SheetInputData.AddExistingComponent -> {
+            is SheetInputData.AddProductComponent -> {
                 appNavigator.tryNavigateTo(
                     route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponent(
                         productKindId = inputData.productKindId,
@@ -345,8 +345,16 @@ class ProductListViewModel @Inject constructor(
                 )
             }
 
-            is SheetInputData.AddExistingComponentStage -> {
-
+            is SheetInputData.AddComponentComponentStage -> {
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponentStage(
+                        productKindId = inputData.productKindId,
+                        productId = inputData.productId,
+                        componentKindId = inputData.componentKindId,
+                        componentId = inputData.componentId,
+                        componentStageKindId = inputData.componentStageKindId
+                    )
+                )
             }
 
             is SheetInputData.Nothing -> Unit
@@ -356,11 +364,11 @@ class ProductListViewModel @Inject constructor(
     fun onSelectExistingItem(inputData: SheetInputData) {
         _bottomSheetState.value = SheetInputData.Nothing
         when (inputData) {
-            is SheetInputData.AddExistingProduct -> {
+            is SheetInputData.AddProductKindProduct -> {
                 appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.AddProductKindProduct(productKindId = inputData.productKindId))
             }
 
-            is SheetInputData.AddExistingComponent -> {
+            is SheetInputData.AddProductComponent -> {
                 appNavigator.tryNavigateTo(
                     route = Route.Main.ProductLines.ProductKinds.Products.AddProductComponent(
                         productId = inputData.productId,
@@ -369,7 +377,7 @@ class ProductListViewModel @Inject constructor(
                 )
             }
 
-            is SheetInputData.AddExistingComponentStage -> {
+            is SheetInputData.AddComponentComponentStage -> {
 
             }
 
@@ -382,7 +390,7 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onAddComponentClick() {
-        _bottomSheetState.value = SheetInputData.AddExistingComponent(
+        _bottomSheetState.value = SheetInputData.AddProductComponent(
             productKindId = _productKindId.value,
             productId = _productsVisibility.value.first.num,
             componentKindId = _componentKindsVisibility.value.first.num
@@ -400,12 +408,27 @@ class ProductListViewModel @Inject constructor(
         )
     }
 
-    fun onAddComponentStageClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+    fun onAddComponentStageClick() {
+        _bottomSheetState.value = SheetInputData.AddComponentComponentStage(
+            productKindId = _productKindId.value,
+            productId = _productsVisibility.value.first.num,
+            componentKindId = _componentKindsVisibility.value.first.num,
+            componentId = _componentsVisibility.value.first.num,
+            componentStageKindId = _componentStageKindsVisibility.value.first.num
+        )
     }
 
-    fun onEditComponentStageClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+    fun onEditComponentStageClick(it: ID) {
+        appNavigator.tryNavigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.AddEditComponentStage(
+                productKindId = _productKindId.value,
+                productId = _productsVisibility.value.first.num,
+                componentKindId = _componentKindsVisibility.value.first.num,
+                componentId = _componentsVisibility.value.first.num,
+                componentStageKindId = _componentStageKindsVisibility.value.first.num,
+                componentStageId = it
+            )
+        )
     }
 
     private fun onAddVersionClick(fId: String) {
@@ -430,21 +453,21 @@ sealed interface SheetInputData {
         override val selectExistingItemBtnText = EmptyString.str
     }
 
-    data class AddExistingProduct(
+    data class AddProductKindProduct(
         override val addItemBtnText: String = "Create new product",
         override val selectExistingItemBtnText: String = "Select existing product",
         val productKindId: ID
     ) : SheetInputData
 
-    data class AddExistingComponent(
+    data class AddProductComponent(
         override val addItemBtnText: String = "Create new component",
         override val selectExistingItemBtnText: String = "Select existing component",
         val productKindId: ID, val productId: ID, val componentKindId: ID
     ) : SheetInputData
 
-    data class AddExistingComponentStage(
+    data class AddComponentComponentStage(
         override val addItemBtnText: String = "Create new component stage",
         override val selectExistingItemBtnText: String = "Select existing component stage",
-        val componentId: ID, val componentStageId: ID
+        val productKindId: ID, val productId: ID, val componentKindId: ID, val componentId: ID, val componentStageKindId: ID
     ) : SheetInputData
 }
