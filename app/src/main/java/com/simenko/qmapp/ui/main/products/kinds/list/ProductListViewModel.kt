@@ -225,7 +225,6 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    val componentsVisibility = _componentsVisibility.asStateFlow()
     val components = _components.flatMapLatest { components ->
         _componentsVisibility.flatMapLatest { visibility ->
             val cpy =
@@ -234,7 +233,6 @@ class ProductListViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val componentStageKindsVisibility = _componentStageKindsVisibility.asStateFlow()
     val componentStageKinds = _componentStageKinds.flatMapLatest { componentStageKinds ->
         _componentStagesAll.flatMapLatest { componentStages ->
             _componentStageKindsVisibility.flatMapLatest { visibility ->
@@ -260,7 +258,7 @@ class ProductListViewModel @Inject constructor(
             }
             flow { emit(cpy) }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val componentVersions = _versions.flatMapLatest { versions ->
         _versionsVisibility.flatMapLatest { visibility ->
@@ -312,8 +310,22 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteComponentStageClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onDeleteComponentStageClick(it: ID) = viewModelScope.launch {
+        componentStages.value.find { it.isExpanded }?.let { componentStage ->
+            if (componentStage.componentComponentStage.componentStageId == it) {
+                with(repository) {
+                    deleteComponentComponentStage(componentStage.componentComponentStage.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteVersionClick(it: String) {
@@ -378,7 +390,15 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddComponentComponentStage -> {
-
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductKinds.Products.AddComponentComponentStage(
+                        productKindId = _productKindId.value,
+                        productId = _productsVisibility.value.first.num,
+                        componentKindId = _componentKindsVisibility.value.first.num,
+                        componentId = _componentsVisibility.value.first.num,
+                        componentStageKindId = _componentStageKindsVisibility.value.first.num
+                    )
+                )
             }
 
             is SheetInputData.Nothing -> Unit

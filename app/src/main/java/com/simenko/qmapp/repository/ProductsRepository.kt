@@ -477,6 +477,9 @@ class ProductsRepository @Inject constructor(
     val componentComponentStageById: suspend (ID, ID, ID) -> DomainComponentComponentStage.DomainComponentComponentStageComplete = { componentId, compStageKindId, compStageId ->
         database.componentComponentStageDao.getRecordCompleteById(componentId, compStageKindId, compStageId)?.toDomainModel() ?: DomainComponentComponentStage.DomainComponentComponentStageComplete()
     }
+    val allComponentComponentStages: () -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = {
+        database.componentComponentStageDao.getAllRecordsComplete().map { list -> list.map { it.toDomainModel() } }
+    }
 
 
     val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->

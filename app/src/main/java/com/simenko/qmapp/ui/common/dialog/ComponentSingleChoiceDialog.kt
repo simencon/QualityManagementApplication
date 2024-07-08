@@ -53,14 +53,21 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.products.DomainComponent
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
 
+enum class ItemSelectEnum{
+    COMPONENT,
+    COMPONENT_STAGE
+}
+
 @Composable
 fun <DB, DM> ComponentSingleChoiceDialog(
+    selectionOf: ItemSelectEnum,
     items: List<DM>,
 
     designations: List<Triple<ID, String, Boolean>>,
@@ -86,6 +93,8 @@ fun <DB, DM> ComponentSingleChoiceDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
+        val parent = if (selectionOf == ItemSelectEnum.COMPONENT) "product" else "component"
+
         Box(
             modifier = Modifier
                 .wrapContentSize()
@@ -131,7 +140,7 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                             onDropdownMenuItemClick = { onSelectProduct(it) },
                             keyboardNavigation = Pair(parentFR) { parentFR.requestFocus() },
                             keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Search),
-                            contentDescription = Triple(Icons.Outlined.Info, "Belongs to product", "Select product item"),
+                            contentDescription = Triple(Icons.Outlined.Info, "Belongs to $parent", "Select $parent item"),
                         )
                         Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE / 2).dp))
                         RecordFieldItem(
@@ -153,16 +162,18 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                                 }
                             }
                         }
-                        RecordFieldItem(
-                            modifier = Modifier.width(300.dp),
-                            valueParam = Triple(quantity.first, quantity.second) { onEnterQuantity(it) },
-                            keyboardNavigation = Pair(quantityFR) { keyboardController?.hide() },
-                            keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
-                            contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity in product", "Enter quantity"),
-                            isMandatoryField = true,
-                            containerColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE).dp))
+                        if(selectionOf == ItemSelectEnum.COMPONENT) {
+                            RecordFieldItem(
+                                modifier = Modifier.width(300.dp),
+                                valueParam = Triple(quantity.first, quantity.second) { onEnterQuantity(it) },
+                                keyboardNavigation = Pair(quantityFR) { keyboardController?.hide() },
+                                keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
+                                contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity in $parent", "Enter quantity"),
+                                isMandatoryField = true,
+                                containerColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE).dp))
+                        }
                     }
 
 
@@ -273,6 +284,7 @@ fun PreviewComponentSingleChoiceDialog() {
             list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
     }
     ComponentSingleChoiceDialog(
+        selectionOf = ItemSelectEnum.COMPONENT,
         items = list.toList(),
         products = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
         onSelectProduct = {},

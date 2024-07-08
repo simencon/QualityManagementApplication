@@ -361,11 +361,20 @@ data class DomainComponentStage(
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentStage::class, DatabaseComponentStage::class).transform(this)
     data class DomainComponentStageComplete(
         val componentStage: DomainComponentStage = DomainComponentStage(),
-        val key: DomainKey = DomainKey()
+        val key: DomainKey = DomainKey(),
+        var isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseComponentStage.DatabaseComponentStageComplete>() {
         override fun getRecordId() = componentStage.id
         override fun getParentId() = key.projectId
-        override fun setIsSelected(value: Boolean) {}
+        override fun getIdentityName(): String {
+            return NoString.str
+        }
+
+        override fun getName(): String {
+            return StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
+        }
+        override fun setIsSelected(value: Boolean) { isSelected = value }
+        override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),
             key = this.key.toDatabaseModel()
@@ -440,7 +449,7 @@ data class DomainComponentStageKindComponentStage(
     data class DomainComponentStageKindComponentStageComplete(
         val componentStageKindComponentStage: DomainComponentStageKindComponentStage = DomainComponentStageKindComponentStage(),
         val componentStageKind: DomainComponentStageKind = DomainComponentStageKind(),
-        val componentStage: DomainComponentStage.DomainComponentStageComplete = DomainComponentStage.DomainComponentStageComplete()
+        val componentStage: DomainComponentStage.DomainComponentStageComplete = DomainComponentStage.DomainComponentStageComplete(),
     ) : DomainBaseModel<DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete>() {
         override fun getRecordId() = componentStageKindComponentStage.componentStageId
         override fun getParentId() = componentStageKindComponentStage.componentStageKindId

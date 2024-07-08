@@ -44,7 +44,7 @@ import com.simenko.qmapp.utils.StringUtils
 @Composable
 fun ComponentStageForm(
     modifier: Modifier = Modifier,
-    viewModel: ComponentComponentStageViewModel,
+    viewModel: ComponentStageViewModel,
     route: Route.Main.ProductLines.ProductKinds.Products.AddEditComponentStage
 ) {
 

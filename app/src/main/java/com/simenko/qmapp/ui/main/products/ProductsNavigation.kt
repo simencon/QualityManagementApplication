@@ -43,7 +43,9 @@ import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.existing_co
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.existing_component.ProductComponentViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.new_component.ComponentForm
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component.new_component.ComponentViewModel
-import com.simenko.qmapp.ui.main.products.kinds.list.forms.component_stage.new_component_stage.ComponentComponentStageViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.component_stage.existing_component_stage.ComponentComponentStageDialog
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.component_stage.existing_component_stage.ComponentComponentStageViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.component_stage.new_component_stage.ComponentStageViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.component_stage.new_component_stage.ComponentStageForm
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductDialog
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductViewModel
@@ -193,8 +195,12 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
             ProductComponentDialog(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.ProductLines.ProductKinds.Products.AddEditComponentStage> {
-            val viewModel: ComponentComponentStageViewModel = hiltViewModel()
+            val viewModel: ComponentStageViewModel = hiltViewModel()
             ComponentStageForm(viewModel = viewModel, route = it.toRoute())
+        }
+        dialog<Route.Main.ProductLines.ProductKinds.Products.AddComponentComponentStage> {
+            val viewModel: ComponentComponentStageViewModel = hiltViewModel()
+            ComponentComponentStageDialog(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()

@@ -35,4 +35,8 @@ abstract class ComponentComponentStageDao : DaoBaseModel<ID, ID, DatabaseCompone
                 "where ccs.componentId = :cId and csk.componentStageKindId = :cskId and ccs.componentStageId = :csId"
     )
     abstract suspend fun getRecordCompleteById(cId: ID, cskId: ID, csId: ID): DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete?
+
+    @Transaction
+    @Query("select pcc.* from components_component_stages_complete as pcc")
+    abstract fun getAllRecordsComplete(): Flow<List<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>>
 }

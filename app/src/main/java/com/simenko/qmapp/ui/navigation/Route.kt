@@ -214,6 +214,15 @@ sealed interface Route {
                     ) : Route
 
                     @Serializable
+                    data class AddComponentComponentStage(
+                        val productKindId: ID,
+                        val productId: ID,
+                        val componentKindId: ID,
+                        val componentId: ID,
+                        val componentStageKindId: ID
+                    ) : Route
+
+                    @Serializable
                     data object VersionTolerances : Route {
                         @Serializable
                         data class VersionTolerancesDetails(
