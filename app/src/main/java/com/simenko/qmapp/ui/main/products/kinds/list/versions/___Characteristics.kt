@@ -43,6 +43,7 @@ fun Characteristics(
     viewModel: VersionTolerancesViewModel = hiltViewModel()
 ) {
     val items by viewModel.characteristics.collectAsStateWithLifecycle(listOf())
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(aId = SelectedNumber(it)) } }
@@ -54,6 +55,7 @@ fun Characteristics(
         items.forEach { item ->
             CharacteristicCard(
                 characteristic = item,
+                isEditMode = isEditMode,
                 onClickDetails = onClickDetailsLambda,
                 onClickActions = onClickActionsLambda,
                 onClickDelete = onClickDeleteLambda
@@ -65,6 +67,7 @@ fun Characteristics(
 @Composable
 fun CharacteristicCard(
     characteristic: DomainCharacteristic,
+    isEditMode: Boolean,
     onClickDetails: (ID) -> Unit,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit
@@ -74,7 +77,7 @@ fun CharacteristicCard(
         item = characteristic,
         contentColors = Triple(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete),
-        onClickActions = onClickActions,
+        onClickActions = { if (isEditMode) onClickActions(it) },
         onClickDelete = onClickDelete
     ) {
         Characteristic(

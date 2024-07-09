@@ -2,10 +2,13 @@ package com.simenko.qmapp.ui.main.products.kinds.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.ComponentPref
+import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
@@ -328,7 +331,7 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteVersionClick(it: String) {
+    fun onDeleteVersionClick(versionFId: String) {
         TODO("Not yet implemented")
     }
 
@@ -369,6 +372,24 @@ class ProductListViewModel @Inject constructor(
                 )
             }
 
+            is SheetInputData.AddCopyItemVersion -> {
+                when (inputData.itemIdWithPref.firstOrNull()) {
+                    ProductPref.char -> {
+                        // Add new product version
+                    }
+
+                    ComponentPref.char -> {
+                        // Add new component version
+                    }
+
+                    ComponentStagePref.char -> {
+                        // Add new component stage version
+                    }
+
+                    else -> Unit
+                }
+            }
+
             is SheetInputData.Nothing -> Unit
         }
     }
@@ -399,6 +420,24 @@ class ProductListViewModel @Inject constructor(
                         componentStageKindId = _componentStageKindsVisibility.value.first.num
                     )
                 )
+            }
+
+            is SheetInputData.AddCopyItemVersion -> {
+                when (inputData.itemIdWithPref.firstOrNull()) {
+                    ProductPref.char -> {
+                        // Copy into new product version
+                    }
+
+                    ComponentPref.char -> {
+                        // Copy into new component version
+                    }
+
+                    ComponentStagePref.char -> {
+                        // Copy into new component stage version
+                    }
+
+                    else -> Unit
+                }
             }
 
             is SheetInputData.Nothing -> Unit
@@ -452,11 +491,20 @@ class ProductListViewModel @Inject constructor(
     }
 
     private fun onAddVersionClick(fId: String) {
-        TODO("Not yet implemented")
+        val itemName = when (fId.firstOrNull()) {
+            ProductPref.char -> "product"
+            ComponentPref.char -> "component"
+            ComponentStagePref.char -> "component stage"
+            else -> EmptyString.str
+        }
+        _bottomSheetState.value = SheetInputData.AddCopyItemVersion(
+            itemName = itemName,
+            itemIdWithPref = fId
+        )
     }
 
-    fun onEditVersionClick(it: Pair<String, String>) {
-        TODO("Not yet implemented")
+    fun onEditVersionClick(idWithPref: String) {
+        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(versionFId = idWithPref, versionEditMode = true))
     }
 
     fun onSpecificationClick(it: String) {
@@ -489,5 +537,12 @@ sealed interface SheetInputData {
         override val addItemBtnText: String = "Create new component stage",
         override val selectExistingItemBtnText: String = "Select existing component stage",
         val productKindId: ID, val productId: ID, val componentKindId: ID, val componentId: ID, val componentStageKindId: ID
+    ) : SheetInputData
+
+    data class AddCopyItemVersion(
+        val itemName: String,
+        override val addItemBtnText: String = "Create $itemName version",
+        override val selectExistingItemBtnText: String = "Copy $itemName version",
+        val itemIdWithPref: String
     ) : SheetInputData
 }

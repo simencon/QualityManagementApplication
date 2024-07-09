@@ -59,7 +59,7 @@ fun Versions(modifier: Modifier = Modifier, viewModel: ProductListViewModel = hi
 
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setVersionsVisibility(aId = SelectedString(it)) } }
     val onClickDeleteLambda = remember<(String) -> Unit> { { viewModel.onDeleteVersionClick(it) } }
-    val onClickEditLambda = remember<(Pair<String, String>) -> Unit> { { viewModel.onEditVersionClick(it) } }
+    val onClickEditLambda = remember<(String) -> Unit> { { viewModel.onEditVersionClick(it) } }
     val onClickSpecificationLambda = remember<(String) -> Unit> { { viewModel.onSpecificationClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(5, true) }
@@ -97,7 +97,7 @@ fun VersionCard(
     version: DomainItemVersionComplete,
     onClickActions: (String) -> Unit,
     onClickDelete: (String) -> Unit,
-    onClickEdit: (Pair<String, String>) -> Unit,
+    onClickEdit: (String) -> Unit,
     onClickSpecification: (String) -> Unit
 ) {
     val containerColor = when (version.itemVersion.fId[0]) {
@@ -110,7 +110,7 @@ fun VersionCard(
         item = version,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
-        onClickEdit = onClickEdit,
+        onClickEdit = { onClickEdit(it.second) },
         contentColors = Triple(containerColor, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
@@ -135,7 +135,7 @@ fun ComponentVersion(
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.436f, title = "Is default:", text = version.itemVersion.isDefault.let { if (it) "yes" else "no" })
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.436f, title = "Latest edited:", text = getStringDate(version.itemVersion.versionDate, 6) )
+                HeaderWithTitle(titleWight = 0.436f, title = "Latest edited:", text = getStringDate(version.itemVersion.versionDate, 6))
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.45f), containerColor = containerColor, onClick = { onClickSpecification(version.itemVersion.fId) }) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
