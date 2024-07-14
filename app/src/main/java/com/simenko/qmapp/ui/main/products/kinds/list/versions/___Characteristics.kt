@@ -28,6 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString

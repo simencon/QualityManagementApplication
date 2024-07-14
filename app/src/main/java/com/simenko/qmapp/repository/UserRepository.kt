@@ -322,6 +322,8 @@ class UserRepository @Inject constructor(
                             is FirebaseException -> {
                                 if (task.exception?.message?.contains("application com.simenko.qmapp are blocked") == true) {
                                     _userState.value = UserErrorState(UserError.APPLICATION_NOT_REGISTERED.error)
+                                } else {
+                                    _userState.value = UserErrorState(UserError.UNKNOWN_ERROR.error)
                                 }
                             }
 

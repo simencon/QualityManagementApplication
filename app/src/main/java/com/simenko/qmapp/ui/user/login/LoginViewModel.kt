@@ -38,6 +38,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun login(username: String, password: String) {
+        userRepository.clearErrorMessage()
         updateLoadingState(Pair(true, null))
         userRepository.loginUser(username, password)
     }

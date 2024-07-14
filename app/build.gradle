@@ -88,9 +88,12 @@ dependencies {
 //    general staff
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'com.github.skydoves:landscapist-glide:2.3.6'
+    ksp 'com.github.bumptech.glide:ksp:4.14.2'
+
 //    Firebase
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
-    implementation platform('com.google.firebase:firebase-bom:33.1.0')
+    implementation platform('com.google.firebase:firebase-bom:33.1.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
@@ -98,6 +101,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-functions-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.firebaseui:firebase-ui-storage:8.0.2'
 
     // Android KTX
     implementation 'androidx.core:core-ktx:1.13.1'

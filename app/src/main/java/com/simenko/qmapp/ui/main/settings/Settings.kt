@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.main.settings
 
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,10 +20,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.NoState
@@ -42,6 +56,7 @@ import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.dialogs.ApproveAction
+import com.skydoves.landscapist.rememberDrawablePainter
 
 @Composable
 fun Settings(
@@ -52,6 +67,7 @@ fun Settings(
 ) {
     LaunchedEffect(Unit) {
         viewModel.mainPageHandler.setupMainPage(0, false)
+        viewModel.onEntered()
     }
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
@@ -85,6 +101,27 @@ fun Settings(
     }
 
     val columnState = rememberScrollState()
+    val context = LocalContext.current
+
+    val profilePhotoRef by viewModel.profilePhotoRef.collectAsStateWithLifecycle()
+    var image by remember { mutableStateOf<Drawable?>(null) }
+
+    LaunchedEffect(key1 = profilePhotoRef) {
+        profilePhotoRef?.let {
+            Glide.with(context)
+                .load(it)
+                .into(object : CustomTarget<Drawable>() {
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                        image = resource
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {
+//                        image = null
+                    }
+                })
+        }
+    }
+
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -96,10 +133,15 @@ fun Settings(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
-            painter = painterResource(viewModel.userLocalData.logo),
+            painter = image?.let { rememberDrawablePainter(drawable = it) } ?: painterResource(viewModel.userLocalData.logo),
             contentDescription = null,
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier.height(112.dp)
+
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .height(112.dp)
+                .width(112.dp)
+                .clip(CircleShape)
+                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(

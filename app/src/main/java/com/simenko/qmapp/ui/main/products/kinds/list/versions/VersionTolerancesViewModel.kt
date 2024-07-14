@@ -6,12 +6,15 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.ComponentPref
+import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
@@ -54,14 +57,17 @@ class VersionTolerancesViewModel @Inject constructor(
     val storage: Storage,
 ) : ViewModel() {
     private val _versionFId = MutableStateFlow(NoRecordStr.str)
-    private val _characteristicGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
-    private val _characteristicSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _charSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _toleranceVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
 
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
     private val _versionEditMode = MutableStateFlow(false)
     private val _itemVersionTolerances = MutableStateFlow(listOf<DomainItemTolerance.DomainItemToleranceComplete>())
+
+    private val _isAddItemDialogVisible = MutableStateFlow(false)
+    private val _characteristicToAdd = MutableStateFlow(Triple(NoRecord.num, NoRecord.num, NoRecord.num))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -71,13 +77,25 @@ class VersionTolerancesViewModel @Inject constructor(
 
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails) {
         viewModelScope.launch {
+
             _versionFId.value = route.versionFId
-            _characteristicGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
-            _characteristicSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
+            _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
+            _charSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
             _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
             _toleranceVisibility.value = Pair(SelectedNumber(route.toleranceId), NoRecord)
             _itemVersion.value = repository.itemVersionComplete(route.versionFId)
             _versionEditMode.value = route.versionEditMode
+
+            when(_itemVersion.value.itemVersion.fId.firstOrNull()) {
+                ProductPref.char -> {
+                    repository.itemVersionComplete
+                    repository.productById(_itemVersion.value.itemVersion.id).let {
+
+                    }
+                }
+                ComponentPref.char -> {}
+                ComponentStagePref.char -> {}
+            }
 
             mainPageHandler = MainPageHandler.Builder(page.value.withCustomFabIcon(if (_versionEditMode.value) Icons.Filled.Save else Icons.Filled.Edit), mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
@@ -137,7 +155,8 @@ class VersionTolerancesViewModel @Inject constructor(
 
     // Lists state ------------------------------
     val characteristicGroups = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicGroupVisibility.flatMapLatest { visibility ->
+        _charGroupVisibility.flatMapLatest { visibility ->
+            _characteristicToAdd.value = _characteristicToAdd.value.copy(first = visibility.first.num)
             flow {
                 emit(list.distinctBy { it.metricWithParents.groupId }.map {
                     it.metricWithParents.run {
@@ -153,8 +172,9 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
     val characteristicSubGroups = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicGroupVisibility.flatMapLatest { gVisibility ->
-            _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+        _charGroupVisibility.flatMapLatest { gVisibility ->
+            _charSubGroupVisibility.flatMapLatest { sgVisibility ->
+                _characteristicToAdd.value = _characteristicToAdd.value.copy(second = sgVisibility.first.num)
                 flow {
                     emit(list.filter { it.metricWithParents.groupId == gVisibility.first.num }.distinctBy { it.metricWithParents.subGroupId }.map {
                         it.metricWithParents.run {
@@ -173,7 +193,7 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
     val characteristics = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+        _charSubGroupVisibility.flatMapLatest { sgVisibility ->
             _characteristicVisibility.flatMapLatest { cVisibility ->
                 flow {
                     emit(list.filter { it.metricWithParents.subGroupId == sgVisibility.first.num }.distinctBy { it.metricWithParents.charId }.map {
@@ -194,6 +214,13 @@ class VersionTolerancesViewModel @Inject constructor(
                 }
             }
         }
+    }
+    val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
+    fun setAddItemDialogVisibility(value: Boolean) {
+        if (!value) {
+            _characteristicToAdd.value = Triple(_charGroupVisibility.value.first.num, _charSubGroupVisibility.value.first.num, NoRecord.num)
+        }
+        _isAddItemDialogVisible.value = value
     }
 
     private val _indexOfToleranceErrorRow = MutableStateFlow(NoRecord.num)
@@ -303,8 +330,8 @@ class VersionTolerancesViewModel @Inject constructor(
             _secondListIsInitialized.flatMapLatest { secondListState ->
                 if (viewState)
                     flow {
-                        if (_characteristicGroupVisibility.value.first.num != NoRecord.num) {
-                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(_characteristicGroupVisibility.value.first.num).toLong())
+                        if (_charGroupVisibility.value.first.num != NoRecord.num) {
+                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(_charGroupVisibility.value.first.num).toLong())
                             storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.offsetKey, ZeroValue.num)
                             emit(Pair(true, secondListState))
                         } else {
@@ -335,11 +362,11 @@ class VersionTolerancesViewModel @Inject constructor(
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
     fun setCharGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _characteristicGroupVisibility.value = _characteristicGroupVisibility.value.setVisibility(dId, aId)
+        _charGroupVisibility.value = _charGroupVisibility.value.setVisibility(dId, aId)
     }
 
     fun setCharSubGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _characteristicSubGroupVisibility.value = _characteristicSubGroupVisibility.value.setVisibility(dId, aId)
+        _charSubGroupVisibility.value = _charSubGroupVisibility.value.setVisibility(dId, aId)
     }
 
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {

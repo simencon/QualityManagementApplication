@@ -1,7 +1,13 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.storage
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
@@ -13,6 +19,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,12 +27,26 @@ class SettingsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
-    private val remoteConfig: FirebaseRemoteConfig
+    private val remoteConfig: FirebaseRemoteConfig,
+    private val firebaseAuth: FirebaseAuth,
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     val mainPageHandler: MainPageHandler
+    private val _profilePhotoRef = MutableStateFlow<StorageReference?>(null)
+    val profilePhotoRef = _profilePhotoRef.asStateFlow()
+
+    fun onEntered() {
+        firebaseAuth.signInWithEmailAndPassword(userLocalData.email, userLocalData.password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                task.result.user?.uid?.let {
+                    _profilePhotoRef.value = Firebase.storage("gs://users_app_profile_photos").reference.child("$it.jpg")
+                }
+            }
+        }
+    }
+
 
     init {
         mainPageHandler = MainPageHandler.Builder(Page.ACCOUNT_SETTINGS, mainPageState)
