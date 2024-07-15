@@ -175,6 +175,8 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended"
     implementation "androidx.compose.runtime:runtime-livedata"
     implementation "androidx.compose.foundation:foundation"
+    implementation "com.google.accompanist:accompanist-permissions:0.35.1-alpha"
+
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"

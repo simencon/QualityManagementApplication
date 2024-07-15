@@ -1,13 +1,14 @@
 package com.simenko.qmapp.ui.main.settings
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
@@ -34,15 +35,51 @@ class SettingsViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     val mainPageHandler: MainPageHandler
-    private val _profilePhotoRef = MutableStateFlow<StorageReference?>(null)
+    private val _profilePhotoRef = MutableStateFlow<Pair<StorageReference?, StorageMetadata?>>(Pair(null, null))
     val profilePhotoRef = _profilePhotoRef.asStateFlow()
 
     fun onEntered() {
         firebaseAuth.signInWithEmailAndPassword(userLocalData.email, userLocalData.password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                task.result.user?.uid?.let {
-                    _profilePhotoRef.value = Firebase.storage("gs://users_app_profile_photos").reference.child("$it.jpg")
+                task.result.user?.uid?.let { uid ->
+                    val ref = Firebase.storage("gs://${Constants.USER_PROFILE_PICTURE_BUCKET_NAME}").reference.child(uid)
+                    ref.metadata.addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            _profilePhotoRef.value = Pair(ref, it.result)
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    fun onSaveNewPicture(picture: Uri) {
+        if (firebaseAuth.currentUser != null) {
+            firebaseAuth.currentUser?.uid?.let { uid ->
+                uploadProfilePicture(picture, uid)
+            }
+        } else {
+            firebaseAuth.signInWithEmailAndPassword(userLocalData.email, userLocalData.password).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    task.result.user?.uid?.let { uid ->
+                        uploadProfilePicture(picture, uid)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun uploadProfilePicture(picture: Uri, pictureName: String) {
+        val storageRef = Firebase.storage("gs://${Constants.USER_PROFILE_PICTURE_BUCKET_NAME}").reference
+        val mountainsRef = storageRef.child(pictureName)
+        mainPageHandler.updateLoadingState(Pair(true, null))
+        mountainsRef.putFile(picture).addOnCompleteListener {
+            if (it.isSuccessful) {
+                mainPageHandler.updateLoadingState(Pair(false, null))
+                _profilePhotoRef.value = Pair(it.result.storage, it.result.metadata)
+            } else {
+                val errorMsg = it.result.error?.message
+                mainPageHandler.updateLoadingState(Pair(false, errorMsg))
             }
         }
     }

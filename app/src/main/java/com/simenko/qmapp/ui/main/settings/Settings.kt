@@ -1,8 +1,15 @@
 package com.simenko.qmapp.ui.main.settings
 
+import android.Manifest
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,15 +41,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.signature.ObjectKey
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.simenko.qmapp.BuildConfig
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.NoState
@@ -57,7 +71,9 @@ import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 import com.skydoves.landscapist.rememberDrawablePainter
+import java.io.File
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Settings(
     viewModel: SettingsViewModel,
@@ -107,9 +123,10 @@ fun Settings(
     var image by remember { mutableStateOf<Drawable?>(null) }
 
     LaunchedEffect(key1 = profilePhotoRef) {
-        profilePhotoRef?.let {
+        profilePhotoRef.let {
             Glide.with(context)
-                .load(it)
+                .load(it.first)
+                .signature(ObjectKey(it.second?.updatedTimeMillis.toString()))
                 .into(object : CustomTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         image = resource
@@ -122,6 +139,22 @@ fun Settings(
         }
     }
 
+    var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { isSuccessful ->
+        if (isSuccessful) tempPhotoUri.path?.let { it1 -> viewModel.onSaveNewPicture(tempPhotoUri) }
+    }
+
+
+    val cameraPermissionState = rememberPermissionState(
+        permission = Manifest.permission.CAMERA,
+        onPermissionResult = { granted ->
+            if (granted) {
+                tempPhotoUri = context.createTempPictureUri()
+                cameraLauncher.launch(tempPhotoUri)
+            } else print("camera permission is denied")
+        }
+    )
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -138,10 +171,10 @@ fun Settings(
 
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .height(112.dp)
-                .width(112.dp)
+                .size(150.dp)
                 .clip(CircleShape)
                 .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                .clickable { cameraPermissionState.launchPermissionRequest() },
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -209,6 +242,20 @@ fun Settings(
             onOkClick = { password -> onApproveLambda(password) }
         )
     }
+}
+
+fun Context.createTempPictureUri(
+    provider: String = "${BuildConfig.APPLICATION_ID}.provider",
+    fileName: String = "picture_${System.currentTimeMillis()}",
+    fileExtension: String = ".png"
+): Uri {
+    val tempFile = File.createTempFile(
+        fileName, fileExtension, cacheDir
+    ).apply {
+        createNewFile()
+    }
+
+    return FileProvider.getUriForFile(applicationContext, provider, tempFile)
 }
 
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)

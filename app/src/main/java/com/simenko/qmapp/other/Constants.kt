@@ -115,4 +115,8 @@ object Constants {
 
     const val MEASUREMENTS_REGISTER = "measurementsRegister"
     const val MEASUREMENT_RESULTS = "measurementResults"
+
+    const val USER_PROFILE_PICTURE_BUCKET_NAME = "users_app_profile_photos"
+    const val PRODUCT_DRAWINGS_BUCKET_NAME = "product_drawings"
+    const val CHARACTERISTIC_MEASUREMENT_SCHEMAS_BUCKET_NAME = "characteristic_measurement_schemas"
 }
