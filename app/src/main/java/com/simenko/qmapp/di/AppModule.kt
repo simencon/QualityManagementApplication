@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.work.WorkManager
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
@@ -12,8 +11,8 @@ import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
-import com.google.firebase.storage.ktx.storage
 import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.BuildConfig
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.repository.UserRepository
@@ -27,6 +26,7 @@ import com.simenko.qmapp.retrofit.implementation.interceptors.AuthorizationInter
 import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorHandlerInterceptor
 import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManager
 import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManagerImpl
+import com.simenko.qmapp.retrofit.implementation.security.MyTrustManager
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -70,12 +70,23 @@ object AppModule {
         @Named("authorization_interceptor") authInterceptor: Interceptor,
         @Named("error_handler_interceptor") errorHandlerInterceptor: Interceptor
     ): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addInterceptor(authInterceptor)
-            .addInterceptor(errorHandlerInterceptor)
-            .readTimeout(360, TimeUnit.SECONDS)
-            .connectTimeout(360, TimeUnit.SECONDS)
-            .build()
+        val tm = MyTrustManager()
+        return if (BuildConfig.DEBUG)
+            OkHttpClient.Builder()
+                .addInterceptor(authInterceptor)
+                .addInterceptor(errorHandlerInterceptor)
+                .readTimeout(360, TimeUnit.SECONDS)
+                .connectTimeout(360, TimeUnit.SECONDS)
+                .sslSocketFactory(tm.getFactory(), tm)
+                .hostnameVerifier { _, _ -> true }
+                .build()
+        else
+            OkHttpClient.Builder()
+                .addInterceptor(authInterceptor)
+                .addInterceptor(errorHandlerInterceptor)
+                .readTimeout(360, TimeUnit.SECONDS)
+                .connectTimeout(360, TimeUnit.SECONDS)
+                .build()
     }
 
     @Singleton
