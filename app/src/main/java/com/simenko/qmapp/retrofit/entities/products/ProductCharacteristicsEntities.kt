@@ -4,11 +4,11 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-data class NetworkCharGroup constructor(
+@Serializable
+data class NetworkCharGroup (
     var id: ID,
     val productLineId: ID,
     var ishElement: String?
@@ -17,8 +17,8 @@ data class NetworkCharGroup constructor(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharGroup::class, DatabaseCharGroup::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkCharSubGroup constructor(
+@Serializable
+data class NetworkCharSubGroup (
     var id: ID,
     val charGroupId: ID,
     var ishElement: String?,
@@ -29,12 +29,10 @@ data class NetworkCharSubGroup constructor(
 }
 
 
-
-@JsonClass(generateAdapter = true)
-data class NetworkCharacteristic constructor(
+@Serializable
+data class NetworkCharacteristic (
     var id: ID,
-    @Json(name="ishSubChar")
-    var ishSubCharId: ID,
+    @SerialName("ishSubChar") var ishSubCharId: ID,
     var charOrder: Int? = null,
     var charDesignation: String? = null,
     var charDescription: String? = null,
@@ -45,8 +43,8 @@ data class NetworkCharacteristic constructor(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristic::class, DatabaseCharacteristic::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkMetrix constructor(
+@Serializable
+data class NetworkMetrix (
     var id: ID,
     var charId: ID,
     var metrixOrder: Int? = null,
@@ -58,6 +56,7 @@ data class NetworkMetrix constructor(
     override fun toDatabaseModel() = ObjectTransformer(NetworkMetrix::class, DatabaseMetrix::class).transform(this)
 }
 
+@Serializable
 data class NetworkCharacteristicProductKind(
     val id: ID,
     val charId: ID,
@@ -67,6 +66,7 @@ data class NetworkCharacteristicProductKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicProductKind::class, DatabaseCharacteristicProductKind::class).transform(this)
 }
 
+@Serializable
 data class NetworkCharacteristicComponentKind(
     val id: ID,
     val charId: ID,
@@ -76,6 +76,7 @@ data class NetworkCharacteristicComponentKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicComponentKind::class, DatabaseCharacteristicComponentKind::class).transform(this)
 }
 
+@Serializable
 data class NetworkCharacteristicComponentStageKind(
     val id: ID,
     val charId: ID,
@@ -85,7 +86,7 @@ data class NetworkCharacteristicComponentStageKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicComponentStageKind::class, DatabaseCharacteristicComponentStageKind::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductTolerance(
     var id: ID,
     var metrixId: ID?,
@@ -99,7 +100,7 @@ data class NetworkProductTolerance(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductTolerance::class, DatabaseProductTolerance::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentTolerance(
     var id: ID,
     var metrixId: ID?,
@@ -113,7 +114,7 @@ data class NetworkComponentTolerance(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentTolerance::class, DatabaseComponentTolerance::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentInStageTolerance(
     var id: ID,
     var metrixId: ID?,

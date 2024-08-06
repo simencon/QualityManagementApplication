@@ -4,11 +4,11 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-data class NetworkInputForOrder constructor(
+@Serializable
+data class NetworkInputForOrder (
     var depId: ID,
     var depAbbr: String,
     var depOrder: Int,
@@ -22,8 +22,7 @@ data class NetworkInputForOrder constructor(
     var lineAbbr: String,
     var lineOrder: Int,
     var id: String,
-    @Json(name = "itemPreffix")
-    var itemPrefix: String,
+    @SerialName("itemPreffix") var itemPrefix: String,
     var itemId: ID,
     var itemVersionId: ID,
     var isDefault: Boolean,
@@ -43,8 +42,8 @@ data class NetworkInputForOrder constructor(
     override fun toDatabaseModel() = ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkOrdersStatus constructor(
+@Serializable
+data class NetworkOrdersStatus (
     var id: ID,
     var statusDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersStatus> {
@@ -54,7 +53,7 @@ data class NetworkOrdersStatus constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkReason(
     var id: ID,
     var reasonDescription: String? = null,
@@ -67,8 +66,8 @@ data class NetworkReason(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkOrdersType constructor(
+@Serializable
+data class NetworkOrdersType (
     var id: ID,
     var typeDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersType> {
@@ -78,8 +77,8 @@ data class NetworkOrdersType constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkOrder constructor(
+@Serializable
+data class NetworkOrder (
     var id: ID,
     var orderTypeId: ID,
     var reasonId: ID,
@@ -96,8 +95,8 @@ data class NetworkOrder constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkSubOrder constructor(
+@Serializable
+data class NetworkSubOrder (
     var id: ID = 0,
     var orderId: ID,
     var subOrderNumber: Long,
@@ -123,8 +122,8 @@ data class NetworkSubOrder constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkSubOrderTask constructor(
+@Serializable
+data class NetworkSubOrderTask (
     var id: ID,
     var subOrderId: ID,
     var charId: ID,
@@ -140,8 +139,8 @@ data class NetworkSubOrderTask constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkSample constructor(
+@Serializable
+data class NetworkSample (
     var id: ID,
     var subOrderId: ID,
     var sampleNumber: Int? = null
@@ -152,8 +151,8 @@ data class NetworkSample constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkResultsDecryption constructor(
+@Serializable
+data class NetworkResultsDecryption (
     var id: ID,
     var resultDecryption: String? = null
 ) : NetworkBaseModel<DatabaseResultsDecryption> {
@@ -163,8 +162,8 @@ data class NetworkResultsDecryption constructor(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkResult constructor(
+@Serializable
+data class NetworkResult (
     var id: ID = 0,
     var sampleId: ID,
     var metrixId: ID,

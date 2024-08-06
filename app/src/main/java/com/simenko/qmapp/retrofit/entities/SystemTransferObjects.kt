@@ -4,9 +4,9 @@ import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.DatabaseUser
 import com.simenko.qmapp.room.entities.DatabaseUserRole
 import com.simenko.qmapp.utils.ObjectTransformer
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkUserRole(
     val function: String,
     val roleLevel: String,
@@ -16,7 +16,7 @@ data class NetworkUserRole(
     override fun toDatabaseModel(): DatabaseUserRole = ObjectTransformer(NetworkUserRole::class, DatabaseUserRole::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkUser(
     val email: String,
     val teamMemberId: Long,
@@ -42,6 +42,7 @@ data class NetworkUser(
     override fun toDatabaseModel(): DatabaseUser = ObjectTransformer(NetworkUser::class, DatabaseUser::class).transform(this)
 }
 
+@Serializable
 data class NetworkErrorBody(
     val timestamp: String,
     val status: Int,

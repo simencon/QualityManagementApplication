@@ -4,9 +4,9 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkEmployee(
     var id: ID,
     var fullName: String,
@@ -25,8 +25,8 @@ data class NetworkEmployee(
     }
 }
 
-@JsonClass(generateAdapter = true)
-data class NetworkCompany constructor(
+@Serializable
+data class NetworkCompany (
     var id: ID,
     var companyName: String? = null,
     var companyCountry: String? = null,
@@ -43,7 +43,7 @@ data class NetworkCompany constructor(
     override fun toDatabaseModel() = ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkJobRole(
     val id: ID,
     val companyId: ID,
@@ -53,7 +53,7 @@ data class NetworkJobRole(
     override fun toDatabaseModel() = ObjectTransformer(NetworkJobRole::class, DatabaseJobRole::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkDepartment(
     val id: ID,
     val depAbbr: String?,
@@ -67,7 +67,7 @@ data class NetworkDepartment(
     override fun toDatabaseModel() = ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkSubDepartment(
     var id: ID,
     var depId: ID,
@@ -79,7 +79,7 @@ data class NetworkSubDepartment(
     override fun toDatabaseModel() = ObjectTransformer(NetworkSubDepartment::class, DatabaseSubDepartment::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkManufacturingChannel(
     var id: ID,
     var subDepId: ID,
@@ -91,7 +91,7 @@ data class NetworkManufacturingChannel(
     override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkManufacturingLine(
     var id: ID,
     var chId: ID,
@@ -103,7 +103,7 @@ data class NetworkManufacturingLine(
     override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkManufacturingOperation(
     var id: ID,
     var lineId: ID,
@@ -116,7 +116,7 @@ data class NetworkManufacturingOperation(
     override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkOperationsFlow(
     var id: ID,
     var currentOperationId: ID,

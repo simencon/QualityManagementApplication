@@ -11,6 +11,7 @@ import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.BuildConfig
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
@@ -28,19 +29,18 @@ import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.Erro
 import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManagerImpl
 import com.simenko.qmapp.retrofit.implementation.security.MyTrustManager
 import com.simenko.qmapp.room.implementation.*
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -56,12 +56,6 @@ object AppModule {
 //        .addMigrations(
 //            MigrationUtil.MIGRATION_1_2
 //        )
-        .build()
-
-    @Singleton
-    @Provides
-    fun provideMoshiInstance(): Moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
         .build()
 
     @Singleton
@@ -91,13 +85,16 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient): Retrofit = Retrofit
-        .Builder()
-        .baseUrl(DEFAULT_REST_API_URL)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .addConverterFactory(PairConverterFactory())
-        .client(client)
-        .build()
+    fun provideRetrofitInstance(client: OkHttpClient): Retrofit {
+        val networkJson = Json { ignoreUnknownKeys = true }
+        return Retrofit
+            .Builder()
+            .baseUrl(DEFAULT_REST_API_URL)
+            .addConverterFactory(PairConverterFactory())
+            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
+            .client(client)
+            .build()
+    }
 
     @Singleton
     @Provides

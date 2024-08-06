@@ -4,9 +4,9 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductLine(
     var id: ID,
     var companyId: ID,
@@ -27,7 +27,7 @@ data class NetworkProductLine(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductLine::class, DatabaseProductLine::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkKey(
     var id: ID,
     var projectId: ID,
@@ -38,7 +38,7 @@ data class NetworkKey(
     override fun toDatabaseModel() = ObjectTransformer(NetworkKey::class, DatabaseKey::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductBase(
     var id: ID,
     var projectId: ID?,
@@ -50,7 +50,7 @@ data class NetworkProductBase(
     }
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductKind(
     val id: ID,
     val projectId: ID,
@@ -61,7 +61,7 @@ data class NetworkProductKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductKind::class, DatabaseProductKind::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentKind(
     val id: ID,
     val productKindId: ID,
@@ -72,7 +72,7 @@ data class NetworkComponentKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentKind::class, DatabaseComponentKind::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentStageKind(
     val id: ID,
     val componentKindId: ID,
@@ -83,7 +83,7 @@ data class NetworkComponentStageKind(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageKind::class, DatabaseComponentStageKind::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductKindKey(
     val id: ID,
     val productKindId: ID,
@@ -93,7 +93,7 @@ data class NetworkProductKindKey(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductKindKey::class, DatabaseProductKindKey::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentKindKey(
     val id: ID,
     val componentKindId: ID,
@@ -103,7 +103,7 @@ data class NetworkComponentKindKey(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentKindKey::class, DatabaseComponentKindKey::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentStageKindKey(
     val id: ID,
     val componentStageKindId: ID,
@@ -113,7 +113,7 @@ data class NetworkComponentStageKindKey(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageKindKey::class, DatabaseComponentStageKindKey::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProduct(
     var id: ID,
     var productBaseId: ID,
@@ -124,7 +124,7 @@ data class NetworkProduct(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProduct::class, DatabaseProduct::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponent(
     var id: ID,
     var keyId: ID,
@@ -135,7 +135,7 @@ data class NetworkComponent(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponent::class, DatabaseComponent::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentStage(
     var id: ID,
     var keyId: ID,
@@ -146,7 +146,7 @@ data class NetworkComponentStage(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStage::class, DatabaseComponentStage::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductKindProduct(
     val id: ID,
     val productKindId: ID,
@@ -156,7 +156,7 @@ data class NetworkProductKindProduct(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductKindProduct::class, DatabaseProductKindProduct::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentKindComponent(
     val id: ID,
     val componentKindId: ID,
@@ -166,7 +166,7 @@ data class NetworkComponentKindComponent(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentKindComponent::class, DatabaseComponentKindComponent::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentStageKindComponentStage(
     val id: ID,
     val componentStageKindId: ID,
@@ -176,7 +176,7 @@ data class NetworkComponentStageKindComponentStage(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageKindComponentStage::class, DatabaseComponentStageKindComponentStage::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductComponent(
     val id: ID,
     val countOfComponents: Int,
@@ -187,7 +187,7 @@ data class NetworkProductComponent(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductComponent::class, DatabaseProductComponent::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentComponentStage(
     val id: ID,
     val componentId: ID,
@@ -197,7 +197,7 @@ data class NetworkComponentComponentStage(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentComponentStage::class, DatabaseComponentComponentStage::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkVersionStatus(
     var id: ID,
     var statusDescription: String?
@@ -206,7 +206,7 @@ data class NetworkVersionStatus(
     override fun toDatabaseModel() = ObjectTransformer(NetworkVersionStatus::class, DatabaseVersionStatus::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkProductVersion(
     var id: ID,
     var productId: ID,
@@ -219,7 +219,7 @@ data class NetworkProductVersion(
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductVersion::class, DatabaseProductVersion::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentVersion(
     var id: ID,
     var componentId: ID,
@@ -232,7 +232,7 @@ data class NetworkComponentVersion(
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentVersion::class, DatabaseComponentVersion::class).transform(this)
 }
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NetworkComponentStageVersion(
     var id: ID,
     var componentInStageId: ID,

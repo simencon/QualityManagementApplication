@@ -2,9 +2,9 @@ package com.simenko.qmapp.retrofit.entities.adapters
 
 import com.simenko.qmapp.retrofit.entities.products.NetworkComponent
 import com.simenko.qmapp.retrofit.entities.products.NetworkProductComponent
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class ProductComponentWithRelatedRecordsResponse(
     val productComponent: NetworkProductComponent,
     val component: NetworkComponent?
