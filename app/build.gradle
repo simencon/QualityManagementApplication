@@ -179,8 +179,8 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
 
 //    WorkManager with Coroutines
-    implementation "androidx.work:work-runtime-ktx:2.9.0"
-    androidTestImplementation "androidx.work:work-testing:2.9.0"
+    implementation "androidx.work:work-runtime-ktx:2.9.1"
+    androidTestImplementation "androidx.work:work-testing:2.9.1"
     androidTestImplementation 'com.google.truth:truth:1.1.5'
 
 }
