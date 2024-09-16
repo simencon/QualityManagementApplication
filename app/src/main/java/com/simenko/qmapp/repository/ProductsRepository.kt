@@ -295,7 +295,11 @@ class ProductsRepository @Inject constructor(
 
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
     fun CoroutineScope.insertComponentStageKindComponentStage(record: DomainComponentStageKindComponentStage) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.insertComponentStageKindComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageKindComponentStageDao.insertRecord(r) }
+        responseHandlerForSingleRecord({
+            service.insertComponentStageKindComponentStage(
+                record.toDatabaseModel().toNetworkModel()
+            )
+        }) { r -> database.componentStageKindComponentStageDao.insertRecord(r) }
     }
 
 
@@ -330,6 +334,7 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponentsComponentStages() = crudeOperations.syncRecordsAll(database.componentComponentStageDao) { service.getComponentsComponentStages() }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun CoroutineScope.deleteComponentComponentStage(id: ID): ReceiveChannel<Event<Resource<DomainComponentComponentStage>>> {
         return produce(Dispatchers.IO) {
@@ -445,6 +450,9 @@ class ProductsRepository @Inject constructor(
     val componentKinds: (ID) -> Flow<List<DomainComponentKind.DomainComponentKindComplete>> = { pId ->
         database.componentKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentKindKeysByParent: suspend (ID) -> List<DomainComponentKindKey> = { pId ->
+        database.componentKindKeyDao.getRecordsByParentId(pId).map { it.toDomainModel() }
+    }
     val componentKindKeys: (ID) -> Flow<List<DomainComponentKindKey.DomainComponentKindKeyComplete>> = { pId ->
         database.componentKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
@@ -467,6 +475,9 @@ class ProductsRepository @Inject constructor(
     }
     val componentStageKinds: (ID) -> Flow<List<DomainComponentStageKind.DomainComponentStageKindComplete>> = { pId ->
         database.componentStageKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+    val componentStageKindKeysByParent: suspend (ID) -> List<DomainComponentStageKindKey> = { pId ->
+        database.componentStageKindKeyDao.getRecordsByParentId(pId).map { it.toDomainModel() }
     }
     val componentStageKindKeys: (ID) -> Flow<List<DomainComponentStageKindKey.DomainComponentStageKindKeyComplete>> = { pId ->
         database.componentStageKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }

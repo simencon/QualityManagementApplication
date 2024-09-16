@@ -53,8 +53,10 @@ class ComponentComponentStageViewModel @Inject constructor(
             _componentComponentStage.value = _componentComponentStage.value.copy(componentId = route.componentId)
             _route.value = route
 
+            val stageDesignations = repository.componentStageKindKeysByParent(route.componentStageKindId).map { it.keyId }
+
             launch {
-                repository.allComponentComponentStages().collect { list ->
+                repository.allComponentComponentStages().collect { list: List<DomainComponentComponentStage.DomainComponentComponentStageComplete> ->
                     _componentExistingComponentStages.value = list
                         .filter { it.componentComponentStage.componentId == route.componentId }
                         .distinctBy { it.componentStage.componentStage.componentStage.id }
@@ -66,8 +68,7 @@ class ComponentComponentStageViewModel @Inject constructor(
                 combine(repository.allComponentComponentStages(), _componentExistingComponentStages) { list, componentExistingComponentStageIds ->
                     list
                         .filter { productComponent ->
-                            productComponent.componentStage.componentStageKindComponentStage.componentStageKindId == route.componentStageKindId &&
-                                    !componentExistingComponentStageIds.any { it == productComponent.componentStage.componentStage.componentStage.id }
+                            stageDesignations.contains(productComponent.componentStage.componentStage.key.id) && !componentExistingComponentStageIds.any { it == productComponent.componentStage.componentStage.componentStage.id }
                         }
                         .distinctBy { it.componentStage.componentStage.key.id }
                 }.collect {
@@ -76,10 +77,9 @@ class ComponentComponentStageViewModel @Inject constructor(
             }
 
             launch {
-                combine(_availableKeys, repository.allComponentComponentStages(), _componentExistingComponentStages) { keys, list, componentExistingComponentStageIds ->
+                combine(_filterKeyId, repository.allComponentComponentStages(), _componentExistingComponentStages) { keyId, list, componentExistingComponentStageIds ->
                     list.filter { productComponent ->
-                        keys.any { it.componentStage.componentStage.key.id == productComponent.componentStage.componentStage.key.id } &&
-                                !componentExistingComponentStageIds.any { it == productComponent.componentStage.componentStage.componentStage.id }
+                        keyId == productComponent.componentStage.componentStage.key.id && !componentExistingComponentStageIds.any { it == productComponent.componentStage.componentStage.componentStage.id }
                     }
                 }.collect {
                     _availableComponentComponentStages.value = it

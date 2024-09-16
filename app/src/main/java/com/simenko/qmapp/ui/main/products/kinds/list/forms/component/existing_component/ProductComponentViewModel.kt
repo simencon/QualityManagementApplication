@@ -55,6 +55,8 @@ class ProductComponentViewModel @Inject constructor(
                 _productAndComponentKind.value = Pair(it.productKind.productKind.id, it.componentKind.id)
             }
 
+            val componentDesignations = repository.componentKindKeysByParent(route.componentKindId).map { it.keyId }
+
             launch {
                 repository.allProductComponents().collect { list ->
                     _productExistingComponents.value = list
@@ -68,8 +70,7 @@ class ProductComponentViewModel @Inject constructor(
                 combine(repository.allProductComponents(), _productExistingComponents) { list, productExistingComponentIds ->
                     list
                         .filter { productComponent ->
-                            productComponent.component.componentKindComponent.componentKindId == route.componentKindId &&
-                                    !productExistingComponentIds.any { it == productComponent.component.component.component.id }
+                            componentDesignations.contains(productComponent.component.component.key.id) && !productExistingComponentIds.any { it == productComponent.component.component.component.id }
                         }
                         .distinctBy { it.component.component.key.id }
                 }.collect {
@@ -78,10 +79,9 @@ class ProductComponentViewModel @Inject constructor(
             }
 
             launch {
-                combine(_availableKeys, repository.allProductComponents(), _productExistingComponents) { keys, list, productExistingComponentIds ->
+                combine(_filterKeyId, repository.allProductComponents(), _productExistingComponents) { keyId, list, productExistingComponentIds ->
                     list.filter { productComponent ->
-                        keys.any { it.component.component.key.id == productComponent.component.component.key.id } &&
-                                !productExistingComponentIds.any { it == productComponent.component.component.component.id }
+                        keyId == productComponent.component.component.key.id && !productExistingComponentIds.any { it == productComponent.component.component.component.id }
                     }
                 }.collect {
                     _availableProductComponents.value = it
