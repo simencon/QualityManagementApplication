@@ -44,10 +44,10 @@ interface InvestigationsService {
     suspend fun getEarliestOrdersByStartingOrderDate(@Path("earliestOrderDate") earliestOrderDate: Long): Response<List<NetworkOrder>>
 
     @GET("$ORDERS/$HASH_CODE/{timeRange}")
-    suspend fun getOrdersHashCodeForDatePeriod(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<Int>
+    suspend fun getOrdersHashCodeForDatePeriod(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<Int>
 
     @GET("$ORDERS/{timeRange}")
-    suspend fun getOrdersByDateRange(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkOrder>>
+    suspend fun getOrdersByDateRange(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkOrder>>
 
     @POST(ORDERS)
     suspend fun createOrder(@Body networkOrder: NetworkOrder): Response<NetworkOrder>
@@ -63,10 +63,10 @@ interface InvestigationsService {
     suspend fun getOrder(@Path("id") id: ID): Response<NetworkOrder>
 
     @GET("$SUB_ORDERS/$HASH_CODE/{timeRange}")
-    suspend fun getSubOrdersHashCodeForDatePeriod(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<Int>
+    suspend fun getSubOrdersHashCodeForDatePeriod(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<Int>
 
     @GET("$SUB_ORDERS/{timeRange}")
-    suspend fun getSubOrdersByDateRange(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSubOrder>>
+    suspend fun getSubOrdersByDateRange(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSubOrder>>
 
     @POST(SUB_ORDERS)
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): Response<NetworkSubOrder>
@@ -82,10 +82,10 @@ interface InvestigationsService {
     suspend fun getSubOrder(@Path("id") id: ID): Response<NetworkSubOrder>
 
     @GET("$SUB_ORDER_TASKS/$HASH_CODE/{timeRange}")
-    suspend fun getTasksHashCodeForDatePeriod(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<Int>
+    suspend fun getTasksHashCodeForDatePeriod(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<Int>
 
     @GET("$SUB_ORDER_TASKS/{timeRange}")
-    suspend fun getTasksDateRange(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSubOrderTask>>
+    suspend fun getTasksDateRange(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSubOrderTask>>
 
     @POST(SUB_ORDER_TASKS)
     suspend fun createTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
@@ -107,10 +107,10 @@ interface InvestigationsService {
     suspend fun getSubOrderTask(@Path("id") id: ID): Response<NetworkSubOrderTask>
 
     @GET("$SAMPLES/$HASH_CODE/{timeRange}")
-    suspend fun getSamplesHashCodeForDatePeriod(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<Int>
+    suspend fun getSamplesHashCodeForDatePeriod(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<Int>
 
     @GET("$SAMPLES/{timeRange}")
-    suspend fun getSamplesByDateRange(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSample>>
+    suspend fun getSamplesByDateRange(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkSample>>
 
     @POST(SAMPLES)
     suspend fun createSample(@Body networkSample: NetworkSample): Response<NetworkSample>
@@ -125,10 +125,10 @@ interface InvestigationsService {
     suspend fun deleteSamples(@Body records: List<NetworkSample>): Response<List<NetworkSample>>
 
     @GET("$RESULTS/$HASH_CODE/{timeRange}")
-    suspend fun getResultsHashCodeForDatePeriod(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<Int>
+    suspend fun getResultsHashCodeForDatePeriod(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<Int>
 
     @GET("$RESULTS/{timeRange}")
-    suspend fun getResultsByDateRange(@Path("timeRange") @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkResult>>
+    suspend fun getResultsByDateRange(@Path(value = "timeRange", encoded = true) @PairParam timeRange: Pair<Long, Long>): Response<List<NetworkResult>>
 
     @POST("$RESULTS/$RECORDS")
     suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
