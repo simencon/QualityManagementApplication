@@ -65,7 +65,7 @@ object AppModule {
         @Named("error_handler_interceptor") errorHandlerInterceptor: Interceptor
     ): OkHttpClient {
         val tm = MyTrustManager()
-        return if (BuildConfig.DEBUG)
+        return if (BuildConfig.IS_API_LOCAL_HOST)
             OkHttpClient.Builder()
                 .addInterceptor(authInterceptor)
                 .addInterceptor(errorHandlerInterceptor)

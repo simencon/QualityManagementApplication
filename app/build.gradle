@@ -51,15 +51,18 @@ android {
             signingConfig signingConfigs.releaseConfig
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "IS_API_LOCAL_HOST", "false"
         }
         releaseDebug {
             signingConfig signingConfigs.releaseConfig
             debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "IS_API_LOCAL_HOST", "false"
         }
         debug {
             signingConfig signingConfigs.debugConfig
+            buildConfigField "boolean", "IS_API_LOCAL_HOST", "false"
         }
     }
     compileOptions {
@@ -72,6 +75,7 @@ android {
 
     buildFeatures {
         compose true
+        buildConfig true
     }
 
     composeOptions {

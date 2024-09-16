@@ -29,6 +29,7 @@ object Constants {
      * */
 
     const val DEFAULT_REST_API_URL = "https://no.api.yet.com"
+    const val LOCAL_HOST_REST_API_URL = "https://10.0.2.2:443/api/v1/skf/"
 
     const val BASED_ON_ACCESS = "basedOnAccess"
     const val WITH_RELATED_RECORDS = "withRelatedRecords"
