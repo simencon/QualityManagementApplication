@@ -288,10 +288,18 @@ class ProductsRepository @Inject constructor(
 
 
     suspend fun syncComponentKindsComponents() = crudeOperations.syncRecordsAll(database.componentKindComponentDao) { service.getComponentKindsComponents() }
-    fun CoroutineScope.insertComponentKindComponent(record: DomainComponentKindComponent) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.insertComponentKindComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindComponentDao.insertRecord(r) }
-    }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.insertComponentKindComponent(record: DomainComponentKindComponent) = produce {
+        val existingRecord = database.componentKindComponentDao.findExistingRecord(record.componentKindId, record.componentId)
+        if (existingRecord != null) {
+            send(Event(Resource.success(existingRecord.toDomainModel())))
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.insertComponentKindComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindComponentDao.insertRecord(r) }
+            }
+        }
+    }
 
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
     fun CoroutineScope.insertComponentStageKindComponentStage(record: DomainComponentStageKindComponentStage) = crudeOperations.run {

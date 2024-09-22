@@ -27,6 +27,7 @@ abstract class ProductComponentDao : DaoBaseModel<ID, ID, DatabaseProductCompone
         "select pcc.* from products_components_complete as pcc join `3_4_component_kinds_components` as ckc on pcc.componentId = ckc.componentId " +
                 "where (pcc.productId = :pId or :pId = -1) and (ckc.componentKindId = :ckId or :ckId = -1)"
     )
+//    ckId cold be a list
     abstract fun getRecordsCompleteForUI(pId: ID, ckId: ID): Flow<List<DatabaseProductComponent.DatabaseProductComponentComplete>>
 
     @Transaction

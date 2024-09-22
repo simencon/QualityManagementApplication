@@ -20,4 +20,7 @@ abstract class ComponentKindComponentDao : DaoBaseModel<ID, ID, DatabaseComponen
 
     @Query("SELECT * FROM `3_4_component_kinds_components` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentKindComponent?
+
+    @Query("SELECT * FROM `3_4_component_kinds_components` WHERE componentKindId = :itemKindId AND componentId = :itemId")
+    abstract suspend fun findExistingRecord(itemKindId: ID, itemId: ID): DatabaseComponentKindComponent?
 }

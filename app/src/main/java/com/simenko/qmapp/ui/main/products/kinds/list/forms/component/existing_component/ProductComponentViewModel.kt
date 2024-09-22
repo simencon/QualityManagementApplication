@@ -6,6 +6,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.products.DomainComponentKindComponent
 import com.simenko.qmapp.domain.entities.products.DomainProductComponent
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -205,7 +207,7 @@ class ProductComponentViewModel @Inject constructor(
                             mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
                         }
 
-                        Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productId, it.componentId)) }
+                        Status.SUCCESS -> resource.data?.let { makeComponentKindComponent(it.componentId) }
 
                         Status.ERROR -> {
                             mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
@@ -216,11 +218,31 @@ class ProductComponentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(record: Pair<ID, ID>) {
+    private suspend fun makeComponentKindComponent(componentId: ID) = withContext(Dispatchers.IO) {
+        val componentKindComponent = DomainComponentKindComponent(componentKindId = _productAndComponentKind.value.second, componentId = componentId)
+        with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> {
+                        mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                    }
+
+                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(componentId) }
+
+                    Status.ERROR -> {
+                        mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord(componentId: ID) {
         val productKindId = _productAndComponentKind.value.first
+        val productId = _productComponent.value.productId
         val componentKindId = _productAndComponentKind.value.second
         appNavigator.navigateTo(
-            route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = productKindId, productId = record.first, componentKindId = componentKindId, componentId = record.second),
+            route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = productKindId, productId = productId, componentKindId = componentKindId, componentId = componentId),
             popUpToRoute = Route.Main.ProductLines.ProductKinds.Products,
             inclusive = true
         )
