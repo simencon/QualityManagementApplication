@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import javax.inject.Inject
@@ -290,10 +291,10 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentKindsComponents() = crudeOperations.syncRecordsAll(database.componentKindComponentDao) { service.getComponentKindsComponents() }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun CoroutineScope.insertComponentKindComponent(record: DomainComponentKindComponent) = produce {
-        val existingRecord = database.componentKindComponentDao.findExistingRecord(record.componentKindId, record.componentId)
-        if (existingRecord != null) {
-            send(Event(Resource.success(existingRecord.toDomainModel())))
+    fun CoroutineScope.insertComponentKindComponent(record: DomainComponentKindComponent): ReceiveChannel<Event<Resource<DomainComponentKindComponent>>> {
+        val existingRecord = runBlocking { database.componentKindComponentDao.findExistingRecord(record.componentKindId, record.componentId) }
+        return if (existingRecord != null) {
+            produce { send(Event(Resource.success(existingRecord.toDomainModel()))) }
         } else {
             crudeOperations.run {
                 responseHandlerForSingleRecord({ service.insertComponentKindComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindComponentDao.insertRecord(r) }

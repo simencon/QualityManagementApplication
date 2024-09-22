@@ -292,7 +292,6 @@ interface ProductsService {
 
     @GET(COMPONENT_KINDS_COMPONENTS)
     suspend fun getComponentKindsComponents(): Response<List<NetworkComponentKindComponent>>
-
     @POST(COMPONENT_KINDS_COMPONENTS)
     suspend fun insertComponentKindComponent(@Body record: NetworkComponentKindComponent): Response<NetworkComponentKindComponent>
 

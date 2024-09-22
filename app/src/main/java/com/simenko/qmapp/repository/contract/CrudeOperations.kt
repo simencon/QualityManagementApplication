@@ -54,7 +54,7 @@ class CrudeOperations @Inject constructor(
         taskExecutor: suspend () -> Response<N>,
         resultHandler: (DB) -> Unit
     ): ReceiveChannel<Event<Resource<DM>>> = produce {
-        runCatching {
+        try {
             userRepository.refreshTokenIfNecessary()
             send(Event(Resource.loading(null)))
             taskExecutor().let { response ->
@@ -62,15 +62,15 @@ class CrudeOperations @Inject constructor(
                     response.body()?.also {
                         resultHandler(it.toDatabaseModel())
                         send(Event(Resource.success(it.toDatabaseModel().toDomainModel())))
-                    } ?: send(Event(Resource.error("No response body", null)))
+                    } ?: run {
+                        send(Event(Resource.error("No response body", null)))
+                    }
                 } else {
                     send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
                 }
             }
-        }.exceptionOrNull().also {
-            if (it != null) {
-                send(Event(Resource.error(it.message ?: "Network Error", null)))
-            }
+        } catch (e: Throwable) {
+            send(Event(Resource.error(e.message ?: "Network Error", null)))
         }
     }
 
@@ -149,7 +149,7 @@ class CrudeOperations @Inject constructor(
         return result
     }
 
-    suspend fun <N, DB, DM, DAO,ID, PID> syncRecordsByTimeRange(
+    suspend fun <N, DB, DM, DAO, ID, PID> syncRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
         dao: DAO,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,

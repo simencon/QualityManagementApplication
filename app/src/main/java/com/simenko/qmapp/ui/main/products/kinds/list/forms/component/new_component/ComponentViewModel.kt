@@ -20,6 +20,7 @@ import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
@@ -31,7 +32,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -152,7 +152,7 @@ class ComponentViewModel @Inject constructor(
                 _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
                 _fillInState.value = FillInInitialState
             }
-        }?:run {
+        } ?: run {
             if (value.isEmpty()) {
                 _productComponent.value = _productComponent.value.copy(
                     productComponent = productComponent.copy(countOfComponents = ZeroValue.num.toInt())
@@ -201,7 +201,7 @@ class ComponentViewModel @Inject constructor(
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(it, isNewRecord) }
+                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeComponentKindComponent(it) else navBackToRecord(it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -211,15 +211,15 @@ class ComponentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun makeProductComponent(componentId: ID, isNewRecord: Boolean) = withContext(Dispatchers.IO) {
-        val productComponent = _productComponent.value.productComponent.copy(componentId = componentId)
+    private fun CoroutineScope.makeComponentKindComponent(componentId: ID) = launch(Dispatchers.IO) {
+        val componentKindComponent = _productComponent.value.component.componentKindComponent.copy(componentId = componentId)
         with(repository) {
-            if (isNewRecord) insertProductComponent(productComponent) else updateProductComponent(productComponent)
+            insertComponentKindComponent(componentKindComponent)
         }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeComponentKindComponent(componentId) else navBackToRecord(it) }
+                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -229,13 +229,13 @@ class ComponentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun makeComponentKindComponent(componentId: ID) = withContext(Dispatchers.IO) {
-        val componentKindComponent = _productComponent.value.component.componentKindComponent.copy(componentId = componentId)
-        with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
+    private fun CoroutineScope.makeProductComponent(componentKindComponentId: ID) = launch(Dispatchers.IO) {
+        val productComponent = _productComponent.value.productComponent.copy(componentKindComponentId = componentKindComponentId)
+        with(repository) { insertProductComponent(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(componentId) }
+                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState

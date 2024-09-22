@@ -62,7 +62,7 @@ android {
         }
         debug {
             signingConfig signingConfigs.debugConfig
-            buildConfigField "boolean", "IS_API_LOCAL_HOST", "false"
+            buildConfigField "boolean", "IS_API_LOCAL_HOST", "true"
         }
     }
     compileOptions {
