@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "181f565d7728f0b9b97b7d4e426a4334",
+    "identityHash": "916d45db5053d794460dffc736f324f1",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2746,7 +2746,7 @@
       },
       {
         "tableName": "2_4_products_components",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `countOfComponents` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `componentId` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `countOfComponents` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `componentKindComponentId` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentKindComponentId`) REFERENCES `3_4_component_kinds_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2767,8 +2767,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "componentId",
-            "columnName": "componentId",
+            "fieldPath": "componentKindComponentId",
+            "columnName": "componentKindComponentId",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -2790,13 +2790,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_2_4_products_components_productId` ON `${TABLE_NAME}` (`productId`)"
           },
           {
-            "name": "index_2_4_products_components_componentId",
+            "name": "index_2_4_products_components_componentKindComponentId",
             "unique": false,
             "columnNames": [
-              "componentId"
+              "componentKindComponentId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_2_4_products_components_componentId` ON `${TABLE_NAME}` (`componentId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_2_4_products_components_componentKindComponentId` ON `${TABLE_NAME}` (`componentKindComponentId`)"
           }
         ],
         "foreignKeys": [
@@ -2812,11 +2812,11 @@
             ]
           },
           {
-            "table": "4_components",
+            "table": "3_4_component_kinds_components",
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "componentId"
+              "componentKindComponentId"
             ],
             "referencedColumns": [
               "id"
@@ -4824,7 +4824,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '181f565d7728f0b9b97b7d4e426a4334')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '916d45db5053d794460dffc736f324f1')"
     ]
   }
 }

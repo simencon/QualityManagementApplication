@@ -767,14 +767,21 @@ data class DatabaseComponentKindComponent(
             parentColumn = "componentId",
             entityColumn = "id"
         )
-        val component: DatabaseComponent.DatabaseComponentComplete
+        val component: DatabaseComponent.DatabaseComponentComplete,
+        @Relation(
+            entity = DatabaseComponentVersion::class,
+            parentColumn = "componentId",
+            entityColumn = "componentId"
+        )
+        val versions: List<DatabaseComponentVersion>
     ) : DatabaseBaseModel<Any?, DomainComponentKindComponent.DomainComponentKindComponentComplete, ID, ID> {
         override fun getRecordId() = componentKindComponent.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainComponentKindComponent.DomainComponentKindComponentComplete(
             componentKindComponent = this.componentKindComponent.toDomainModel(),
             componentKind = this.componentKind.toDomainModel(),
-            component = this.component.toDomainModel()
+            component = this.component.toDomainModel(),
+            versions = this.versions.map { it.toDomainModel() }
         )
     }
 }
@@ -850,9 +857,9 @@ data class DatabaseComponentStageKindComponentStage(
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DatabaseComponent::class,
+            entity = DatabaseComponentKindComponent::class,
             parentColumns = arrayOf("id"),
-            childColumns = arrayOf("componentId"),
+            childColumns = arrayOf("componentKindComponentId"),
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE
         )
@@ -865,7 +872,7 @@ data class DatabaseProductComponent(
     @ColumnInfo(index = true)
     val productId: ID,
     @ColumnInfo(index = true)
-    val componentId: ID
+    val componentKindComponentId: ID
 ) : DatabaseBaseModel<NetworkProductComponent, DomainProductComponent, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductComponent::class, NetworkProductComponent::class).transform(this)
@@ -886,16 +893,10 @@ data class DatabaseProductComponent(
         val product: DatabaseProduct.DatabaseProductComplete,
         @Relation(
             entity = DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete::class,
-            parentColumn = "componentId",
-            entityColumn = "componentId"
+            parentColumn = "componentKindComponentId",
+            entityColumn = "id"
         )
         val component: DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete,
-        @Relation(
-            entity = DatabaseComponentVersion::class,
-            parentColumn = "componentId",
-            entityColumn = "componentId"
-        )
-        val versions: List<DatabaseComponentVersion>
     ) : DatabaseBaseModel<Any?, DomainProductComponent.DomainProductComponentComplete, ID, ID> {
         override fun getRecordId() = productComponent.id
         override fun toNetworkModel() = null
@@ -903,7 +904,6 @@ data class DatabaseProductComponent(
             productComponent = this.productComponent.toDomainModel(),
             product = this.product.toDomainModel(),
             component = this.component.toDomainModel(),
-            versions = this.versions.map { it.toDomainModel() }
         )
     }
 }

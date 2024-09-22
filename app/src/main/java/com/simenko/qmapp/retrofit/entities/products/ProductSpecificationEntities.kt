@@ -181,7 +181,7 @@ data class NetworkProductComponent(
     val id: ID,
     val countOfComponents: Int,
     val productId: ID,
-    val componentId: ID
+    val componentKindComponentId: ID
 ) : NetworkBaseModel<DatabaseProductComponent> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductComponent::class, DatabaseProductComponent::class).transform(this)

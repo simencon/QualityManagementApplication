@@ -373,7 +373,11 @@ data class DomainComponentStage(
         override fun getName(): String {
             return StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
         }
-        override fun setIsSelected(value: Boolean) { isSelected = value }
+
+        override fun setIsSelected(value: Boolean) {
+            isSelected = value
+        }
+
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),
@@ -423,7 +427,8 @@ data class DomainComponentKindComponent(
     data class DomainComponentKindComponentComplete(
         val componentKindComponent: DomainComponentKindComponent = DomainComponentKindComponent(),
         val componentKind: DomainComponentKind = DomainComponentKind(),
-        val component: DomainComponent.DomainComponentComplete = DomainComponent.DomainComponentComplete()
+        val component: DomainComponent.DomainComponentComplete = DomainComponent.DomainComponentComplete(),
+        val versions: List<DomainComponentVersion> = emptyList()
     ) : DomainBaseModel<DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete>() {
         override fun getRecordId() = componentKindComponent.id
         override fun getParentId() = componentKindComponent.componentKindId
@@ -432,7 +437,8 @@ data class DomainComponentKindComponent(
         override fun toDatabaseModel() = DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete(
             componentKindComponent = this.componentKindComponent.toDatabaseModel(),
             componentKind = this.componentKind.toDatabaseModel(),
-            component = this.component.toDatabaseModel()
+            component = this.component.toDatabaseModel(),
+            versions = this.versions.map { it.toDatabaseModel() }
         )
     }
 }
@@ -466,7 +472,7 @@ data class DomainProductComponent(
     val id: ID = NoRecord.num,
     val countOfComponents: Int = ZeroValue.num.toInt(),
     val productId: ID = NoRecord.num,
-    val componentId: ID = NoRecord.num
+    val componentKindComponentId: ID = NoRecord.num
 ) : DomainBaseModel<DatabaseProductComponent>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -476,18 +482,16 @@ data class DomainProductComponent(
         val productComponent: DomainProductComponent = DomainProductComponent(),
         val product: DomainProduct.DomainProductComplete = DomainProduct.DomainProductComplete(),
         val component: DomainComponentKindComponent.DomainComponentKindComponentComplete = DomainComponentKindComponent.DomainComponentKindComponentComplete(),
-        val versions: List<DomainComponentVersion> = emptyList(),
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseProductComponent.DatabaseProductComponentComplete>() {
-        override fun getRecordId() = productComponent.componentId
+        override fun getRecordId() = component.component.component.id
         override fun getParentId() = productComponent.productId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel() = DatabaseProductComponent.DatabaseProductComponentComplete(
             productComponent = this.productComponent.toDatabaseModel(),
             product = this.product.toDatabaseModel(),
             component = this.component.toDatabaseModel(),
-            versions = this.versions.map { it.toDatabaseModel() }
         )
     }
 }

@@ -24,7 +24,7 @@ abstract class ProductComponentDao : DaoBaseModel<ID, ID, DatabaseProductCompone
 
     @Transaction
     @Query(
-        "select pcc.* from products_components_complete as pcc join `3_4_component_kinds_components` as ckc on pcc.componentId = ckc.componentId " +
+        "select pcc.* from products_components_complete as pcc join `3_4_component_kinds_components` as ckc on pcc.componentKindComponentId = ckc.id " +
                 "where (pcc.productId = :pId or :pId = -1) and (ckc.componentKindId = :ckId or :ckId = -1)"
     )
 //    ckId cold be a list
@@ -32,8 +32,8 @@ abstract class ProductComponentDao : DaoBaseModel<ID, ID, DatabaseProductCompone
 
     @Transaction
     @Query(
-        "select pcc.* from products_components_complete as pcc join `3_4_component_kinds_components` as ckc on pcc.componentId = ckc.componentId " +
-                "where pcc.productId = :pId and ckc.componentKindId = :ckId and pcc.componentId = :cId"
+        "select pcc.* from products_components_complete as pcc join `3_4_component_kinds_components` as ckc on pcc.componentKindComponentId = ckc.id " +
+                "where pcc.productId = :pId and ckc.componentKindId = :ckId and ckc.componentId = :cId"
     )
     abstract suspend fun getRecordCompleteById(pId: ID, ckId: ID, cId: ID): DatabaseProductComponent.DatabaseProductComponentComplete?
 

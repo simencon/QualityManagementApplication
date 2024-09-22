@@ -131,7 +131,7 @@ fun Component(
     onClickDetails: (ID) -> Unit = {},
     onClickVersions: (ID) -> Unit
 ) {
-    val borderColor = if (versionsForItem == ComponentPref.char.toString() + component.productComponent.componentId) MaterialTheme.colorScheme.outline else null
+    val borderColor = if (versionsForItem == ComponentPref.char.toString() + component.component.component.component.id) MaterialTheme.colorScheme.outline else null
     val containerColor = if (component.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
@@ -143,13 +143,13 @@ fun Component(
                         modifier = Modifier.weight(0.48f),
                         borderColor = borderColor,
                         containerColor = containerColor,
-                        onClick = { onClickVersions(component.productComponent.componentId) }) {
+                        onClick = { onClickVersions(component.component.component.component.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 modifier = Modifier.height(15.dp),
                                 imageVector = Icons.Filled.Circle,
                                 contentDescription = "Is filled",
-                                tint = if (component.versions.isNotEmpty()) Color.Green else Color.Red,
+                                tint = if (component.component.versions.isNotEmpty()) Color.Green else Color.Red,
                             )
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = if (borderColor == null) Icons.AutoMirrored.Filled.NavigateNext else Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Show versions")
@@ -159,7 +159,7 @@ fun Component(
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.2275f, title = "Component:", text = component.component.component.let { concatTwoStrings3(it.key.componentKey, it.component.componentDesignation) })
             }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(component.productComponent.componentId) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(component.component.component.component.id) }) {
                 Icon(
                     imageVector = if (component.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (component.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)

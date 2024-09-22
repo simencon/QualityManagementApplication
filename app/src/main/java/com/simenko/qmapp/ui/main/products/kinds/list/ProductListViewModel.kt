@@ -231,7 +231,7 @@ class ProductListViewModel @Inject constructor(
     val components = _components.flatMapLatest { components ->
         _componentsVisibility.flatMapLatest { visibility ->
             val cpy =
-                components.map { it.copy(detailsVisibility = it.productComponent.componentId == visibility.first.num, isExpanded = it.productComponent.componentId == visibility.second.num) }
+                components.map { it.copy(detailsVisibility = it.component.component.component.id == visibility.first.num, isExpanded = it.component.component.component.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -297,7 +297,7 @@ class ProductListViewModel @Inject constructor(
 
     fun onDeleteComponentClick(it: ID) = viewModelScope.launch {
         components.value.find { it.isExpanded }?.let { productComponent ->
-            if (productComponent.productComponent.componentId == it) {
+            if (productComponent.component.component.component.id == it) {
                 with(repository) {
                     deleteProductComponent(productComponent.productComponent.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
