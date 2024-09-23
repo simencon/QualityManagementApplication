@@ -43,7 +43,7 @@ data object FillInSuccessState : FillInState()
 data class FillInErrorState(val errorMsg: String) : FillInState()
 
 @JvmInline
-value class SelectedNumber(val num: Long)
+value class SelectedNumber(val num: ID)
 
 val NoRecord = SelectedNumber(-1L)
 val ZeroValue = SelectedNumber(0L)

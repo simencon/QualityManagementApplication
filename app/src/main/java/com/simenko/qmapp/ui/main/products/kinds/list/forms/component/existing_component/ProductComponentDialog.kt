@@ -40,6 +40,6 @@ fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Ma
         isLoadingState = isLoading,
         onDismiss = { if (!isLoading) viewModel.navBack() },
         onItemSelect = viewModel::onSelectComponent,
-        onAddClick = { if (!isLoading) viewModel.makeRecord() }
+        onAddClick = { if (!isLoading) viewModel.makeComponentKindComponent() }
     )
 }

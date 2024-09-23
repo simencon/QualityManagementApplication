@@ -15,6 +15,7 @@ import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +37,8 @@ class ProductComponentViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
 ) : ViewModel() {
-    private val _productAndComponentKind = MutableStateFlow(Pair(NoRecord.num, NoRecord.num))
+    private val _productKindId = MutableStateFlow(NoRecord.num)
+    private val _componentKindComponent = MutableStateFlow(DomainComponentKindComponent())
     private val _productComponent = MutableStateFlow(DomainProductComponent())
     private val _filterKeyId = MutableStateFlow(NoRecord.num)
     private val _filterProductId = MutableStateFlow(NoRecord.num)
@@ -51,18 +52,16 @@ class ProductComponentViewModel @Inject constructor(
      * */
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.AddProductComponent) {
         viewModelScope.launch(Dispatchers.IO) {
-
+            repository.componentKind(route.componentKindId).let { _productKindId.value = it.productKind.productKind.id }
+            _componentKindComponent.value = _componentKindComponent.value.copy(componentKindId = route.componentKindId)
             _productComponent.value = _productComponent.value.copy(productId = route.productId)
-            repository.componentKind(route.componentKindId).let {
-                _productAndComponentKind.value = Pair(it.productKind.productKind.id, it.componentKind.id)
-            }
 
             val componentDesignations = repository.componentKindKeysByParent(route.componentKindId).map { it.keyId }
 
             launch {
                 repository.allProductComponents().collect { list ->
                     _productExistingComponents.value = list
-                        .filter { it.productComponent.productId == route.productId }
+                        .filter { it.productComponent.productId == route.productId && it.component.componentKind.id == route.componentKindId }
                         .distinctBy { it.component.component.component.id }
                         .map { it.component.component.component.id }
                 }
@@ -129,7 +128,7 @@ class ProductComponentViewModel @Inject constructor(
     val availableComponents = _availableProductComponents.flatMapLatest { list ->
         _filterKeyId.flatMapLatest { keyId ->
             _filterProductId.flatMapLatest { productId ->
-                _productComponent.flatMapLatest { productComponent ->
+                _componentKindComponent.flatMapLatest { componentKindComponent ->
                     _searchValue.flatMapLatest { searchValue ->
                         flow {
                             emit(list
@@ -139,7 +138,7 @@ class ProductComponentViewModel @Inject constructor(
                                             (searchValue.isEmpty() || it.component.component.component.componentDesignation.lowercase().contains(searchValue.lowercase()))
                                 }
                                 .distinctBy { it.component.component.component.id }
-                                .map { it.component.component.copy(isSelected = it.component.component.component.id == productComponent.componentId) })
+                                .map { it.component.component.copy(isSelected = it.component.component.component.id == componentKindComponent.componentId) })
                         }
                     }
                 }
@@ -148,8 +147,8 @@ class ProductComponentViewModel @Inject constructor(
     }
 
     fun onSelectComponent(id: ID) {
-        if (_productComponent.value.componentId != id) {
-            _productComponent.value = _productComponent.value.copy(componentId = id)
+        if (_componentKindComponent.value.componentId != id) {
+            _componentKindComponent.value = _componentKindComponent.value.copy(componentId = id)
         }
     }
 
@@ -185,8 +184,10 @@ class ProductComponentViewModel @Inject constructor(
         }
     }
 
-    val isReadyToAdd = _productComponent.flatMapLatest {
-        flow { emit(it.productId != NoRecord.num && it.componentId != NoRecord.num) }
+    val isReadyToAdd = _productComponent.flatMapLatest { productComponent ->
+        _componentKindComponent.flatMapLatest { componentKindComponent ->
+            flow { emit(productComponent.productId != NoRecord.num && componentKindComponent.componentId != NoRecord.num && productComponent.countOfComponents > 0) }
+        }
     }
 
     private val _isLoading = MutableStateFlow(false)
@@ -196,38 +197,15 @@ class ProductComponentViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-
-    fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-        _addWasClicked.value = true
-        if (_productComponent.value.let { it.productId != NoRecord.num && it.componentId != NoRecord.num && it.countOfComponents > ZeroValue.num.toInt() }) {
-            with(repository) { insertProductComponent(_productComponent.value) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {
-                            mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
-                        }
-
-                        Status.SUCCESS -> resource.data?.let { makeComponentKindComponent(it.componentId) }
-
-                        Status.ERROR -> {
-                            mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun makeComponentKindComponent(componentId: ID) = withContext(Dispatchers.IO) {
-        val componentKindComponent = DomainComponentKindComponent(componentKindId = _productAndComponentKind.value.second, componentId = componentId)
-        with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
+    fun makeComponentKindComponent() = viewModelScope.launch(Dispatchers.IO) {
+        with(repository) { insertComponentKindComponent(_componentKindComponent.value) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> {
                         mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
                     }
 
-                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(componentId) }
+                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(it) }
 
                     Status.ERROR -> {
                         mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
@@ -237,10 +215,30 @@ class ProductComponentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(componentId: ID) {
-        val productKindId = _productAndComponentKind.value.first
+    private fun CoroutineScope.makeProductComponent(componentKindComponentId: ID) = launch(Dispatchers.IO) {
+        _addWasClicked.value = true
+        with(repository) { insertProductComponent(_productComponent.value.copy(componentKindComponentId = componentKindComponentId)) }.consumeEach { event ->
+            event.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.LOADING -> {
+                        mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                    }
+
+                    Status.SUCCESS -> resource.data?.let { navBackToRecord() }
+
+                    Status.ERROR -> {
+                        mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord() {
+        val productKindId = _productKindId.value
         val productId = _productComponent.value.productId
-        val componentKindId = _productAndComponentKind.value.second
+        val componentKindId = _componentKindComponent.value.componentKindId
+        val componentId = _componentKindComponent.value.componentId
         appNavigator.navigateTo(
             route = Route.Main.ProductLines.ProductKinds.Products.ProductsList(productKindId = productKindId, productId = productId, componentKindId = componentKindId, componentId = componentId),
             popUpToRoute = Route.Main.ProductLines.ProductKinds.Products,
