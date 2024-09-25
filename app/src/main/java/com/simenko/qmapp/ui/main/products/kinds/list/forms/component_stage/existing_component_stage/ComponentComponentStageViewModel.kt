@@ -58,7 +58,7 @@ class ComponentComponentStageViewModel @Inject constructor(
             launch {
                 repository.allComponentComponentStages().collect { list: List<DomainComponentComponentStage.DomainComponentComponentStageComplete> ->
                     _componentExistingComponentStages.value = list
-                        .filter { it.componentComponentStage.componentId == route.componentId }
+                        .filter { it.componentComponentStage.componentId == route.componentId && it.componentStage.componentStageKind.id == route.componentStageKindId }
                         .distinctBy { it.componentStage.componentStage.componentStage.id }
                         .map { it.componentStage.componentStage.componentStage.id }
                 }

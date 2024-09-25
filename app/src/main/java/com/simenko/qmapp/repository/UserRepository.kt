@@ -234,7 +234,7 @@ class UserRepository @Inject constructor(
         get() = _user.fbToken
 
     //    ToDoMe - not yet in CleanArchitecture
-    suspend fun refreshTokenIfNecessary() = suspendCoroutine { continuation ->
+    suspend fun getActualFbToken() = suspendCoroutine { continuation ->
         if (Instant.now().epochSecond + _user.epochFbDiff < _user.fbTokenExp) {
             continuation.resume(_user.fbToken)
         } else {

@@ -322,6 +322,7 @@ class ProductsRepository @Inject constructor(
             if (response.isSuccessful) {
                 response.body()?.let { result ->
                     database.productComponentDao.deleteRecord(result.productComponent.toDatabaseModel())
+                    result.componentKindComponent?.let { database.componentKindComponentDao.deleteRecord(it.toDatabaseModel()) }
                     result.component?.let { database.componentDao.deleteRecord(it.toDatabaseModel()) }
                     send(Event(Resource.success(result.productComponent.toDatabaseModel().toDomainModel())))
                 } ?: run {
