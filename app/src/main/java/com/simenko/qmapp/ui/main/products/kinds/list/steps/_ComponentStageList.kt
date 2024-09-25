@@ -118,7 +118,7 @@ fun ComponentStage(
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickVersions: (ID) -> Unit
 ) {
-    val borderColor = if (versionsForItem == ComponentStagePref.char.toString() + componentStage.componentComponentStage.componentStageId) MaterialTheme.colorScheme.outline else null
+    val borderColor = if (versionsForItem == ComponentStagePref.char.toString() + componentStage.componentComponentStage.stageKindStageId) MaterialTheme.colorScheme.outline else null
     val containerColor = if (componentStage.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
@@ -130,13 +130,13 @@ fun ComponentStage(
                         modifier = Modifier.weight(0.46f),
                         borderColor = borderColor,
                         containerColor = containerColor,
-                        onClick = { onClickVersions(componentStage.componentComponentStage.componentStageId) }) {
+                        onClick = { onClickVersions(componentStage.componentComponentStage.stageKindStageId) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 modifier = Modifier.height(15.dp),
                                 imageVector = Icons.Filled.Circle,
                                 contentDescription = "Is filled",
-                                tint = if (componentStage.versions.isNotEmpty()) Color.Green else Color.Red,
+                                tint = if (componentStage.componentStage.versions.isNotEmpty()) Color.Green else Color.Red,
                             )
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = if (borderColor == null) Icons.AutoMirrored.Filled.NavigateNext else Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Show versions")

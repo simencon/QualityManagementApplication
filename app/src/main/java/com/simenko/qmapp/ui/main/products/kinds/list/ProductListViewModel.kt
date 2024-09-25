@@ -230,8 +230,12 @@ class ProductListViewModel @Inject constructor(
 
     val components = _components.flatMapLatest { components ->
         _componentsVisibility.flatMapLatest { visibility ->
-            val cpy =
-                components.map { it.copy(detailsVisibility = it.component.component.component.id == visibility.first.num, isExpanded = it.component.component.component.id == visibility.second.num) }
+            val cpy = components.map {
+                it.copy(
+                    detailsVisibility = it.component.component.component.id == visibility.first.num,
+                    isExpanded = it.component.component.component.id == visibility.second.num
+                )
+            }
             flow { emit(cpy) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -255,8 +259,8 @@ class ProductListViewModel @Inject constructor(
         _componentStagesVisibility.flatMapLatest { visibility ->
             val cpy = components.map {
                 it.copy(
-                    detailsVisibility = it.componentComponentStage.componentStageId == visibility.first.num,
-                    isExpanded = it.componentComponentStage.componentStageId == visibility.second.num
+                    detailsVisibility = it.componentStage.componentStage.componentStage.id == visibility.first.num,
+                    isExpanded = it.componentStage.componentStage.componentStage.id == visibility.second.num
                 )
             }
             flow { emit(cpy) }
@@ -315,7 +319,7 @@ class ProductListViewModel @Inject constructor(
 
     fun onDeleteComponentStageClick(it: ID) = viewModelScope.launch {
         componentStages.value.find { it.isExpanded }?.let { componentStage ->
-            if (componentStage.componentComponentStage.componentStageId == it) {
+            if (componentStage.componentStage.componentStage.componentStage.id == it) {
                 with(repository) {
                     deleteComponentComponentStage(componentStage.componentComponentStage.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
