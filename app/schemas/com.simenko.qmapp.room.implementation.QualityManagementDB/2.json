@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "916d45db5053d794460dffc736f324f1",
+    "identityHash": "c6c25f1969f30fe4e2bf273c7b2a0869",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2826,7 +2826,7 @@
       },
       {
         "tableName": "4_6_components_component_stages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `componentStageId` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `stageKindStageId` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`stageKindStageId`) REFERENCES `5_6_component_stage_kinds_component_stages`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2841,8 +2841,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "componentStageId",
-            "columnName": "componentStageId",
+            "fieldPath": "stageKindStageId",
+            "columnName": "stageKindStageId",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -2864,13 +2864,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_4_6_components_component_stages_componentId` ON `${TABLE_NAME}` (`componentId`)"
           },
           {
-            "name": "index_4_6_components_component_stages_componentStageId",
+            "name": "index_4_6_components_component_stages_stageKindStageId",
             "unique": false,
             "columnNames": [
-              "componentStageId"
+              "stageKindStageId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_4_6_components_component_stages_componentStageId` ON `${TABLE_NAME}` (`componentStageId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_4_6_components_component_stages_stageKindStageId` ON `${TABLE_NAME}` (`stageKindStageId`)"
           }
         ],
         "foreignKeys": [
@@ -2886,11 +2886,11 @@
             ]
           },
           {
-            "table": "6_components_in_stages",
+            "table": "5_6_component_stage_kinds_component_stages",
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "componentStageId"
+              "stageKindStageId"
             ],
             "referencedColumns": [
               "id"
@@ -4824,7 +4824,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '916d45db5053d794460dffc736f324f1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c6c25f1969f30fe4e2bf273c7b2a0869')"
     ]
   }
 }

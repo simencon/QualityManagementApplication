@@ -191,7 +191,7 @@ data class NetworkProductComponent(
 data class NetworkComponentComponentStage(
     val id: ID,
     val componentId: ID,
-    val componentStageId: ID
+    val stageKindStageId: ID
 ) : NetworkBaseModel<DatabaseComponentComponentStage> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentComponentStage::class, DatabaseComponentComponentStage::class).transform(this)
