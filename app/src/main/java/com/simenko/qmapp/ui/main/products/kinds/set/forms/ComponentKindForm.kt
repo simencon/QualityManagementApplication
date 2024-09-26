@@ -108,6 +108,14 @@ fun ComponentKindForm(
                 contentDescription = Triple(Icons.Outlined.Info, "Component description", "Enter description"),
             )
             Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(componentKind.componentKind.quantityUnits, fillInErrors.quantityUnitsError) { viewModel.onSetQuantityUnits(it) },
+                keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.Info, "Items quantity units", "Enter quantity units"),
+            )
+            Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)
                 Text(
                     modifier = Modifier

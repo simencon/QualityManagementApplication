@@ -92,7 +92,10 @@ fun ComponentStageKindForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(componentStageKind.componentStageKind.componentStageOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it.toString() }, fillInErrors.componentStageKindOrderError) { viewModel.onSetComponentStageKindOrder(it) },
+                valueParam = Triple(
+                    componentStageKind.componentStageKind.componentStageOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it.toString() },
+                    fillInErrors.componentStageKindOrderError
+                ) { viewModel.onSetComponentStageKindOrder(it) },
                 keyboardNavigation = Pair(orderFR) { descriptionFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Order", "Enter order"),
@@ -104,6 +107,14 @@ fun ComponentStageKindForm(
                 keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Component stage description", "Enter description"),
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(componentStageKind.componentStageKind.quantityUnits, fillInErrors.quantityUnitsError) { viewModel.onSetQuantityUnits(it) },
+                keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.Info, "Items quantity units", "Enter quantity units"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)

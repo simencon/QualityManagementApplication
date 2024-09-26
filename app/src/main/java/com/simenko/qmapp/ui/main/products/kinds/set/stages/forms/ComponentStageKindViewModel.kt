@@ -84,6 +84,14 @@ class ComponentStageKindViewModel @Inject constructor(
         }
     }
 
+    fun onSetQuantityUnits(units: String) {
+        if (_componentStageKind.value.componentStageKind.quantityUnits != units) {
+            _componentStageKind.value = _componentStageKind.value.copy(componentStageKind = _componentStageKind.value.componentStageKind.copy(quantityUnits = units))
+            _fillInErrors.value = _fillInErrors.value.copy(quantityUnitsError = false)
+            _fillInState.value = FillInInitialState
+        }
+    }
+
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -147,4 +155,5 @@ class ComponentStageKindViewModel @Inject constructor(
 data class FillInErrors(
     var componentStageKindOrderError: Boolean = false,
     var componentStageKindDescriptionError: Boolean = false,
+    var quantityUnitsError: Boolean = false,
 )
