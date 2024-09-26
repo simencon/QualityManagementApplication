@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,9 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
@@ -119,6 +122,17 @@ fun ComponentStageForm(
                 keyboardNavigation = Pair(productComponentQntFR) { descriptionFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Comp. stage name", "Enter comp. stage name")
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(
+                    componentComponentStage.componentComponentStage.quantity.let { if (it == ZeroValue.num.toFloat()) EmptyString.str else it.toString() },
+                    fillInErrors.componentStageQntError
+                ) { viewModel.onSetProductComponentQuantity(it) },
+                keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity for component", "Enter quantity")
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != UserError.NO_ERROR.error)

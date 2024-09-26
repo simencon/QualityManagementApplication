@@ -138,7 +138,7 @@ fun Component(
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.52f), titleWight = 0.35f, title = "Quantity:", text = component.productComponent.countOfComponents.toString() + " pcs")
+                    HeaderWithTitle(modifier = Modifier.weight(0.52f), titleWight = 0.35f, title = "Quantity:", text = component.productComponent.quantity.toString() + " pcs")
                     StatusChangeBtn(
                         modifier = Modifier.weight(0.48f),
                         borderColor = borderColor,

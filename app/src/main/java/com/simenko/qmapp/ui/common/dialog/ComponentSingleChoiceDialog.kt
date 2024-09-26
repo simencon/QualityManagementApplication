@@ -60,7 +60,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
 
-enum class ItemSelectEnum{
+enum class ItemSelectEnum {
     COMPONENT,
     COMPONENT_STAGE
 }
@@ -162,7 +162,7 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                                 }
                             }
                         }
-                        if(selectionOf == ItemSelectEnum.COMPONENT) {
+                        if (selectionOf == ItemSelectEnum.COMPONENT || selectionOf == ItemSelectEnum.COMPONENT_STAGE) {
                             RecordFieldItem(
                                 modifier = Modifier.width(300.dp),
                                 valueParam = Triple(quantity.first, quantity.second) { onEnterQuantity(it) },

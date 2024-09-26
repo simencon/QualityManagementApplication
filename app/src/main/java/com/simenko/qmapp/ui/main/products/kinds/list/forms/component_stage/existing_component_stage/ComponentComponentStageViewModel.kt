@@ -38,7 +38,7 @@ class ComponentComponentStageViewModel @Inject constructor(
     val repository: ProductsRepository,
 ) : ViewModel() {
     private val _route = MutableStateFlow(Route.Main.ProductLines.ProductKinds.Products.AddComponentComponentStage(NoRecord.num, NoRecord.num, NoRecord.num, NoRecord.num, NoRecord.num))
-    private val _selectedStageIdAndQuantityInProduct = MutableStateFlow(Pair(NoRecord.num, 1))
+    private val _selectedStageIdAndQuantityInProduct = MutableStateFlow(Pair(NoRecord.num, ZeroValue.num.toFloat()))
     private val _filterKeyId = MutableStateFlow(NoRecord.num)
     private val _filterComponentId = MutableStateFlow(NoRecord.num)
     private val _searchValue = MutableStateFlow(EmptyString.str)
@@ -162,7 +162,7 @@ class ComponentComponentStageViewModel @Inject constructor(
             flow {
                 emit(
                     Pair(
-                        first = if (stageIdAndQuantity.second == ZeroValue.num.toInt()) EmptyString.str else stageIdAndQuantity.second.toString(),
+                        first = if (stageIdAndQuantity.second == ZeroValue.num.toFloat()) EmptyString.str else stageIdAndQuantity.second.toString(),
                         second = if (addWasClicked) stageIdAndQuantity.second <= ZeroValue.num.toInt() else false
                     )
                 )
@@ -171,14 +171,14 @@ class ComponentComponentStageViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(EmptyString.str, false))
 
     fun onSetProductComponentQuantity(value: String) {
-        value.toIntOrNull()?.let { finalValue ->
+        value.toFloatOrNull()?.let { finalValue ->
             if (_selectedStageIdAndQuantityInProduct.value.second != finalValue) {
                 _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(second = finalValue)
             }
             _addWasClicked.value = false
         } ?: run {
             if (value.isEmpty()) {
-                _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(second = ZeroValue.num.toInt())
+                _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(second = ZeroValue.num.toFloat())
             }
         }
     }

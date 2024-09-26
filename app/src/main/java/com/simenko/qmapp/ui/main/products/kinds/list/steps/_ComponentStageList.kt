@@ -125,7 +125,7 @@ fun ComponentStage(
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.54f), titleWight = 0.5f, title = "Quantity:", text = NoString.str)
+                    HeaderWithTitle(modifier = Modifier.weight(0.54f), titleWight = 0.5f, title = "Quantity:", text = "${ componentStage.componentComponentStage.quantity } pcs")
                     StatusChangeBtn(
                         modifier = Modifier.weight(0.46f),
                         borderColor = borderColor,

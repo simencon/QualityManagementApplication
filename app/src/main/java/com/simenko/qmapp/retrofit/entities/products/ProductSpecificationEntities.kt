@@ -179,7 +179,7 @@ data class NetworkComponentStageKindComponentStage(
 @Serializable
 data class NetworkProductComponent(
     val id: ID,
-    val countOfComponents: Int,
+    val quantity: Float,
     val productId: ID,
     val componentKindComponentId: ID
 ) : NetworkBaseModel<DatabaseProductComponent> {
@@ -191,7 +191,8 @@ data class NetworkProductComponent(
 data class NetworkComponentComponentStage(
     val id: ID,
     val componentId: ID,
-    val stageKindStageId: ID
+    val stageKindStageId: ID,
+    val quantity: Float,
 ) : NetworkBaseModel<DatabaseComponentComponentStage> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentComponentStage::class, DatabaseComponentComponentStage::class).transform(this)

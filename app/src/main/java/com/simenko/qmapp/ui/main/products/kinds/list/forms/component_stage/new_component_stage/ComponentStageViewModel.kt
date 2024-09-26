@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainComponentComponentStage
 import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKindComponentStage
@@ -145,6 +146,27 @@ class ComponentStageViewModel @Inject constructor(
         }
     }
 
+    fun onSetProductComponentQuantity(value: String) {
+        val componentStage = _componentComponentStage.value.componentComponentStage
+        value.toFloatOrNull()?.let { finalValue ->
+            if (_componentComponentStage.value.componentComponentStage.quantity != finalValue) {
+                _componentComponentStage.value = _componentComponentStage.value.copy(
+                    componentComponentStage = componentStage.copy(quantity = finalValue)
+                )
+                _fillInErrors.value = _fillInErrors.value.copy(componentStageQntError = false)
+                _fillInState.value = FillInInitialState
+            }
+        } ?: run {
+            if (value.isEmpty()) {
+                _componentComponentStage.value = _componentComponentStage.value.copy(
+                    componentComponentStage = componentStage.copy(quantity = ZeroValue.num.toFloat())
+                )
+                _fillInErrors.value = _fillInErrors.value.copy(componentStageQntError = false)
+                _fillInState.value = FillInInitialState
+            }
+        }
+    }
+
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -160,6 +182,10 @@ class ComponentStageViewModel @Inject constructor(
                 if (componentStage.componentStage.componentStage.keyId == NoRecord.num) {
                     _fillInErrors.value = _fillInErrors.value.copy(componentStageKeyError = true)
                     append("Comp. stage designation field is mandatory\n")
+                }
+                if (componentComponentStage.quantity == ZeroValue.num.toFloat()) {
+                    _fillInErrors.value = _fillInErrors.value.copy(componentStageQntError = true)
+                    append("Quantity field cannot be zero\n")
                 }
                 if (componentStage.componentStage.componentStage.componentInStageDescription.isEmpty()) {
                     _fillInErrors.value = _fillInErrors.value.copy(componentStageDescriptionError = true)
@@ -177,7 +203,7 @@ class ComponentStageViewModel @Inject constructor(
                 stage = _componentComponentStage.value.componentStage.componentStage.componentStage,
                 stageKindId = _componentComponentStage.value.componentStage.componentStageKindComponentStage.componentStageKindId,
                 componentId = _componentComponentStage.value.componentComponentStage.componentId,
-                quantity = 1
+                quantity = _componentComponentStage.value.componentComponentStage.quantity
             ).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
@@ -212,5 +238,6 @@ class ComponentStageViewModel @Inject constructor(
 
 data class FillInErrors(
     val componentStageKeyError: Boolean = false,
-    val componentStageDescriptionError: Boolean = false
+    val componentStageDescriptionError: Boolean = false,
+    val componentStageQntError: Boolean = false
 )

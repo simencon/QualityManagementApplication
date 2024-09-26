@@ -145,20 +145,20 @@ class ComponentViewModel @Inject constructor(
 
     fun onSetProductComponentQuantity(value: String) {
         val productComponent = _productComponent.value.productComponent
-        value.toIntOrNull()?.let { finalValue ->
-            if (_productComponent.value.productComponent.countOfComponents != finalValue) {
+        value.toFloatOrNull()?.let { finalValue ->
+            if (_productComponent.value.productComponent.quantity != finalValue) {
                 _productComponent.value = _productComponent.value.copy(
-                    productComponent = productComponent.copy(countOfComponents = finalValue)
+                    productComponent = productComponent.copy(quantity = finalValue)
                 )
-                _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
+                _fillInErrors.value = _fillInErrors.value.copy(productComponentQntError = false)
                 _fillInState.value = FillInInitialState
             }
         } ?: run {
             if (value.isEmpty()) {
                 _productComponent.value = _productComponent.value.copy(
-                    productComponent = productComponent.copy(countOfComponents = ZeroValue.num.toInt())
+                    productComponent = productComponent.copy(quantity = ZeroValue.num.toFloat())
                 )
-                _fillInErrors.value = _fillInErrors.value.copy(componentDescriptionError = false)
+                _fillInErrors.value = _fillInErrors.value.copy(productComponentQntError = false)
                 _fillInState.value = FillInInitialState
             }
         }
@@ -180,7 +180,7 @@ class ComponentViewModel @Inject constructor(
                     _fillInErrors.value = _fillInErrors.value.copy(componentKeyError = true)
                     append("Component designation field is mandatory\n")
                 }
-                if (productComponent.countOfComponents == ZeroValue.num.toInt()) {
+                if (productComponent.quantity == ZeroValue.num.toFloat()) {
                     _fillInErrors.value = _fillInErrors.value.copy(productComponentQntError = true)
                     append("Quantity field cannot be zero\n")
                 }
@@ -200,7 +200,7 @@ class ComponentViewModel @Inject constructor(
                 component = _productComponent.value.component.component.component,
                 componentKindId = _productComponent.value.component.componentKindComponent.componentKindId,
                 productId = _productComponent.value.productComponent.productId,
-                quantity = _productComponent.value.productComponent.countOfComponents
+                quantity = _productComponent.value.productComponent.quantity
             ).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {

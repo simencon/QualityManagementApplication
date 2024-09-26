@@ -39,7 +39,7 @@ class ProductComponentViewModel @Inject constructor(
 ) : ViewModel() {
     private val _productKindId = MutableStateFlow(NoRecord.num)
     private val _route = MutableStateFlow(Route.Main.ProductLines.ProductKinds.Products.AddProductComponent(NoRecord.num, NoRecord.num))
-    private val _selectedComponentIdAndQuantity = MutableStateFlow(Pair(NoRecord.num, ZeroValue.num.toInt()))
+    private val _selectedComponentIdAndQuantity = MutableStateFlow(Pair(NoRecord.num, ZeroValue.num.toFloat()))
 
     private val _filterKeyId = MutableStateFlow(NoRecord.num)
     private val _filterProductId = MutableStateFlow(NoRecord.num)
@@ -159,7 +159,7 @@ class ProductComponentViewModel @Inject constructor(
             flow {
                 emit(
                     Pair(
-                        first = if (it.second == ZeroValue.num.toInt()) EmptyString.str else it.second.toString(),
+                        first = if (it.second == ZeroValue.num.toFloat()) EmptyString.str else it.second.toString(),
                         second = if (addWasClicked) it.second <= ZeroValue.num.toInt() else false
                     )
                 )
@@ -168,14 +168,14 @@ class ProductComponentViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(EmptyString.str, false))
 
     fun onSetProductComponentQuantity(value: String) {
-        value.toIntOrNull()?.let { finalValue ->
+        value.toFloatOrNull()?.let { finalValue ->
             if (_selectedComponentIdAndQuantity.value.second != finalValue) {
                 _selectedComponentIdAndQuantity.value = _selectedComponentIdAndQuantity.value.copy(second = finalValue)
             }
             _addWasClicked.value = false
         } ?: run {
             if (value.isEmpty()) {
-                _selectedComponentIdAndQuantity.value = _selectedComponentIdAndQuantity.value.copy(second = ZeroValue.num.toInt())
+                _selectedComponentIdAndQuantity.value = _selectedComponentIdAndQuantity.value.copy(second = ZeroValue.num.toFloat())
             }
         }
     }

@@ -875,7 +875,7 @@ data class DatabaseComponentStageKindComponentStage(
 data class DatabaseProductComponent(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
-    val countOfComponents: Int,
+    val quantity: Float,
     @ColumnInfo(index = true)
     val productId: ID,
     @ColumnInfo(index = true)
@@ -940,7 +940,8 @@ data class DatabaseComponentComponentStage(
     @ColumnInfo(index = true)
     val componentId: ID,
     @ColumnInfo(index = true)
-    val stageKindStageId: ID
+    val stageKindStageId: ID,
+    val quantity: Float,
 ) : DatabaseBaseModel<NetworkComponentComponentStage, DomainComponentComponentStage, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentComponentStage::class, NetworkComponentComponentStage::class).transform(this)

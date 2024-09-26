@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "c6c25f1969f30fe4e2bf273c7b2a0869",
+    "identityHash": "b4b88cd9b163f3e6bc055bff0f5661f5",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2746,7 +2746,7 @@
       },
       {
         "tableName": "2_4_products_components",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `countOfComponents` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `componentKindComponentId` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentKindComponentId`) REFERENCES `3_4_component_kinds_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `quantity` REAL NOT NULL, `productId` INTEGER NOT NULL, `componentKindComponentId` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentKindComponentId`) REFERENCES `3_4_component_kinds_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2755,9 +2755,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "countOfComponents",
-            "columnName": "countOfComponents",
-            "affinity": "INTEGER",
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
             "notNull": true
           },
           {
@@ -2826,7 +2826,7 @@
       },
       {
         "tableName": "4_6_components_component_stages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `stageKindStageId` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`stageKindStageId`) REFERENCES `5_6_component_stage_kinds_component_stages`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `stageKindStageId` INTEGER NOT NULL, `quantity` REAL NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`stageKindStageId`) REFERENCES `5_6_component_stage_kinds_component_stages`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2844,6 +2844,12 @@
             "fieldPath": "stageKindStageId",
             "columnName": "stageKindStageId",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
             "notNull": true
           }
         ],
@@ -4824,7 +4830,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c6c25f1969f30fe4e2bf273c7b2a0869')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b4b88cd9b163f3e6bc055bff0f5661f5')"
     ]
   }
 }

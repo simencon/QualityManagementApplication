@@ -25,7 +25,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @ViewModelScoped
 class MakeProductComponentUseCase @Inject constructor(private val repository: ProductsRepository) {
-    fun execute(scope: CoroutineScope, component: DomainComponent, componentKindId: ID, productId: ID, quantity: Int): ReceiveChannel<Event<Resource<ID>>> {
+    fun execute(scope: CoroutineScope, component: DomainComponent, componentKindId: ID, productId: ID, quantity: Float): ReceiveChannel<Event<Resource<ID>>> {
         return with(scope) {
             produce {
                 with(repository) { if (component.id == NoRecord.num) insertComponent(component) else updateComponent(component) }.consumeEach { event ->
@@ -50,7 +50,7 @@ class MakeProductComponentUseCase @Inject constructor(private val repository: Pr
         }
     }
 
-    private fun CoroutineScope.makeComponentKindComponent(componentId: ID, componentKindId: ID, productId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) = launch(Dispatchers.IO) {
+    private fun CoroutineScope.makeComponentKindComponent(componentId: ID, componentKindId: ID, productId: ID, quantity: Float, producer: ProducerScope<Event<Resource<ID>>>) = launch(Dispatchers.IO) {
         val componentKindComponent = DomainComponentKindComponent(componentKindId = componentKindId, componentId = componentId)
         with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
@@ -72,9 +72,9 @@ class MakeProductComponentUseCase @Inject constructor(private val repository: Pr
         }
     }
 
-    private fun CoroutineScope.makeProductComponent(componentId: ID, productId: ID, componentKindComponentId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) =
+    private fun CoroutineScope.makeProductComponent(componentId: ID, productId: ID, componentKindComponentId: ID, quantity: Float, producer: ProducerScope<Event<Resource<ID>>>) =
         launch(Dispatchers.IO) {
-            val productComponent = DomainProductComponent(countOfComponents = quantity, productId = productId, componentKindComponentId = componentKindComponentId)
+            val productComponent = DomainProductComponent(quantity = quantity, productId = productId, componentKindComponentId = componentKindComponentId)
             with(repository) { insertProductComponent(productComponent) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {

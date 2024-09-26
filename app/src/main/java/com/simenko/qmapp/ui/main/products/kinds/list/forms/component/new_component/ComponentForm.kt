@@ -126,7 +126,7 @@ fun ComponentForm(
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(
-                    productComponent.productComponent.countOfComponents.let { if (it == ZeroValue.num.toInt()) EmptyString.str else it.toString() },
+                    productComponent.productComponent.quantity.let { if (it == ZeroValue.num.toFloat()) EmptyString.str else it.toString() },
                     fillInErrors.productComponentQntError
                 ) { viewModel.onSetProductComponentQuantity(it) },
                 keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },

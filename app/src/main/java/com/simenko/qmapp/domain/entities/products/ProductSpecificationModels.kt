@@ -472,7 +472,7 @@ data class DomainComponentStageKindComponentStage(
 
 data class DomainProductComponent(
     val id: ID = NoRecord.num,
-    val countOfComponents: Int = ZeroValue.num.toInt(),
+    val quantity: Float = ZeroValue.num.toFloat(),
     val productId: ID = NoRecord.num,
     val componentKindComponentId: ID = NoRecord.num
 ) : DomainBaseModel<DatabaseProductComponent>() {
@@ -501,7 +501,8 @@ data class DomainProductComponent(
 data class DomainComponentComponentStage(
     val id: ID = NoRecord.num,
     val componentId: ID = NoRecord.num,
-    val stageKindStageId: ID = NoRecord.num
+    val stageKindStageId: ID = NoRecord.num,
+    val quantity: Float = ZeroValue.num.toFloat(),
 ) : DomainBaseModel<DatabaseComponentComponentStage>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num

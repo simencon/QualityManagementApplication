@@ -1,7 +1,6 @@
 package com.simenko.qmapp.domain.usecase.products
 
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.products.DomainComponentComponentStage
@@ -24,7 +23,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @ViewModelScoped
 class MakeComponentStageUseCase @Inject constructor(private val repository: ProductsRepository) {
-    fun execute(scope: CoroutineScope, stage: DomainComponentStage, stageKindId: ID, componentId: ID, quantity: Int): ReceiveChannel<Event<Resource<ID>>> {
+    fun execute(scope: CoroutineScope, stage: DomainComponentStage, stageKindId: ID, componentId: ID, quantity: Float): ReceiveChannel<Event<Resource<ID>>> {
         return with(scope) {
             produce {
                 with(repository) { if (stage.id == NoRecord.num) insertComponentStage(stage) else updateComponentStage(stage) }.consumeEach { event ->
@@ -49,7 +48,7 @@ class MakeComponentStageUseCase @Inject constructor(private val repository: Prod
         }
     }
 
-    private fun CoroutineScope.makeStageKindStage(stageId: ID, stageKindId: ID, componentId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) = launch {
+    private fun CoroutineScope.makeStageKindStage(stageId: ID, stageKindId: ID, componentId: ID, quantity: Float, producer: ProducerScope<Event<Resource<ID>>>) = launch {
         val stageKindStage = DomainComponentStageKindComponentStage(componentStageId = stageId, componentStageKindId = stageKindId)
         with(repository) { insertComponentStageKindComponentStage(stageKindStage) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
@@ -71,8 +70,8 @@ class MakeComponentStageUseCase @Inject constructor(private val repository: Prod
         }
     }
 
-    private fun CoroutineScope.makeStageComponent(stageId: ID, componentId: ID, stageKindStageId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) = launch {
-        val productComponent = DomainComponentComponentStage(componentId = componentId, stageKindStageId = stageKindStageId)
+    private fun CoroutineScope.makeStageComponent(stageId: ID, componentId: ID, stageKindStageId: ID, quantity: Float, producer: ProducerScope<Event<Resource<ID>>>) = launch {
+        val productComponent = DomainComponentComponentStage(componentId = componentId, stageKindStageId = stageKindStageId, quantity = quantity)
         with(repository) { insertComponentComponentStage(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
