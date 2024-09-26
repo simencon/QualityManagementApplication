@@ -252,8 +252,16 @@ class ProductsRepository @Inject constructor(
         responseHandlerForSingleRecord({ service.insertComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageDao.insertRecord(r) }
     }
 
-    fun CoroutineScope.updateComponentStage(record: DomainComponentStage) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.editComponentStage(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageDao.updateRecord(r) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.updateComponentStage(record: DomainComponentStage): ReceiveChannel<Event<Resource<DomainComponentStage>>> {
+        val existingRecord = database.componentStageDao.getRecordById(record.id)?.toDomainModel()
+        return if (existingRecord == record) {
+            produce { send(Event(Resource.success(existingRecord))) }
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.editComponentStage(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageDao.updateRecord(r) }
+            }
+        }
     }
 
 

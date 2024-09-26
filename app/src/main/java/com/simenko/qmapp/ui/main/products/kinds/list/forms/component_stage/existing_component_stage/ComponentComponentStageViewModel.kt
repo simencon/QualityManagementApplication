@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainComponentComponentStage
+import com.simenko.qmapp.domain.usecase.products.MakeComponentStageUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -33,10 +34,11 @@ import javax.inject.Inject
 class ComponentComponentStageViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
+    private val makeComponentStageUseCase: MakeComponentStageUseCase,
     val repository: ProductsRepository,
 ) : ViewModel() {
     private val _route = MutableStateFlow(Route.Main.ProductLines.ProductKinds.Products.AddComponentComponentStage(NoRecord.num, NoRecord.num, NoRecord.num, NoRecord.num, NoRecord.num))
-    private val _componentComponentStage = MutableStateFlow(DomainComponentComponentStage())
+    private val _selectedStageIdAndQuantityInProduct = MutableStateFlow(Pair(NoRecord.num, 1))
     private val _filterKeyId = MutableStateFlow(NoRecord.num)
     private val _filterComponentId = MutableStateFlow(NoRecord.num)
     private val _searchValue = MutableStateFlow(EmptyString.str)
@@ -49,8 +51,6 @@ class ComponentComponentStageViewModel @Inject constructor(
      * */
     fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.AddComponentComponentStage) {
         viewModelScope.launch(Dispatchers.IO) {
-
-            _componentComponentStage.value = _componentComponentStage.value.copy(componentId = route.componentId)
             _route.value = route
 
             val stageDesignations = repository.componentStageKindKeysByParent(route.componentStageKindId).map { it.keyId }
@@ -131,7 +131,7 @@ class ComponentComponentStageViewModel @Inject constructor(
     val availableComponentStages = _availableComponentComponentStages.flatMapLatest { list ->
         _filterKeyId.flatMapLatest { keyId ->
             _filterComponentId.flatMapLatest { componentId ->
-                _componentComponentStage.flatMapLatest { componentComponentState ->
+                _selectedStageIdAndQuantityInProduct.flatMapLatest { stageIdAndQuantity ->
                     _searchValue.flatMapLatest { searchValue ->
                         flow {
                             emit(list
@@ -141,7 +141,7 @@ class ComponentComponentStageViewModel @Inject constructor(
                                             (searchValue.isEmpty() || it.componentStage.componentStage.componentStage.componentInStageDescription.lowercase().contains(searchValue.lowercase()))
                                 }
                                 .distinctBy { it.componentStage.componentStage.componentStage.id }
-                                .map { it.componentStage.componentStage.copy(isSelected = it.componentStage.componentStage.componentStage.id == componentComponentState.componentStageId) })
+                                .map { it.componentStage.componentStage.copy(isSelected = it.componentStage.componentStage.componentStage.id == stageIdAndQuantity.first) })
                         }
                     }
                 }
@@ -150,21 +150,20 @@ class ComponentComponentStageViewModel @Inject constructor(
     }
 
     fun onSelectComponentStage(id: ID) {
-        if (_componentComponentStage.value.componentStageId != id) {
-            _componentComponentStage.value = _componentComponentStage.value.copy(componentStageId = id)
+        if (_selectedStageIdAndQuantityInProduct.value.first != id) {
+            _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(first = id)
         }
     }
 
     private val _addWasClicked = MutableStateFlow(false)
-    private var quantity = 1
 
-    val quantityInProduct: StateFlow<Pair<String, Boolean>> = _componentComponentStage.flatMapLatest {
+    val quantityInProduct: StateFlow<Pair<String, Boolean>> = _selectedStageIdAndQuantityInProduct.flatMapLatest { stageIdAndQuantity ->
         _addWasClicked.flatMapLatest { addWasClicked ->
             flow {
                 emit(
                     Pair(
-                        first = if (quantity == ZeroValue.num.toInt()) EmptyString.str else quantity.toString(),
-                        second = if (addWasClicked) quantity <= ZeroValue.num.toInt() else false
+                        first = if (stageIdAndQuantity.second == ZeroValue.num.toInt()) EmptyString.str else stageIdAndQuantity.second.toString(),
+                        second = if (addWasClicked) stageIdAndQuantity.second <= ZeroValue.num.toInt() else false
                     )
                 )
             }
@@ -173,21 +172,19 @@ class ComponentComponentStageViewModel @Inject constructor(
 
     fun onSetProductComponentQuantity(value: String) {
         value.toIntOrNull()?.let { finalValue ->
-            if (quantity != finalValue) {
-                _componentComponentStage.value = _componentComponentStage.value.copy()
-                quantity = finalValue
+            if (_selectedStageIdAndQuantityInProduct.value.second != finalValue) {
+                _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(second = finalValue)
             }
             _addWasClicked.value = false
         } ?: run {
             if (value.isEmpty()) {
-                _componentComponentStage.value = _componentComponentStage.value.copy()
-                quantity = ZeroValue.num.toInt()
+                _selectedStageIdAndQuantityInProduct.value = _selectedStageIdAndQuantityInProduct.value.copy(second = ZeroValue.num.toInt())
             }
         }
     }
 
-    val isReadyToAdd = _componentComponentStage.flatMapLatest {
-        flow { emit(it.componentId != NoRecord.num && it.componentStageId != NoRecord.num) }
+    val isReadyToAdd = _selectedStageIdAndQuantityInProduct.flatMapLatest {
+        flow { emit(it.first != NoRecord.num) }
     }
 
     private val _isLoading = MutableStateFlow(false)
@@ -198,20 +195,30 @@ class ComponentComponentStageViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-        _addWasClicked.value = true
-        if (_componentComponentStage.value.let { it.componentId != NoRecord.num && it.componentStageId != NoRecord.num && quantity > ZeroValue.num.toInt() }) {
-            with(repository) { insertComponentComponentStage(_componentComponentStage.value) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {
-                            mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
-                        }
+    fun makeRecord() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _availableComponentComponentStages.value.find { it.componentStage.componentStage.componentStage.id == _selectedStageIdAndQuantityInProduct.value.first }?.let { stageToAdd ->
+                _addWasClicked.value = true
+                if (_selectedStageIdAndQuantityInProduct.value.second > ZeroValue.num.toInt()) {
+                    makeComponentStageUseCase.execute(
+                        scope = this,
+                        stage = stageToAdd.componentStage.componentStage.componentStage,
+                        stageKindId = _route.value.componentStageKindId,
+                        componentId = _route.value.componentId,
+                        quantity = _selectedStageIdAndQuantityInProduct.value.second
+                    ).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                                }
 
-                        Status.SUCCESS -> resource.data?.let { navBackToRecord(it.componentStageId) }
+                                Status.SUCCESS -> resource.data?.let { navBackToRecord(it) }
 
-                        Status.ERROR -> {
-                            mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                                Status.ERROR -> {
+                                    mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                                }
+                            }
                         }
                     }
                 }
