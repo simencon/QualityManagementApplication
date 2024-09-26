@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "b4b88cd9b163f3e6bc055bff0f5661f5",
+    "identityHash": "42856a38212d9d29361f2f028cc0166c",
     "entities": [
       {
         "tableName": "user_roles",
@@ -1538,7 +1538,7 @@
       },
       {
         "tableName": "3_component_kinds",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productKindId` INTEGER NOT NULL, `componentKindOrder` INTEGER NOT NULL, `componentKindDescription` TEXT NOT NULL, FOREIGN KEY(`productKindId`) REFERENCES `1_product_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productKindId` INTEGER NOT NULL, `componentKindOrder` INTEGER NOT NULL, `componentKindDescription` TEXT NOT NULL, `quantityUnits` TEXT NOT NULL, FOREIGN KEY(`productKindId`) REFERENCES `1_product_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1561,6 +1561,12 @@
           {
             "fieldPath": "componentKindDescription",
             "columnName": "componentKindDescription",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityUnits",
+            "columnName": "quantityUnits",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -1598,7 +1604,7 @@
       },
       {
         "tableName": "5_component_stage_kinds",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentKindId` INTEGER NOT NULL, `componentStageOrder` INTEGER NOT NULL, `componentStageDescription` TEXT NOT NULL, FOREIGN KEY(`componentKindId`) REFERENCES `3_component_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentKindId` INTEGER NOT NULL, `componentStageOrder` INTEGER NOT NULL, `componentStageDescription` TEXT NOT NULL, `quantityUnits` TEXT NOT NULL, FOREIGN KEY(`componentKindId`) REFERENCES `3_component_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1621,6 +1627,12 @@
           {
             "fieldPath": "componentStageDescription",
             "columnName": "componentStageDescription",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityUnits",
+            "columnName": "quantityUnits",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -4830,7 +4842,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b4b88cd9b163f3e6bc055bff0f5661f5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '42856a38212d9d29361f2f028cc0166c')"
     ]
   }
 }

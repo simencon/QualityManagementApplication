@@ -238,7 +238,8 @@ data class DatabaseComponentKind(
     @ColumnInfo(index = true)
     val productKindId: ID,
     val componentKindOrder: Int,
-    val componentKindDescription: String
+    val componentKindDescription: String,
+    val quantityUnits: String
 ) : DatabaseBaseModel<NetworkComponentKind, DomainComponentKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKind::class, NetworkComponentKind::class).transform(this)
@@ -285,7 +286,8 @@ data class DatabaseComponentStageKind(
     @ColumnInfo(index = true)
     val componentKindId: ID,
     val componentStageOrder: Int,
-    val componentStageDescription: String
+    val componentStageDescription: String,
+    val quantityUnits: String
 ) : DatabaseBaseModel<NetworkComponentStageKind, DomainComponentStageKind, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageKind::class, NetworkComponentStageKind::class).transform(this)

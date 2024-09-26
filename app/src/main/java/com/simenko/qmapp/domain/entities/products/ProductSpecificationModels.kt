@@ -149,7 +149,8 @@ data class DomainComponentKind(
     val id: ID = NoRecord.num,
     val productKindId: ID = NoRecord.num,
     val componentKindOrder: Int = NoRecord.num.toInt(),
-    val componentKindDescription: String = EmptyString.str
+    val componentKindDescription: String = EmptyString.str,
+    val quantityUnits: String = EmptyString.str
 ) : DomainBaseModel<DatabaseComponentKind>() {
     override fun getRecordId() = id
     override fun getParentId() = productKindId
@@ -176,7 +177,8 @@ data class DomainComponentStageKind(
     val id: ID = NoRecord.num,
     val componentKindId: ID = NoRecord.num,
     val componentStageOrder: Int = NoRecord.num.toInt(),
-    val componentStageDescription: String = EmptyString.str
+    val componentStageDescription: String = EmptyString.str,
+    val quantityUnits: String = EmptyString.str
 ) : DomainBaseModel<DatabaseComponentStageKind>() {
     override fun getRecordId() = id
     override fun getParentId() = componentKindId
