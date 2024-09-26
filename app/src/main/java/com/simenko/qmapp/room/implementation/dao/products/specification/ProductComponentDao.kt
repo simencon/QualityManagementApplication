@@ -40,4 +40,7 @@ abstract class ProductComponentDao : DaoBaseModel<ID, ID, DatabaseProductCompone
     @Transaction
     @Query("select pcc.* from products_components_complete as pcc")
     abstract fun getAllRecordsComplete(): Flow<List<DatabaseProductComponent.DatabaseProductComponentComplete>>
+
+    @Query("SELECT * FROM `2_4_products_components` WHERE productId = :itemParentId AND componentKindComponentId = :itemId")
+    abstract suspend fun findExistingRecord(itemParentId: ID, itemId: ID): DatabaseProductComponent?
 }

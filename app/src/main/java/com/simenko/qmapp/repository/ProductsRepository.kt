@@ -242,8 +242,18 @@ class ProductsRepository @Inject constructor(
         responseHandlerForSingleRecord({ service.insertComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.insertRecord(r) }
     }
 
-    fun CoroutineScope.updateComponent(record: DomainComponent) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.editComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.updateRecord(r) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.updateComponent(record: DomainComponent): ReceiveChannel<Event<Resource<DomainComponent>>> {
+        val existingRecord = database.componentDao.getRecordById(record.id)?.component?.toDomainModel()
+        return if (existingRecord == record) {
+            produce {
+                send(Event(Resource.success(existingRecord)))
+            }
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.editComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentDao.updateRecord(r) }
+            }
+        }
     }
 
 
@@ -347,12 +357,25 @@ class ProductsRepository @Inject constructor(
         }
     }
 
-    fun CoroutineScope.insertProductComponent(record: DomainProductComponent) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.insertProductComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
-    }
-
-    fun CoroutineScope.updateProductComponent(record: DomainProductComponent) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.editProductComponent(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.insertProductComponent(record: DomainProductComponent): ReceiveChannel<Event<Resource<DomainProductComponent>>> {
+        val existingRecord = runBlocking { database.productComponentDao.findExistingRecord(record.productId, record.componentKindComponentId)?.toDomainModel() }
+        return if (existingRecord != null) {
+            val newRecord = record.copy(id = existingRecord.id)
+            if (existingRecord == newRecord) {
+                produce {
+                    send(Event(Resource.success(existingRecord)))
+                }
+            } else {
+                crudeOperations.run {
+                    responseHandlerForSingleRecord({ service.editProductComponent(newRecord.id, newRecord.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.updateRecord(r) }
+                }
+            }
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.insertProductComponent(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productComponentDao.insertRecord(r) }
+            }
+        }
     }
 
 
@@ -378,12 +401,25 @@ class ProductsRepository @Inject constructor(
         }
     }
 
-    fun CoroutineScope.insertComponentComponentStage(record: DomainComponentComponentStage) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.insertComponentComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
-    }
-
-    fun CoroutineScope.updateComponentComponentStage(record: DomainComponentComponentStage) = crudeOperations.run {
-        responseHandlerForSingleRecord({ service.editComponentComponentStage(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.insertComponentComponentStage(record: DomainComponentComponentStage): ReceiveChannel<Event<Resource<DomainComponentComponentStage>>> {
+        val existingRecord = runBlocking { database.componentComponentStageDao.findExistingRecord(record.componentId, record.stageKindStageId)?.toDomainModel() }
+        return if (existingRecord != null) {
+            val newRecord = record.copy(id = existingRecord.id)
+            if (newRecord == existingRecord) {
+                produce {
+                    send(Event(Resource.success(newRecord)))
+                }
+            } else {
+                crudeOperations.run {
+                    responseHandlerForSingleRecord({ service.editComponentComponentStage(newRecord.id, newRecord.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+                }
+            }
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.insertComponentComponentStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+            }
+        }
     }
 
 

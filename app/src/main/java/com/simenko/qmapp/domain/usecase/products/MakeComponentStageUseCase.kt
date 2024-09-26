@@ -31,7 +31,16 @@ class MakeComponentStageUseCase @Inject constructor(private val repository: Prod
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> send(Event(Resource.loading(null)))
-                            Status.SUCCESS -> resource.data?.id?.let { makeStageKindStage(stageId = it, stageKindId = stageKindId, componentId = componentId, producer = this@produce) }
+                            Status.SUCCESS -> resource.data?.id?.let {
+                                makeStageKindStage(
+                                    stageId = it,
+                                    stageKindId = stageKindId,
+                                    componentId = componentId,
+                                    quantity = quantity,
+                                    producer = this@produce
+                                )
+                            }
+
                             Status.ERROR -> send(Event(Resource.error(resource.message ?: EmptyString.str, null)))
                         }
                     }
@@ -40,20 +49,29 @@ class MakeComponentStageUseCase @Inject constructor(private val repository: Prod
         }
     }
 
-    private fun CoroutineScope.makeStageKindStage(stageId: ID, stageKindId: ID, componentId: ID, producer: ProducerScope<Event<Resource<ID>>>) = launch {
+    private fun CoroutineScope.makeStageKindStage(stageId: ID, stageKindId: ID, componentId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) = launch {
         val stageKindStage = DomainComponentStageKindComponentStage(componentStageId = stageId, componentStageKindId = stageKindId)
         with(repository) { insertComponentStageKindComponentStage(stageKindStage) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> producer.send(Event(Resource.loading(null)))
-                    Status.SUCCESS -> resource.data?.id?.let { makeStageComponent(stageId = stageId, componentId = componentId, stageKindStageId = it, producer = producer) }
+                    Status.SUCCESS -> resource.data?.id?.let {
+                        makeStageComponent(
+                            stageId = stageId,
+                            componentId = componentId,
+                            stageKindStageId = it,
+                            quantity = quantity,
+                            producer = producer
+                        )
+                    }
+
                     Status.ERROR -> producer.send(Event(Resource.error(resource.message ?: EmptyString.str, null)))
                 }
             }
         }
     }
 
-    private fun CoroutineScope.makeStageComponent(stageId: ID, componentId: ID, stageKindStageId: ID, producer: ProducerScope<Event<Resource<ID>>>) = launch {
+    private fun CoroutineScope.makeStageComponent(stageId: ID, componentId: ID, stageKindStageId: ID, quantity: Int, producer: ProducerScope<Event<Resource<ID>>>) = launch {
         val productComponent = DomainComponentComponentStage(componentId = componentId, stageKindStageId = stageKindStageId)
         with(repository) { insertComponentComponentStage(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->

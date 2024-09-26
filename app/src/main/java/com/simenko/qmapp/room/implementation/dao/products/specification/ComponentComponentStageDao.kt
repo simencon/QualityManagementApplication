@@ -6,6 +6,7 @@ import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseComponentComponentStage
+import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKindComponentStage
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -39,4 +40,7 @@ abstract class ComponentComponentStageDao : DaoBaseModel<ID, ID, DatabaseCompone
     @Transaction
     @Query("select pcc.* from components_component_stages_complete as pcc")
     abstract fun getAllRecordsComplete(): Flow<List<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>>
+
+    @Query("SELECT * FROM `4_6_components_component_stages` WHERE componentId = :itemParentId AND stageKindStageId = :itemId")
+    abstract suspend fun findExistingRecord(itemParentId: ID, itemId: ID): DatabaseComponentComponentStage?
 }
