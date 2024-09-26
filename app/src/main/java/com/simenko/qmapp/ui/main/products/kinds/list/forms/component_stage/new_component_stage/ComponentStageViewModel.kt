@@ -19,6 +19,7 @@ import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -172,13 +172,11 @@ class ComponentStageViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
         val componentStage = _componentComponentStage.value.componentStage.componentStage.componentStage
         val isNewRecord = componentStage.id == NoRecord.num
-        with(repository) {
-            if (isNewRecord) insertComponentStage(componentStage) else updateComponentStage(componentStage)
-        }.consumeEach { event ->
+        with(repository) { if (isNewRecord) insertComponentStage(componentStage) else updateComponentStage(componentStage) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { makeComponentComponentStage(it, isNewRecord) }
+                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeStageKindStage(it) else navBackToRecord(it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -188,15 +186,13 @@ class ComponentStageViewModel @Inject constructor(
         }
     }
 
-    private suspend fun makeComponentComponentStage(componentStageId: ID, isNewRecord: Boolean) = withContext(Dispatchers.IO) {
-        val productComponent = _componentComponentStage.value.componentComponentStage.copy(componentStageId = componentStageId)
-        with(repository) {
-            if (isNewRecord) insertComponentComponentStage(productComponent) else updateComponentComponentStage(productComponent)
-        }.consumeEach { event ->
+    private fun CoroutineScope.makeStageKindStage(stageId: ID) = launch(Dispatchers.IO) {
+        val stageKindStage = _componentComponentStage.value.componentStage.componentStageKindComponentStage.copy(componentStageId = stageId)
+        with(repository) { insertComponentStageKindComponentStage(stageKindStage) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { if (isNewRecord) makeComponentStageKindComponentStage(componentStageId) else navBackToRecord(it) }
+                    Status.SUCCESS -> resource.data?.id?.let { makeStageComponent(stageId, it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -206,13 +202,13 @@ class ComponentStageViewModel @Inject constructor(
         }
     }
 
-    private suspend fun makeComponentStageKindComponentStage(componentStageId: ID) = withContext(Dispatchers.IO) {
-        val componentStageKindComponentStage = _componentComponentStage.value.componentStage.componentStageKindComponentStage.copy(componentStageId = componentStageId)
-        with(repository) { insertComponentStageKindComponentStage(componentStageKindComponentStage) }.consumeEach { event ->
+    private fun CoroutineScope.makeStageComponent(stageId: ID, stageKindStageId: ID) = launch(Dispatchers.IO) {
+        val productComponent = _componentComponentStage.value.componentComponentStage.copy(stageKindStageId = stageKindStageId)
+        with(repository) { insertComponentComponentStage(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(componentStageId) }
+                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(stageId) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState

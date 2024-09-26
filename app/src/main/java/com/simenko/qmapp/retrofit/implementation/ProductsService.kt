@@ -299,7 +299,7 @@ interface ProductsService {
     @GET(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
     suspend fun getComponentStageKindsComponentStages(): Response<List<NetworkComponentStageKindComponentStage>>
     @POST(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
-    suspend fun insertComponentStageKindComponentStage(@Body record: NetworkComponentStageKindComponentStage): Response<NetworkComponentStageKindComponentStage>
+    suspend fun insertStageKindStage(@Body record: NetworkComponentStageKindComponentStage): Response<NetworkComponentStageKindComponentStage>
 
 
     @GET(PRODUCTS_COMPONENTS)

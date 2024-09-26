@@ -12,6 +12,7 @@ import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.usecase.products.SyncProductsUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
@@ -44,7 +45,10 @@ import javax.inject.Inject
 class ProductListViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    private val repository: ProductsRepository,
+
+    private val syncProductsUseCase: SyncProductsUseCase,
+
+    private val repository: ProductsRepository,//to be removed
     val storage: Storage,
 ) : ViewModel() {
     private val _searchString = MutableStateFlow(EmptyString.str)
@@ -278,7 +282,9 @@ class ProductListViewModel @Inject constructor(
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun updateProductsData() {
-        TODO("Not yet implemented")
+        viewModelScope.launch(Dispatchers.IO) {
+            syncProductsUseCase.execute()
+        }
     }
 
     fun onDeleteProductClick(it: ID) = viewModelScope.launch {

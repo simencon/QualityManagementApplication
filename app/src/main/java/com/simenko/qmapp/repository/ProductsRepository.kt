@@ -303,12 +303,17 @@ class ProductsRepository @Inject constructor(
     }
 
     suspend fun syncComponentStageKindsComponentStages() = crudeOperations.syncRecordsAll(database.componentStageKindComponentStageDao) { service.getComponentStageKindsComponentStages() }
-    fun CoroutineScope.insertComponentStageKindComponentStage(record: DomainComponentStageKindComponentStage) = crudeOperations.run {
-        responseHandlerForSingleRecord({
-            service.insertComponentStageKindComponentStage(
-                record.toDatabaseModel().toNetworkModel()
-            )
-        }) { r -> database.componentStageKindComponentStageDao.insertRecord(r) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun CoroutineScope.insertComponentStageKindComponentStage(record: DomainComponentStageKindComponentStage): ReceiveChannel<Event<Resource<DomainComponentStageKindComponentStage>>> {
+        val existingRecord = runBlocking { database.componentStageKindComponentStageDao.findExistingRecord(record.componentStageKindId, record.componentStageId) }
+        return if (existingRecord != null) {
+            produce { send(Event(Resource.success(existingRecord.toDomainModel()))) }
+        } else {
+            crudeOperations.run {
+                responseHandlerForSingleRecord({ service.insertStageKindStage(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageKindComponentStageDao.insertRecord(r) }
+            }
+        }
     }
 
 
@@ -353,7 +358,8 @@ class ProductsRepository @Inject constructor(
             if (response.isSuccessful) {
                 response.body()?.let { result ->
                     database.componentComponentStageDao.deleteRecord(result.componentComponentStage.toDatabaseModel())
-                    result.componentStage?.let { database.componentStageDao.deleteRecord(it.toDatabaseModel()) }
+                    result.stageStageKind?.let { database.componentStageKindComponentStageDao.deleteRecord(it.toDatabaseModel()) }
+                    result.componentInStage?.let { database.componentStageDao.deleteRecord(it.toDatabaseModel()) }
                     send(Event(Resource.success(result.componentComponentStage.toDatabaseModel().toDomainModel())))
                 } ?: run {
                     send(Event(Resource.error("No response body", null)))

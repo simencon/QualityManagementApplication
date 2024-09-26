@@ -4,9 +4,9 @@ import androidx.compose.material3.FabPosition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.usecase.products.SyncProductsUseCase
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
-import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -37,7 +37,7 @@ class MainActivityViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
-    private val productsRepository: ProductsRepository,
+    private val syncProductsUseCase: SyncProductsUseCase,
     private val repository: InvestigationsRepository,
 ) : ViewModel() {
     val userInfo get() = userRepository.user
@@ -164,49 +164,7 @@ class MainActivityViewModel @Inject constructor(
             manufacturingRepository.syncOperations()
             manufacturingRepository.syncOperationsFlows()
 
-            productsRepository.syncProductLines()
-            productsRepository.syncProductLineKeys()
-            productsRepository.syncProductBases()
-            productsRepository.syncCharacteristicGroups()
-            productsRepository.syncCharacteristicSubGroups()
-            productsRepository.syncCharacteristics()
-            productsRepository.syncMetrics()
-            productsRepository.syncVersionStatuses()
-
-            productsRepository.syncProductKinds()
-            productsRepository.syncComponentKinds()
-            productsRepository.syncComponentStageKinds()
-
-            productsRepository.syncProductKindsKeys()
-            productsRepository.syncComponentKindsKeys()
-            productsRepository.syncComponentStageKindsKeys()
-
-            productsRepository.syncCharacteristicsProductKinds()
-            productsRepository.syncCharacteristicsComponentKinds()
-            productsRepository.syncCharacteristicsComponentStageKinds()
-
-            productsRepository.syncProducts()
-            productsRepository.syncComponents()
-            productsRepository.syncComponentStages()
-
-            productsRepository.syncProductsToLines()
-            productsRepository.syncComponentsToLines()
-            productsRepository.syncComponentStagesToLines()
-
-            productsRepository.syncProductKindsProducts()
-            productsRepository.syncComponentKindsComponents()
-            productsRepository.syncComponentStageKindsComponentStages()
-
-            productsRepository.syncProductsComponents()
-            productsRepository.syncComponentsComponentStages()
-
-            productsRepository.syncProductVersions()
-            productsRepository.syncComponentVersions()
-            productsRepository.syncComponentStageVersions()
-
-            productsRepository.syncProductTolerances()
-            productsRepository.syncComponentTolerances()
-            productsRepository.syncComponentStageTolerances()
+            syncProductsUseCase.execute()
 
             repository.syncInputForOrder()
             repository.syncOrdersStatuses()

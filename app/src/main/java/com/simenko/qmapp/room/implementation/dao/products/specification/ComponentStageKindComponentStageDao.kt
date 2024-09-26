@@ -20,4 +20,7 @@ abstract class ComponentStageKindComponentStageDao : DaoBaseModel<ID, ID, Databa
 
     @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentStageKindComponentStage?
+
+    @Query("SELECT * FROM `5_6_component_stage_kinds_component_stages` WHERE componentStageKindId = :itemKindId AND componentStageId = :itemId")
+    abstract suspend fun findExistingRecord(itemKindId: ID, itemId: ID): DatabaseComponentStageKindComponentStage?
 }

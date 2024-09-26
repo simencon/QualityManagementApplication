@@ -514,7 +514,7 @@ data class DomainComponentComponentStage(
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>() {
-        override fun getRecordId() = componentComponentStage.id
+        override fun getRecordId() = componentStage.componentStage.componentStage.id
         override fun getParentId() = componentComponentStage.componentId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel() = DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete(

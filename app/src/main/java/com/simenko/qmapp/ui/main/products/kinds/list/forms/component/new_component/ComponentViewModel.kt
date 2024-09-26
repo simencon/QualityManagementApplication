@@ -195,9 +195,7 @@ class ComponentViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
         val component = _productComponent.value.component.component.component
         val isNewRecord = component.id == NoRecord.num
-        with(repository) {
-            if (isNewRecord) insertComponent(component) else updateComponent(component)
-        }.consumeEach { event ->
+        with(repository) { if (isNewRecord) insertComponent(component) else updateComponent(component) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
@@ -213,13 +211,11 @@ class ComponentViewModel @Inject constructor(
 
     private fun CoroutineScope.makeComponentKindComponent(componentId: ID) = launch(Dispatchers.IO) {
         val componentKindComponent = _productComponent.value.component.componentKindComponent.copy(componentId = componentId)
-        with(repository) {
-            insertComponentKindComponent(componentKindComponent)
-        }.consumeEach { event ->
+        with(repository) { insertComponentKindComponent(componentKindComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(it) }
+                    Status.SUCCESS -> resource.data?.id?.let { makeProductComponent(componentId, it) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
@@ -229,13 +225,13 @@ class ComponentViewModel @Inject constructor(
         }
     }
 
-    private fun CoroutineScope.makeProductComponent(componentKindComponentId: ID) = launch(Dispatchers.IO) {
+    private fun CoroutineScope.makeProductComponent(componentId: ID, componentKindComponentId: ID) = launch(Dispatchers.IO) {
         val productComponent = _productComponent.value.productComponent.copy(componentKindComponentId = componentKindComponentId)
         with(repository) { insertProductComponent(productComponent) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
                     Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(it) }
+                    Status.SUCCESS -> resource.data?.id?.let { navBackToRecord(componentId) }
                     Status.ERROR -> {
                         mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                         _fillInState.value = FillInInitialState
