@@ -556,13 +556,15 @@ class ProductsRepository @Inject constructor(
     val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->
         database.productVersionDao.getRecordsCompleteForUI(fpId).map { list -> list.map { it.toDomainModel() } }
     }
+    val itemComplete: suspend (String) -> DomainItemComplete = { fId ->
+        database.productVersionDao.getParentRecordCompleteForUI(fId)?.toDomainModel() ?: DomainItemComplete()
+    }
     val itemVersionComplete: suspend (String) -> DomainItemVersionComplete = { fId ->
         database.productVersionDao.getRecordCompleteForUI(fId)?.toDomainModel() ?: DomainItemVersionComplete()
     }
-
-    val versionTolerancesComplete: (String) -> Flow<List<DomainItemTolerance.DomainItemToleranceComplete>> = { versionFId ->
-        database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map { list -> list.map { it.toDomainModel() } }
+    val versionTolerancesComplete: suspend (String) -> List<DomainItemTolerance.DomainItemToleranceComplete> = { versionFId ->
+        database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map {  it.toDomainModel() }
     }
 
-    val versionStatuses = database.versionStatusDao.getRecordsForUI()
+    val versionStatuses = database.versionStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

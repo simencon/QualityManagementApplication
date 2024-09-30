@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.entities.products.DatabaseItemComplete
 import com.simenko.qmapp.room.entities.products.DatabaseItemTolerance
 import com.simenko.qmapp.room.entities.products.DatabaseItemVersionComplete
 import com.simenko.qmapp.room.entities.products.DatabaseProductVersion
@@ -29,11 +30,14 @@ abstract class ProductVersionDao : DaoBaseModel<ID, ID, DatabaseProductVersion> 
     abstract fun getRecordsCompleteForUI(fpId: String): Flow<List<DatabaseItemVersionComplete>>
 
     @Transaction
+    @Query("SELECT * FROM items_complete where fId = :fId")
+    abstract suspend fun getParentRecordCompleteForUI(fId: String): DatabaseItemComplete?
+
+    @Transaction
     @Query("SELECT * FROM item_versions where fId = :fId")
     abstract suspend fun getRecordCompleteForUI(fId: String): DatabaseItemVersionComplete?
 
     @Transaction
     @Query("SELECT * FROM items_tolerances where fVersionId = :fVersionId")
-    abstract fun getItemVersionTolerancesComplete(fVersionId: String): Flow<List<DatabaseItemTolerance.DatabaseItemToleranceComplete>>
-
+    abstract suspend fun getItemVersionTolerancesComplete(fVersionId: String): List<DatabaseItemTolerance.DatabaseItemToleranceComplete>
 }

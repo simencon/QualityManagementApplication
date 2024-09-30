@@ -383,21 +383,7 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddCopyItemVersion -> {
-                when (inputData.itemIdWithPref.firstOrNull()) {
-                    ProductPref.char -> {
-                        // Add new product version
-                    }
-
-                    ComponentPref.char -> {
-                        // Add new component version
-                    }
-
-                    ComponentStagePref.char -> {
-                        // Add new component stage version
-                    }
-
-                    else -> Unit
-                }
+                appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(itemFId = inputData.itemIdWithPref, versionEditMode = true))
             }
 
             is SheetInputData.Nothing -> Unit
@@ -433,6 +419,7 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddCopyItemVersion -> {
+                // show new dialog to select referenceVersionFId
                 when (inputData.itemIdWithPref.firstOrNull()) {
                     ProductPref.char -> {
                         // Copy into new product version

@@ -180,6 +180,10 @@ fun VersionSpecificationHeader(
         interactionSource.interactions.collect { if (it is PressInteraction.Release) onShowDatePicker(true) }
     }
 
+    LaunchedEffect(isEditMode) {
+        if (isEditMode) versionStatusFR.requestFocus()
+    }
+
     Column(modifier = Modifier.onGloballyPositioned { onHeaderHeightCalculated(with(localDensity) { it.size.height.toDp() }) }) {
         val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
             'p' -> "Product designation"
@@ -214,16 +218,16 @@ fun VersionSpecificationHeader(
             ) {
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             RecordFieldItem(
-                modifier = Modifier.width(120.dp),
+                modifier = Modifier.width(125.dp),
                 valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { setItemVersionDescription(it) },
                 enabled = isEditMode,
                 keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(null, "Version ID", "version ID")
+                contentDescription = Triple(null, "Version ID", "Enter ID")
             )
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             RecordFieldItem(
-                modifier = Modifier.width(120.dp),
+                modifier = Modifier.width(125.dp),
                 valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
                 enabled = isEditMode,
                 keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },

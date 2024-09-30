@@ -6,23 +6,22 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.domain.ComponentPref
-import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.domain.entities.products.DomainItemTolerance
+import com.simenko.qmapp.domain.entities.products.DomainItemVersion
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
+import com.simenko.qmapp.domain.entities.products.DomainVersionStatus
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -30,7 +29,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +45,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,7 +56,9 @@ class VersionTolerancesViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
+    private val _itemFId = MutableStateFlow(NoRecordStr.str)
     private val _versionFId = MutableStateFlow(NoRecordStr.str)
+
     private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _charSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
     private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
@@ -75,27 +77,14 @@ class VersionTolerancesViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
     private val page = mutableStateOf(Page.VERSION_TOLERANCES)
 
-    fun onEntered(route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails) {
+    fun onEntered(route: VersionTolerancesDetails) {
         viewModelScope.launch {
+            prepareState(route)
 
-            _versionFId.value = route.versionFId
             _charGroupVisibility.value = Pair(SelectedNumber(route.charGroupId), NoRecord)
             _charSubGroupVisibility.value = Pair(SelectedNumber(route.charSubGroupId), NoRecord)
             _characteristicVisibility.value = Pair(SelectedNumber(route.characteristicId), NoRecord)
             _toleranceVisibility.value = Pair(SelectedNumber(route.toleranceId), NoRecord)
-            _itemVersion.value = repository.itemVersionComplete(route.versionFId)
-            _versionEditMode.value = route.versionEditMode
-
-            when(_itemVersion.value.itemVersion.fId.firstOrNull()) {
-                ProductPref.char -> {
-                    repository.itemVersionComplete
-                    repository.productById(_itemVersion.value.itemVersion.id).let {
-
-                    }
-                }
-                ComponentPref.char -> {}
-                ComponentStagePref.char -> {}
-            }
 
             mainPageHandler = MainPageHandler.Builder(page.value.withCustomFabIcon(if (_versionEditMode.value) Icons.Filled.Save else Icons.Filled.Edit), mainPageState)
                 .setOnNavMenuClickAction { appNavigator.navigateBack() }
@@ -103,11 +92,46 @@ class VersionTolerancesViewModel @Inject constructor(
                 .setOnPullRefreshAction { updateTolerancesData() }
                 .build()
                 .apply { setupMainPage(0, true) }
-
-            repository.versionTolerancesComplete(route.versionFId).collect {
-                _itemVersionTolerances.value = it
-            }
         }
+    }
+
+    private suspend fun prepareState(route: VersionTolerancesDetails) {
+
+        if (route.itemFId != NoRecordStr.str) {
+            _itemFId.value = route.itemFId
+            val itemComplete = repository.itemComplete(route.itemFId)
+            _itemVersion.value = DomainItemVersionComplete(
+                itemVersion = DomainItemVersion(
+                    itemId = itemComplete.item.id,
+                    fItemId = itemComplete.item.fId,
+                    versionDate = Calendar.getInstance().timeInMillis
+                ),
+                versionStatus = DomainVersionStatus(),
+                itemComplete = itemComplete,
+            )
+        } else if (route.referenceVersionFId != NoRecordStr.str) {
+            val itemComplete = repository.itemComplete(route.itemFId)
+            _itemVersion.value = DomainItemVersionComplete(
+                itemVersion = DomainItemVersion(
+                    itemId = itemComplete.item.id,
+                    fItemId = itemComplete.item.fId,
+                    versionDate = Calendar.getInstance().timeInMillis
+                ),
+                versionStatus = DomainVersionStatus(),
+                itemComplete = itemComplete,
+            )
+            _itemVersionTolerances.value = repository.versionTolerancesComplete(route.versionFId).map {
+                it.copy(itemTolerance = it.itemTolerance.copy(versionId = _itemVersion.value.itemVersion.id, fVersionId = _itemVersion.value.itemVersion.fId))
+            }
+        } else {
+            _versionFId.value = route.versionFId
+            _itemVersion.value = repository.itemVersionComplete(route.versionFId)
+            _itemFId.value = _itemVersion.value.itemComplete.item.fId
+
+            _itemVersionTolerances.value = repository.versionTolerancesComplete(route.versionFId)
+        }
+
+        _versionEditMode.value = route.versionEditMode
     }
 
     /**
@@ -134,6 +158,14 @@ class VersionTolerancesViewModel @Inject constructor(
 
     val versionStatuses = repository.versionStatuses.flatMapLatest { statuses ->
         _itemVersion.flatMapLatest { itemVersion ->
+            if (itemVersion.itemVersion.statusId == null) {
+                statuses.firstOrNull()?.let {
+                    _itemVersion.value = _itemVersion.value.copy(
+                        itemVersion = _itemVersion.value.itemVersion.copy(statusId = it.id),
+                        versionStatus = it
+                    )
+                }
+            }
             flow { emit(statuses.map { Triple(it.id, it.statusDescription ?: NoString.str, it.id == itemVersion.itemVersion.statusId) }) }
         }
     }
