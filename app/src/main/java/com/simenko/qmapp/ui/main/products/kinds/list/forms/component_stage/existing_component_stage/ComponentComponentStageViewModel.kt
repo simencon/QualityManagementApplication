@@ -53,7 +53,7 @@ class ComponentComponentStageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _route.value = route
 
-            val stageDesignations = repository.componentStageKindKeysByParent(route.componentStageKindId).map { it.keyId }
+            val stageDesignations = repository.componentStageKindKeysByParent(route.componentStageKindId).map { it.key.productLineKey.id }
 
             launch {
                 repository.allComponentComponentStages().collect { list: List<DomainComponentComponentStage.DomainComponentComponentStageComplete> ->

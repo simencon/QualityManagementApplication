@@ -120,7 +120,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 versionStatus = DomainVersionStatus(),
                 itemComplete = itemComplete,
             )
-            _itemVersionTolerances.value = repository.versionTolerancesComplete(route.versionFId).map {
+            _itemVersionTolerances.value = repository.versionTolerancesComplete(route.referenceVersionFId).map {
                 it.copy(itemTolerance = it.itemTolerance.copy(versionId = _itemVersion.value.itemVersion.id, fVersionId = _itemVersion.value.itemVersion.fId))
             }
         } else {

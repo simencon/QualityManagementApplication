@@ -38,6 +38,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
@@ -45,7 +46,6 @@ import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.utils.Rounder
 
 @Composable
 fun CharacteristicSubGroupForm(
@@ -99,7 +99,7 @@ fun CharacteristicSubGroupForm(
                 modifier = Modifier.width(320.dp),
                 options = charGroups,
                 isError = fillInErrors.charGroupError,
-                onDropdownMenuItemClick = { viewModel.onSetCharGroup(it) },
+                onDropdownMenuItemClick = { viewModel.onSetCharGroup(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(groupFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.SquareFoot, "Characteristic group", "Select group"),

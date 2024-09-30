@@ -35,6 +35,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
@@ -112,7 +113,7 @@ fun ProductLineForm(
                 modifier = Modifier.width(320.dp),
                 options = availableDesignDepartments,
                 isError = fillInErrors.designDepartmentError,
-                onDropdownMenuItemClick = { viewModel.onSetDesignDepartment(it) },
+                onDropdownMenuItemClick = { viewModel.onSetDesignDepartment(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(designDepartmentFR) { designManagerFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.AccountBalance, "Design department", "Select design dep."),
@@ -123,7 +124,7 @@ fun ProductLineForm(
                 modifier = Modifier.width(320.dp),
                 options = availableEmployees,
                 isError = fillInErrors.designManagerError,
-                onDropdownMenuItemClick = { viewModel.onSetDesignManager(it) },
+                onDropdownMenuItemClick = { viewModel.onSetDesignManager(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(designManagerFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Person, "Design manager", "Select design manager"),

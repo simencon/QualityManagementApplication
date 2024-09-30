@@ -16,8 +16,9 @@ abstract class ComponentKindKeyDao : DaoBaseModel<ID, ID, DatabaseComponentKindK
     @Query("SELECT * FROM `3_1_component_kind_keys` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentKindKey>>
 
-    @Query("select * from `3_1_component_kind_keys` where componentKindId = :parentId order by id  asc")
-    abstract suspend fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKindKey>
+    @Transaction
+    @Query("select * from `component_kind_keys_complete` where componentKindId = :parentId order by id  asc")
+    abstract suspend fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKindKey.DatabaseComponentKindKeyComplete>
 
     @Query("SELECT * FROM `3_1_component_kind_keys` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentKindKey?

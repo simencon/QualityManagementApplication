@@ -34,6 +34,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.repository.UserError
@@ -103,7 +104,7 @@ fun UserForm(
                 modifier = Modifier.width(320.dp),
                 options = userEmployees,
                 isError = userErrors.teamMemberError,
-                onDropdownMenuItemClick = { viewModel.setUserEmployee(it) },
+                onDropdownMenuItemClick = { viewModel.setUserEmployee(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(userEmployeeFR) { userEmployeeFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),

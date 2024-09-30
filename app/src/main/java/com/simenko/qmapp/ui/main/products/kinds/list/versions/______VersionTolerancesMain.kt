@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.AppDialogDatePicker
@@ -242,7 +243,7 @@ fun VersionSpecificationHeader(
                 options = versionStatuses,
                 enabled = isEditMode,
                 isError = itemVersionErrors.versionStatusError,
-                onDropdownMenuItemClick = { setVersionStatus(it) },
+                onDropdownMenuItemClick = { setVersionStatus(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(null, "Status", "status")

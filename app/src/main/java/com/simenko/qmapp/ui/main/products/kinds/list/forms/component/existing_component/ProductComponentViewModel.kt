@@ -56,7 +56,7 @@ class ProductComponentViewModel @Inject constructor(
             repository.componentKind(route.componentKindId).let { _productKindId.value = it.productKind.productKind.id }
             _route.value = route
 
-            val componentDesignations = repository.componentKindKeysByParent(route.componentKindId).map { it.keyId }
+            val componentDesignations = repository.componentKindKeysByParent(route.componentKindId).map { it.componentKindKey.keyId }
 
             launch {
                 repository.allProductComponents().collect { list ->

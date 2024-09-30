@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.common.dialog
+package com.simenko.qmapp.ui.main.products.kinds.list.forms.version.copy_version
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -25,16 +25,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,52 +49,86 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.simenko.qmapp.domain.DomainBaseModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ComponentPref
+import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
-import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ProductPref
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
+import com.simenko.qmapp.ui.common.dialog.SelectionGrid
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
+import com.simenko.qmapp.ui.navigation.Route
 
-enum class ItemSelectEnum {
-    COMPONENT,
-    COMPONENT_STAGE
+@Composable
+fun VersionSingleChoiceDialog(viewModel: ItemVersionsViewModel, route: Route.Main.ProductLines.ProductKinds.Products.CopyItemVersion) {
+    val designations by viewModel.availableDesignations.collectAsStateWithLifecycle(initialValue = emptyList())
+    val items by viewModel.availableItems.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    val searchValue by viewModel.searchValue.collectAsStateWithLifecycle()
+    val versions by viewModel.availableVersions.collectAsStateWithLifecycle(initialValue = emptyList())
+    val isReadyToCopy by viewModel.isReadyToCopy.collectAsStateWithLifecycle(initialValue = false)
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.onEntered(route)
+    }
+
+    VersionSingleChoiceDialog(
+        idPref = route.itemFId.firstOrNull() ?: ProductPref.char,
+        versions = versions,
+
+        designations = designations,
+        onSelectDesignation = viewModel::onSelectDesignation,
+
+        items = items,
+        onVersionItem = viewModel::onVersionItem,
+
+        searchString = searchValue,
+        onSearch = viewModel::onChangeSearchValue,
+
+        addIsEnabled = isReadyToCopy,
+        onDismiss = viewModel::navBack,
+
+        onItemVersion = viewModel::onSelectVersion,
+        onCopyClick = viewModel::onCopy
+    )
 }
 
 @Composable
-fun <DB, DM> ComponentSingleChoiceDialog(
-    selectionOf: ItemSelectEnum,
-    items: List<DM>,
+fun VersionSingleChoiceDialog(
+    idPref: Char,
+    versions: List<DomainItemVersionComplete>,
 
     designations: List<Triple<ID, String, Boolean>>,
     onSelectDesignation: (ID) -> Unit,
 
-    products: List<Triple<ID, String, Boolean>>,
-    onSelectProduct: (ID) -> Unit,
+    items: List<Triple<String, String, Boolean>>,
+    onVersionItem: (String) -> Unit,
 
     searchString: String,
     onSearch: (String) -> Unit,
 
-    quantity: Pair<String, Boolean>,
-    onEnterQuantity: (String) -> Unit,
-
-    isLoadingState: Boolean,
-
     addIsEnabled: Boolean,
     onDismiss: () -> Unit,
-    onItemSelect: (ID) -> Unit,
-    onAddClick: () -> Unit
-) where DM : DomainBaseModel<DB> {
+    onItemVersion: (String) -> Unit,
+    onCopyClick: () -> Unit
+) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        val parent = if (selectionOf == ItemSelectEnum.COMPONENT) "product" else "component"
-
+        val parent = when (idPref) {
+            ProductPref.char -> "Product"
+            ComponentPref.char -> "Component"
+            ComponentStagePref.char -> "Component stage"
+            else -> EmptyString.str
+        }
         Box(
             modifier = Modifier
                 .wrapContentSize()
@@ -112,7 +146,6 @@ fun <DB, DM> ComponentSingleChoiceDialog(
             ) {
                 val (parentFR) = FocusRequester.createRefs()
                 val (searchFR) = FocusRequester.createRefs()
-                val (quantityFR) = FocusRequester.createRefs()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 val listState = rememberLazyListState()
 
@@ -133,14 +166,14 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                         }
                         RecordFieldItemWithMenu(
                             modifier = Modifier.width(300.dp),
-                            options = products,
+                            options = items,
                             isError = false,
                             isMandatoryField = false,
                             containerColor = MaterialTheme.colorScheme.onPrimary,
-                            onDropdownMenuItemClick = { onSelectProduct(it?: NoRecord.num) },
+                            onDropdownMenuItemClick = { onVersionItem(it ?: NoRecordStr.str) },
                             keyboardNavigation = Pair(parentFR) { parentFR.requestFocus() },
                             keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Search),
-                            contentDescription = Triple(Icons.Outlined.Info, "Belongs to $parent", "Select $parent item"),
+                            contentDescription = Triple(Icons.Outlined.Info, parent, "Select ${parent.lowercase()}"),
                         )
                         Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE / 2).dp))
                         RecordFieldItem(
@@ -156,23 +189,11 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                         Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE / 2).dp))
 
                         LazyColumn(state = listState, modifier = Modifier.height(300.dp)) {
-                            items(items = items, key = { it.getRecordId() }) { item ->
-                                ComponentToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
-                                    onItemSelect.invoke(selectedName)
+                            items(items = versions, key = { it.getRecordId() }) { item ->
+                                VersionToSelect(item.getRecordId(), Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
+                                    onItemVersion.invoke(selectedName)
                                 }
                             }
-                        }
-                        if (selectionOf == ItemSelectEnum.COMPONENT || selectionOf == ItemSelectEnum.COMPONENT_STAGE) {
-                            RecordFieldItem(
-                                modifier = Modifier.width(300.dp),
-                                valueParam = Triple(quantity.first, quantity.second) { onEnterQuantity(it) },
-                                keyboardNavigation = Pair(quantityFR) { keyboardController?.hide() },
-                                keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
-                                contentDescription = Triple(Icons.Outlined.ShoppingCart, "Quantity in $parent", "Enter quantity"),
-                                isMandatoryField = true,
-                                containerColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                            Spacer(modifier = Modifier.height((Constants.DEFAULT_SPACE).dp))
                         }
                     }
 
@@ -208,14 +229,14 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                         TextButton(
                             enabled = addIsEnabled,
                             modifier = Modifier.weight(1f),
-                            onClick = onAddClick,
+                            onClick = onCopyClick,
                             colors = ButtonDefaults.textButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                         ) {
                             Text(
-                                "Add",
+                                "Copy",
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                                 textAlign = TextAlign.Center
@@ -224,23 +245,15 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                     }
                 }
             }
-
-            if (isLoadingState) {
-                CircularProgressIndicator(
-                    modifier = Modifier.width(64.dp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-            }
         }
     }
 }
 
 @Composable
-fun ComponentToSelect(
-    itemId: ID,
+fun VersionToSelect(
+    itemId: String,
     itemContent: Triple<String, String, Boolean>,
-    onClick: (ID) -> Unit
+    onClick: (String) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = if (itemContent.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
@@ -260,7 +273,7 @@ fun ComponentToSelect(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = itemContent.second.ifEmpty { NoString.str },
+                    text = itemContent.first.ifEmpty { NoString.str } + itemContent.second,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -275,7 +288,7 @@ fun ComponentToSelect(
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
-fun PreviewComponentSingleChoiceDialog() {
+fun PreviewVersionSingleChoiceDialog() {
     val list = mutableListOf<DomainKey>()
     for (i in 0..100) {
         if (i % 2 == 0)
@@ -283,21 +296,21 @@ fun PreviewComponentSingleChoiceDialog() {
         else
             list.add(DomainKey(i.toLong(), 1L, "OR", "Outer ring"))
     }
-    ComponentSingleChoiceDialog(
-        selectionOf = ItemSelectEnum.COMPONENT,
-        items = list.toList(),
-        products = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
-        onSelectProduct = {},
+    VersionSingleChoiceDialog(
+        idPref = ComponentPref.char,
+        versions = emptyList(),
+
         designations = listOf(Triple(1L, "Geometry", false), Triple(2L, "Material", true)),
         onSelectDesignation = {},
+
+        items = listOf(Triple("1L", "Geometry", false), Triple("2L", "Material", true)),
+        onVersionItem = {},
+
         searchString = "Mechanical",
         onSearch = {},
-        quantity = Pair("10", true),
-        onEnterQuantity = {},
-        isLoadingState = true,
         addIsEnabled = true,
         onDismiss = {},
-        onItemSelect = {},
-        onAddClick = {}
+        onItemVersion = {},
+        onCopyClick = {}
     )
 }

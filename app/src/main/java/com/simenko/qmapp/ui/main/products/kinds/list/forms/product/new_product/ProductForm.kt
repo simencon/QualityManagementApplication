@@ -35,6 +35,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
@@ -100,7 +101,7 @@ fun ProductForm(
                 modifier = Modifier.width(320.dp),
                 options = keys,
                 isError = fillInErrors.productKeyError,
-                onDropdownMenuItemClick = { viewModel.onSelectProductKey(it) },
+                onDropdownMenuItemClick = { viewModel.onSelectProductKey(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(productKeyFR) { productKeyFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Product designation", "Select product designation"),
@@ -110,7 +111,7 @@ fun ProductForm(
                 modifier = Modifier.width(320.dp),
                 options = productBases,
                 isError = fillInErrors.productBaseError,
-                onDropdownMenuItemClick = { viewModel.onSelectProductBase(it) },
+                onDropdownMenuItemClick = { viewModel.onSelectProductBase(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(productBaseFR) { productBaseFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Sell, "Base product", "Select base product"),
@@ -138,7 +139,7 @@ fun ProductForm(
         }
         if (isAddProductBaseDialogVisible) {
             ProductBaseDialog(
-                productBaseName = productBaseToAdd.second.componentBaseDesignation?: EmptyString.str,
+                productBaseName = productBaseToAdd.second.componentBaseDesignation ?: EmptyString.str,
                 errorMsg = productBaseToAdd.first,
                 onChangeProductBaseName = viewModel::onChangeProductBaseName,
                 onDismiss = { viewModel.onChangeAddProductLineVisibility(false) },

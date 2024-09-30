@@ -419,22 +419,19 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddCopyItemVersion -> {
-                // show new dialog to select referenceVersionFId
-                when (inputData.itemIdWithPref.firstOrNull()) {
-                    ProductPref.char -> {
-                        // Copy into new product version
-                    }
-
-                    ComponentPref.char -> {
-                        // Copy into new component version
-                    }
-
-                    ComponentStagePref.char -> {
-                        // Copy into new component stage version
-                    }
-
-                    else -> Unit
+                val itemKindId = when(inputData.itemIdWithPref.firstOrNull()) {
+                    ProductPref.char -> _productKindId.value
+                    ComponentPref.char -> _componentKindsVisibility.value.first.num
+                    ComponentStagePref.char -> _componentStageKindsVisibility.value.first.num
+                    else -> NoRecord.num
                 }
+
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductKinds.Products.CopyItemVersion(
+                        itemKindID = itemKindId,
+                        itemFId = inputData.itemIdWithPref,
+                    )
+                )
             }
 
             is SheetInputData.Nothing -> Unit

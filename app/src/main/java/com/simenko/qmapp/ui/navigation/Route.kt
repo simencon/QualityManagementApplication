@@ -223,15 +223,9 @@ sealed interface Route {
                     ) : Route
 
                     @Serializable
-                    data class AddItemVersion(
-                        val itemPrefix: String,
-                        val itemId: ID,
-                    ) : Route
-
-                    @Serializable
                     data class CopyItemVersion(
-                        val itemPrefix: String,
-                        val itemId: ID,
+                        val itemKindID: ID,
+                        val itemFId: String = NoRecordStr.str,
                     ) : Route
 
                     @Serializable

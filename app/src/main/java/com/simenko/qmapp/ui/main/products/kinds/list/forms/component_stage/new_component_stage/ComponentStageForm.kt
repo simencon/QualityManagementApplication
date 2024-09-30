@@ -35,6 +35,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
@@ -106,7 +107,7 @@ fun ComponentStageForm(
                 modifier = Modifier.width(320.dp),
                 options = keys,
                 isError = fillInErrors.componentStageKeyError,
-                onDropdownMenuItemClick = { viewModel.onSelectComponentStageKey(it) },
+                onDropdownMenuItemClick = { viewModel.onSelectComponentStageKey(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(componentKeyFR) { componentKeyFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Comp. stage designation", "Select designation"),

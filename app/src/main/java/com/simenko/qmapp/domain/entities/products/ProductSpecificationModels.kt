@@ -11,6 +11,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.utils.StringUtils.getStringDate
 
 data class DomainProductLine(
     var id: ID = NoRecord.num,
@@ -648,10 +649,22 @@ data class DomainItemVersionComplete(
 ) : DomainBaseModel<DatabaseItemVersionComplete>() {
     override fun getRecordId() = itemVersion.fId
     override fun getParentId() = NoRecord.num
-    override fun getParentIdStr() = itemVersion.fItemId
+    override fun getParentIdStr() = itemComplete.item.fId
+    override fun getIdentityName(): String {
+        return (itemVersion.versionDescription ?: EmptyString.str) + "/" + getStringDate(itemVersion.versionDate, 6)
+    }
+
+    override fun getName(): String {
+        return if (itemVersion.isDefault) "(Default)" else EmptyString.str
+    }
+
     override fun hasParentId(pId: ID) = itemComplete.itemToLines.find { it.lineId == pId } != null
     override fun setIsSelected(value: Boolean) {
         isSelected = value
+    }
+
+    override fun getIsSelected(): Boolean {
+        return isSelected
     }
 
     override fun toDatabaseModel() = DatabaseItemVersionComplete(

@@ -125,7 +125,7 @@ fun DepartmentForm(
                 modifier = Modifier.width(320.dp),
                 options = companyEmployees,
                 isError = fillInErrors.departmentManagerError,
-                onDropdownMenuItemClick = { viewModel.setDepartmentManager(it) },
+                onDropdownMenuItemClick = { viewModel.setDepartmentManager(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(managerFR) { managerFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Person, "Department manager", "Select dep. manager"),

@@ -148,12 +148,12 @@ fun RecordFieldItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecordFieldItemWithMenu(
+fun <R> RecordFieldItemWithMenu(
     modifier: Modifier = Modifier,
-    options: List<Triple<ID, String, Boolean>>,
+    options: List<Triple<R, String, Boolean>>,
     isError: Boolean,
     enabled: Boolean = true,
-    onDropdownMenuItemClick: (ID) -> Unit,
+    onDropdownMenuItemClick: (R?) -> Unit,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     contentDescription: Triple<ImageVector?, String?, String>,
@@ -172,7 +172,7 @@ fun RecordFieldItemWithMenu(
         }
     }
 
-    var filteredOptions = mutableListOf<Triple<ID, String, Boolean>>()
+    var filteredOptions = mutableListOf<Triple<R, String, Boolean>>()
 
     Box(modifier = modifier) {
         RecordFieldItem(
@@ -231,7 +231,7 @@ fun RecordFieldItemWithMenu(
                     DropdownMenuItem(
                         onClick = {
                             selectedOptionText = EmptyString.str
-                            onDropdownMenuItemClick(NoRecord.num)
+                            onDropdownMenuItemClick(null)
                             searchedOption = EmptyString.str
                             expanded = false
                             onAddNewItemClick()
@@ -255,7 +255,7 @@ fun RecordFieldItemWithMenu(
                     DropdownMenuItem(
                         onClick = {
                             selectedOptionText = EmptyString.str
-                            onDropdownMenuItemClick(NoRecord.num)
+                            onDropdownMenuItemClick(null)
                             searchedOption = EmptyString.str
                             expanded = false
                         },

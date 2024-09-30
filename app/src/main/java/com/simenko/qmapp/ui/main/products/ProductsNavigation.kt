@@ -51,6 +51,8 @@ import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_prod
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.existing_product.ProductKindProductViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.new_product.ProductForm
 import com.simenko.qmapp.ui.main.products.kinds.list.forms.product.new_product.ProductViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.version.copy_version.ItemVersionsViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.forms.version.copy_version.VersionSingleChoiceDialog
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerancesViewModel
 import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsMain
@@ -205,6 +207,10 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
         composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
             VersionTolerances(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
+        }
+        dialog<Route.Main.ProductLines.ProductKinds.Products.CopyItemVersion> {
+            val viewModel: ItemVersionsViewModel = hiltViewModel()
+            VersionSingleChoiceDialog(viewModel = viewModel, route = it.toRoute())
         }
     }
 }

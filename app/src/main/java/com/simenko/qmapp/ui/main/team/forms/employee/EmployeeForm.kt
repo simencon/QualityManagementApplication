@@ -47,6 +47,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
@@ -115,7 +116,7 @@ fun EmployeeForm(
             modifier = Modifier.width(320.dp),
             options = companies,
             isError = employeeErrors.companyError,
-            onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
+            onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it ?: NoRecord.num) },
             keyboardNavigation = Pair(companyFR) { companyFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Apartment, "Company", "Select company"),
@@ -125,7 +126,7 @@ fun EmployeeForm(
             modifier = Modifier.width(320.dp),
             options = departments,
             isError = employeeErrors.departmentError,
-            onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
+            onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it ?: NoRecord.num) },
             keyboardNavigation = Pair(departmentFR) { departmentFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Select department"),
@@ -135,7 +136,7 @@ fun EmployeeForm(
             modifier = Modifier.width(320.dp),
             options = subDepartments,
             isError = employeeErrors.subDepartmentError,
-            onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it) },
+            onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it ?: NoRecord.num) },
             keyboardNavigation = Pair(subDepartmentFR) { subDepartmentFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.AccountTree, "Sub department", "Select only if applicable"),
@@ -146,7 +147,7 @@ fun EmployeeForm(
             modifier = Modifier.width(320.dp),
             options = jobRoles,
             isError = employeeErrors.jobRoleIdError,
-            onDropdownMenuItemClick = { viewModel.setEmployeeJobRole(it) },
+            onDropdownMenuItemClick = { viewModel.setEmployeeJobRole(it ?: NoRecord.num) },
             keyboardNavigation = Pair(jobRoleFR) { jobRoleFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Work, "Job role", "Enter job role / position")

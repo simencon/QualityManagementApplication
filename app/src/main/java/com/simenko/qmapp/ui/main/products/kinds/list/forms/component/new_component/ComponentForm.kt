@@ -35,6 +35,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Constants
@@ -109,7 +110,7 @@ fun ComponentForm(
                 modifier = Modifier.width(320.dp),
                 options = keys,
                 isError = fillInErrors.componentKeyError,
-                onDropdownMenuItemClick = { viewModel.onSelectProductKey(it) },
+                onDropdownMenuItemClick = { viewModel.onSelectProductKey(it ?: NoRecord.num) },
                 keyboardNavigation = Pair(componentKeyFR) { componentKeyFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Component designation", "Select designation"),
