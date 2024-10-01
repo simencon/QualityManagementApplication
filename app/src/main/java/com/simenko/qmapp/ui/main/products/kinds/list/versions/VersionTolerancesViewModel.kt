@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.FillInInitialState
@@ -22,6 +23,8 @@ import com.simenko.qmapp.domain.entities.products.DomainItemVersion
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.domain.entities.products.DomainVersionStatus
+import com.simenko.qmapp.domain.usecase.products.MakeItemVersionUseCase
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -34,6 +37,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -53,6 +57,7 @@ import javax.inject.Inject
 class VersionTolerancesViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
+    private val makeItemVersionUseCase: MakeItemVersionUseCase,
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
@@ -97,7 +102,7 @@ class VersionTolerancesViewModel @Inject constructor(
 
     private suspend fun prepareState(route: VersionTolerancesDetails) {
 
-        if (route.itemFId != NoRecordStr.str) {
+        if (route.itemFId != NoRecordStr.str && route.referenceVersionFId == NoRecordStr.str) {
             _itemFId.value = route.itemFId
             val itemComplete = repository.itemComplete(route.itemFId)
             _itemVersion.value = DomainItemVersionComplete(
@@ -109,7 +114,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 versionStatus = DomainVersionStatus(),
                 itemComplete = itemComplete,
             )
-        } else if (route.referenceVersionFId != NoRecordStr.str) {
+        } else if (route.itemFId != NoRecordStr.str && route.referenceVersionFId != NoRecordStr.str) {
             val itemComplete = repository.itemComplete(route.itemFId)
             _itemVersion.value = DomainItemVersionComplete(
                 itemVersion = DomainItemVersion(
@@ -435,13 +440,48 @@ class VersionTolerancesViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    private val _isLoading = mutableStateOf(false)
+
     private fun onFabClick() {
-        val fabIcon = if (_versionEditMode.value) {
-//            ToDoMe - save all changes here
-            Icons.Filled.Edit
+        if (_isLoading.value) return
+
+        if (_versionEditMode.value) {
+            viewModelScope.launch {
+                makeItemVersionUseCase.execute(
+                    scope = this,
+                    version = _itemVersion.value.itemVersion,
+                    tolerances = _itemVersionTolerances.value.map { it.itemTolerance }
+                ).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                _isLoading.value = true
+                                mainPageState.sendLoadingState(Pair(_isLoading.value, null))
+                            }
+
+                            Status.SUCCESS -> {
+                                resource.data?.let { onEntered(VersionTolerancesDetails(versionFId = it)) }
+                                setUpFab(Icons.Filled.Edit)
+                                _isLoading.value = false
+                                mainPageState.sendLoadingState(Pair(_isLoading.value, null))
+                            }
+
+                            Status.ERROR -> {
+                                setUpFab(Icons.Filled.Edit)
+                                _isLoading.value = false
+                                mainPageState.sendLoadingState(Pair(_isLoading.value, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
         } else {
-            Icons.Filled.Save
+            setUpFab(Icons.Filled.Save)
         }
+
+    }
+
+    private fun setUpFab(fabIcon: ImageVector) {
         _versionEditMode.value = !_versionEditMode.value
         page.value = page.value.withCustomFabIcon(fabIcon)
         viewModelScope.launch { mainPageHandler?.setFabIcon?.invoke(fabIcon) }
