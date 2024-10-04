@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -422,6 +423,30 @@ class ProductsRepository @Inject constructor(
         }
     }
 
+    fun CoroutineScope.makeProductVersion(prepareProductVersion: Pair<DomainProductVersion, List<DomainProductTolerance>>) = crudeOperations.run {
+        val requestBody = Pair(
+            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
+            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+        )
+        syncParentWithChildren(parentDao =  database.productVersionDao, childrenDao = database.productToleranceDao) { service.makeProductVersion(version = requestBody) }
+    }
+
+    fun CoroutineScope.makeComponentVersion(prepareProductVersion: Pair<DomainComponentVersion, List<DomainComponentTolerance>>) = crudeOperations.run {
+        val requestBody = Pair(
+            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
+            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+        )
+        syncParentWithChildren(parentDao =  database.componentVersionDao, childrenDao = database.componentToleranceDao) { service.makeComponentVersion(version = requestBody) }
+    }
+
+    fun CoroutineScope.makeStageVersion(prepareProductVersion: Pair<DomainComponentStageVersion, List<DomainComponentInStageTolerance>>) = crudeOperations.run {
+        val requestBody = Pair(
+            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
+            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+        )
+        syncParentWithChildren(parentDao =  database.componentStageVersionDao, childrenDao = database.componentStageToleranceDao) { service.makeStageVersion(version = requestBody) }
+    }
+
 
     suspend fun syncProductVersions() = crudeOperations.syncRecordsAll(database.productVersionDao) { service.getProductVersions() }
     suspend fun syncComponentVersions() = crudeOperations.syncRecordsAll(database.componentVersionDao) { service.getComponentVersions() }
@@ -429,6 +454,7 @@ class ProductsRepository @Inject constructor(
     suspend fun syncProductTolerances() = crudeOperations.syncRecordsAll(database.productToleranceDao) { service.getProductTolerances() }
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
+
 
     val productLine: suspend (ID) -> DomainProductLine = { database.productLineDao.getRecordById(it)?.toDomainModel() ?: DomainProductLine() }
     val productLineById: suspend (ID) -> DomainProductLineComplete = { database.productLineDao.getRecordCompleteById(it)?.toDomainModel() ?: DomainProductLineComplete() }

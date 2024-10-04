@@ -78,6 +78,7 @@ interface ProductsService {
 
     @GET(PRODUCT_BASES)
     suspend fun getProductBases(): Response<List<NetworkProductBase>>
+
     @POST(PRODUCT_BASES)
     suspend fun insertProductBase(@Body value: NetworkProductBase): Response<NetworkProductBase>
 
@@ -263,6 +264,7 @@ interface ProductsService {
 
     @GET(COMPONENTS_IN_STAGE)
     suspend fun getComponentStages(): Response<List<NetworkComponentStage>>
+
     @POST(COMPONENTS_IN_STAGE)
     suspend fun insertComponentStage(@Body value: NetworkComponentStage): Response<NetworkComponentStage>
 
@@ -292,12 +294,14 @@ interface ProductsService {
 
     @GET(COMPONENT_KINDS_COMPONENTS)
     suspend fun getComponentKindsComponents(): Response<List<NetworkComponentKindComponent>>
+
     @POST(COMPONENT_KINDS_COMPONENTS)
     suspend fun insertComponentKindComponent(@Body record: NetworkComponentKindComponent): Response<NetworkComponentKindComponent>
 
 
     @GET(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
     suspend fun getComponentStageKindsComponentStages(): Response<List<NetworkComponentStageKindComponentStage>>
+
     @POST(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
     suspend fun insertStageKindStage(@Body record: NetworkComponentStageKindComponentStage): Response<NetworkComponentStageKindComponentStage>
 
@@ -307,6 +311,7 @@ interface ProductsService {
 
     @POST(PRODUCTS_COMPONENTS)
     suspend fun insertProductComponent(@Body record: NetworkProductComponent): Response<NetworkProductComponent>
+
     @PUT("$PRODUCTS_COMPONENTS/{id}")
     suspend fun editProductComponent(@Path("id") id: ID, @Body value: NetworkProductComponent): Response<NetworkProductComponent>
 
@@ -316,8 +321,10 @@ interface ProductsService {
 
     @GET(COMPONENTS_COMPONENT_STAGES)
     suspend fun getComponentsComponentStages(): Response<List<NetworkComponentComponentStage>>
+
     @POST(COMPONENTS_COMPONENT_STAGES)
     suspend fun insertComponentComponentStage(@Body record: NetworkComponentComponentStage): Response<NetworkComponentComponentStage>
+
     @PUT("$COMPONENTS_COMPONENT_STAGES/{id}")
     suspend fun editComponentComponentStage(@Path("id") id: ID, @Body value: NetworkComponentComponentStage): Response<NetworkComponentComponentStage>
 
@@ -331,17 +338,28 @@ interface ProductsService {
     @GET(PRODUCT_TOLERANCES)
     suspend fun getProductTolerances(): Response<List<NetworkProductTolerance>>
 
+
     @GET(COMPONENT_VERSIONS)
     suspend fun getComponentVersions(): Response<List<NetworkComponentVersion>>
 
-
     @GET(COMPONENT_TOLERANCES)
     suspend fun getComponentTolerances(): Response<List<NetworkComponentTolerance>>
+
 
     @GET(COMPONENT_IN_STAGE_VERSIONS)
     suspend fun getComponentStageVersions(): Response<List<NetworkComponentStageVersion>>
 
     @GET(COMPONENT_IN_STAGE_TOLERANCES)
     suspend fun getComponentStageTolerances(): Response<List<NetworkComponentInStageTolerance>>
+
+
+    @POST("${PRODUCT_VERSIONS}/${WITH_RELATED_RECORDS}")
+    suspend fun makeProductVersion(@Body version: Pair<NetworkProductVersion, List<NetworkProductTolerance>>): Response<Pair<NetworkProductVersion, List<NetworkProductTolerance>>>
+
+    @POST("${COMPONENT_VERSIONS}/${WITH_RELATED_RECORDS}")
+    suspend fun makeComponentVersion(@Body version: @JvmSuppressWildcards Pair<NetworkComponentVersion, List<NetworkComponentTolerance>>): Response<Pair<NetworkComponentVersion, List<NetworkComponentTolerance>>>
+
+    @POST("${COMPONENT_IN_STAGE_VERSIONS}/${WITH_RELATED_RECORDS}")
+    suspend fun makeStageVersion(@Body version: Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>): Response<Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>>
 }
 

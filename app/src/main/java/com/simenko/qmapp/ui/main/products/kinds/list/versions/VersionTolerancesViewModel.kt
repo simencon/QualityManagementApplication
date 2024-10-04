@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
@@ -126,7 +127,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 itemComplete = itemComplete,
             )
             _itemVersionTolerances.value = repository.versionTolerancesComplete(route.referenceVersionFId).map {
-                it.copy(itemTolerance = it.itemTolerance.copy(versionId = _itemVersion.value.itemVersion.id, fVersionId = _itemVersion.value.itemVersion.fId))
+                it.copy(itemTolerance = it.itemTolerance.copy(id = NoRecord.num, fId = EmptyString.str, versionId = _itemVersion.value.itemVersion.id, fVersionId = _itemVersion.value.itemVersion.fId))
             }
         } else {
             _versionFId.value = route.versionFId
@@ -446,7 +447,7 @@ class VersionTolerancesViewModel @Inject constructor(
         if (_isLoading.value) return
 
         if (_versionEditMode.value) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 makeItemVersionUseCase.execute(
                     scope = this,
                     version = _itemVersion.value.itemVersion,

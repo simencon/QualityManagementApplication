@@ -199,4 +199,64 @@ class CrudeOperations @Inject constructor(private val errorConverter: Converter<
             }
         }
     }
+
+    fun <P_N, C_N, P_DB, C_DB, P_DM, C_DM, P_DAO, C_DAO, P_ID, C_ID, P_PID, C_PID> CoroutineScope.syncParentWithChildren(
+        parentDao: P_DAO,
+        childrenDao: C_DAO,
+        serviceGetRecords: suspend () -> Response<Pair<P_N, List<C_N>>>
+    ): ReceiveChannel<Event<Resource<P_ID>>> where
+            P_N : NetworkBaseModel<P_DB>,
+            P_DB : DatabaseBaseModel<P_N, P_DM, P_ID, P_PID>,
+            P_DM : DomainBaseModel<P_DB>,
+            P_DAO : DaoBaseModel<P_ID, P_PID, P_DB>,
+
+            C_N : NetworkBaseModel<C_DB>,
+            C_DB : DatabaseBaseModel<C_N, C_DM, C_ID, C_PID>,
+            C_DM : DomainBaseModel<C_DB>,
+            C_DAO : DaoBaseModel<C_ID, C_PID, C_DB> = produce {
+        try {
+            send(Event(Resource.loading(null)))
+            serviceGetRecords().let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.also { body ->
+                        val (ntParent, ntChildren) = Pair(
+                            body.first,
+                            body.second.map { it.toDatabaseModel() }
+                        )
+
+                        // sync parent ----------------------------------------------------------------------------------------------------------------------------------
+                        parentDao.getRecords().find { it.getRecordId() == ntParent.getRecordId() }?.let {
+                            parentDao.updateRecord(ntParent.toDatabaseModel())
+                        } ?: run {
+                            parentDao.insertRecord(ntParent.toDatabaseModel())
+                        }
+                        // sync children ----------------------------------------------------------------------------------------------------------------------------------
+                        val dbChildren = childrenDao.getRecords()
+
+                        ntChildren.subtract(dbChildren.toSet()).let { it1 ->
+                            it1.filter { it2 -> it2.getRecordId() !in dbChildren.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
+                                childrenDao.insertRecords(listToInsert)
+                            }
+                            it1.filter { it2 -> it2.getRecordId() in dbChildren.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
+                                childrenDao.updateRecords(listToUpdate)
+                            }
+                        }
+
+                        dbChildren.subtract(ntChildren.toSet()).filter { it1 -> it1.getRecordId() !in ntChildren.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
+                            childrenDao.deleteRecords(listToDelete)
+                        }
+
+                        // finish with success
+                        send(Event(Resource.success(ntParent.toDatabaseModel().getRecordId())))
+                    } ?: run {
+                        send(Event(Resource.error("No response body", null)))
+                    }
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        } catch (e: Throwable) {
+            send(Event(Resource.error(e.message ?: "Network Error", null)))
+        }
+    }
 }
