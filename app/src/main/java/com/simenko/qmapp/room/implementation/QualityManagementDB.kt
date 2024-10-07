@@ -199,7 +199,7 @@ abstract class QualityManagementDB : RoomDatabase() {
 
     abstract val productToleranceDao: ProductToleranceDao
     abstract val componentToleranceDao: ComponentToleranceDao
-    abstract val componentStageToleranceDao: ComponentStageToleranceDao
+    abstract val stageToleranceDao: StageToleranceDao
 
 
     abstract val inputForOrderDao: InputForOrderDao

@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseProductTolerance
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ProductToleranceDao: DaoBaseModel<ID, ID, DatabaseProductTolerance> {
+abstract class ProductToleranceDao : DaoBaseModel<ID, ID, DatabaseProductTolerance> {
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseProductTolerance>
 

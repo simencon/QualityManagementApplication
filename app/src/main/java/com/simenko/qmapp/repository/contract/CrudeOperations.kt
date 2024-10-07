@@ -47,7 +47,7 @@ class CrudeOperations @Inject constructor(private val errorConverter: Converter<
 
     fun <ID, PID, N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM, ID, PID>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForSingleRecord(
         taskExecutor: suspend () -> Response<N>,
-        resultHandler: (DB) -> Unit
+        resultHandler: suspend (DB) -> Unit
     ): ReceiveChannel<Event<Resource<DM>>> = produce {
         try {
             send(Event(Resource.loading(null)))
@@ -220,15 +220,15 @@ class CrudeOperations @Inject constructor(private val errorConverter: Converter<
                 if (response.isSuccessful) {
                     response.body()?.also { body ->
                         val (ntParent, ntChildren) = Pair(
-                            body.first,
+                            body.first.toDatabaseModel(),
                             body.second.map { it.toDatabaseModel() }
                         )
 
                         // sync parent ----------------------------------------------------------------------------------------------------------------------------------
                         parentDao.getRecords().find { it.getRecordId() == ntParent.getRecordId() }?.let {
-                            parentDao.updateRecord(ntParent.toDatabaseModel())
+                            parentDao.updateRecord(ntParent)
                         } ?: run {
-                            parentDao.insertRecord(ntParent.toDatabaseModel())
+                            parentDao.insertRecord(ntParent)
                         }
                         // sync children ----------------------------------------------------------------------------------------------------------------------------------
                         val dbChildren = childrenDao.getRecords()
@@ -245,9 +245,8 @@ class CrudeOperations @Inject constructor(private val errorConverter: Converter<
                         dbChildren.subtract(ntChildren.toSet()).filter { it1 -> it1.getRecordId() !in ntChildren.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
                             childrenDao.deleteRecords(listToDelete)
                         }
-
                         // finish with success
-                        send(Event(Resource.success(ntParent.toDatabaseModel().getRecordId())))
+                        send(Event(Resource.success(ntParent.getRecordId())))
                     } ?: run {
                         send(Event(Resource.error("No response body", null)))
                     }

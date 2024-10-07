@@ -17,7 +17,4 @@ abstract class ComponentToleranceDao : DaoBaseModel<ID, ID, DatabaseComponentTol
 
     @Query("select * from `10_8_component_tolerances` where versionId = :parentId order by id  asc")
     abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentTolerance>
-
-    @Query("SELECT * FROM `10_8_component_tolerances` WHERE id = :id")
-    abstract fun getRecordById(id: ID): DatabaseComponentTolerance?
 }

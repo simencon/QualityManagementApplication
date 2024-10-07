@@ -16,7 +16,6 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -413,7 +412,12 @@ class ProductsRepository @Inject constructor(
                 }
             } else {
                 crudeOperations.run {
-                    responseHandlerForSingleRecord({ service.editComponentComponentStage(newRecord.id, newRecord.toDatabaseModel().toNetworkModel()) }) { r -> database.componentComponentStageDao.insertRecord(r) }
+                    responseHandlerForSingleRecord({
+                        service.editComponentComponentStage(
+                            newRecord.id,
+                            newRecord.toDatabaseModel().toNetworkModel()
+                        )
+                    }) { r -> database.componentComponentStageDao.insertRecord(r) }
                 }
             }
         } else {
@@ -423,28 +427,40 @@ class ProductsRepository @Inject constructor(
         }
     }
 
-    fun CoroutineScope.makeProductVersion(prepareProductVersion: Pair<DomainProductVersion, List<DomainProductTolerance>>) = crudeOperations.run {
+    fun CoroutineScope.makeProductVersion(version: Pair<DomainProductVersion, List<DomainProductTolerance>>) = crudeOperations.run {
         val requestBody = Pair(
-            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
-            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+            first = version.first.toDatabaseModel().toNetworkModel(),
+            second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao =  database.productVersionDao, childrenDao = database.productToleranceDao) { service.makeProductVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.productVersionDao, childrenDao = database.productToleranceDao) { service.makeProductVersion(version = requestBody) }
     }
 
-    fun CoroutineScope.makeComponentVersion(prepareProductVersion: Pair<DomainComponentVersion, List<DomainComponentTolerance>>) = crudeOperations.run {
+    fun CoroutineScope.makeComponentVersion(version: Pair<DomainComponentVersion, List<DomainComponentTolerance>>) = crudeOperations.run {
         val requestBody = Pair(
-            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
-            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+            first = version.first.toDatabaseModel().toNetworkModel(),
+            second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao =  database.componentVersionDao, childrenDao = database.componentToleranceDao) { service.makeComponentVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.componentVersionDao, childrenDao = database.componentToleranceDao) { service.makeComponentVersion(version = requestBody) }
     }
 
-    fun CoroutineScope.makeStageVersion(prepareProductVersion: Pair<DomainComponentStageVersion, List<DomainComponentInStageTolerance>>) = crudeOperations.run {
+    fun CoroutineScope.makeStageVersion(version: Pair<DomainComponentStageVersion, List<DomainComponentInStageTolerance>>) = crudeOperations.run {
         val requestBody = Pair(
-            first = prepareProductVersion.first.toDatabaseModel().toNetworkModel(),
-            second = prepareProductVersion.second.map { it.toDatabaseModel().toNetworkModel() }
+            first = version.first.toDatabaseModel().toNetworkModel(),
+            second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao =  database.componentStageVersionDao, childrenDao = database.componentStageToleranceDao) { service.makeStageVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.componentStageVersionDao, childrenDao = database.stageToleranceDao) { service.makeStageVersion(version = requestBody) }
+    }
+
+    fun CoroutineScope.deleteProductVersion(versionId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductVersion(versionId) }) { r -> database.productVersionDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.deleteComponentVersion(versionId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteComponentVersion(versionId) }) { r -> database.componentVersionDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.deleteStageVersion(versionId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteStageVersion(versionId) }) { r -> database.componentStageVersionDao.deleteRecord(r) }
     }
 
 
@@ -453,7 +469,7 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentStageVersions() = crudeOperations.syncRecordsAll(database.componentStageVersionDao) { service.getComponentStageVersions() }
     suspend fun syncProductTolerances() = crudeOperations.syncRecordsAll(database.productToleranceDao) { service.getProductTolerances() }
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
-    suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
+    suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.stageToleranceDao) { service.getComponentStageTolerances() }
 
 
     val productLine: suspend (ID) -> DomainProductLine = { database.productLineDao.getRecordById(it)?.toDomainModel() ?: DomainProductLine() }
@@ -591,7 +607,7 @@ class ProductsRepository @Inject constructor(
         database.productVersionDao.getRecordCompleteForUI(fId)?.toDomainModel() ?: DomainItemVersionComplete()
     }
     val versionTolerancesComplete: suspend (String) -> List<DomainItemTolerance.DomainItemToleranceComplete> = { versionFId ->
-        database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map {  it.toDomainModel() }
+        database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map { it.toDomainModel() }
     }
 
     val versionStatuses = database.versionStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }

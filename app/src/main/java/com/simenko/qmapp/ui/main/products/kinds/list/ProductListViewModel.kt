@@ -342,7 +342,26 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onDeleteVersionClick(versionFId: String) {
-        TODO("Not yet implemented")
+        viewModelScope.launch(Dispatchers.IO) {
+            val versionPref = versionFId.firstOrNull() ?: ProductPref.char
+            val versionId = versionFId.substring(1).toLongOrNull() ?: NoRecord.num
+            with(repository) {
+                when (versionPref) {
+                    ProductPref.char -> deleteProductVersion(versionId)
+                    ComponentPref.char -> deleteComponentVersion(versionId)
+                    ComponentStagePref.char -> deleteStageVersion(versionId)
+                    else -> throw IllegalArgumentException("Impossible case: pref = $versionPref")
+                }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -419,7 +438,7 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddCopyItemVersion -> {
-                val itemKindId = when(inputData.itemIdWithPref.firstOrNull()) {
+                val itemKindId = when (inputData.itemIdWithPref.firstOrNull()) {
                     ProductPref.char -> _productKindId.value
                     ComponentPref.char -> _componentKindsVisibility.value.first.num
                     ComponentStagePref.char -> _componentStageKindsVisibility.value.first.num

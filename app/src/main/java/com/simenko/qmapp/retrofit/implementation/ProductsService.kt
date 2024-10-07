@@ -354,12 +354,22 @@ interface ProductsService {
 
 
     @POST("${PRODUCT_VERSIONS}/${WITH_RELATED_RECORDS}")
-    suspend fun makeProductVersion(@Body version: Pair<NetworkProductVersion, List<NetworkProductTolerance>>): Response<Pair<NetworkProductVersion, List<NetworkProductTolerance>>>
+    suspend fun makeProductVersion(@Body version: @JvmSuppressWildcards Pair<NetworkProductVersion, List<NetworkProductTolerance>>): Response<Pair<NetworkProductVersion, List<NetworkProductTolerance>>>
 
     @POST("${COMPONENT_VERSIONS}/${WITH_RELATED_RECORDS}")
     suspend fun makeComponentVersion(@Body version: @JvmSuppressWildcards Pair<NetworkComponentVersion, List<NetworkComponentTolerance>>): Response<Pair<NetworkComponentVersion, List<NetworkComponentTolerance>>>
 
     @POST("${COMPONENT_IN_STAGE_VERSIONS}/${WITH_RELATED_RECORDS}")
-    suspend fun makeStageVersion(@Body version: Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>): Response<Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>>
+    suspend fun makeStageVersion(@Body version: @JvmSuppressWildcards Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>): Response<Pair<NetworkComponentStageVersion, List<NetworkComponentInStageTolerance>>>
+
+
+    @DELETE("${PRODUCT_VERSIONS}/{id}")
+    suspend fun deleteProductVersion(@Path("id") id: ID): Response<NetworkProductVersion>
+
+    @DELETE("${COMPONENT_VERSIONS}/{id}")
+    suspend fun deleteComponentVersion(@Path("id") id: ID): Response<NetworkComponentVersion>
+
+    @DELETE("${COMPONENT_IN_STAGE_VERSIONS}/{id}")
+    suspend fun deleteStageVersion(@Path("id") id: ID): Response<NetworkComponentStageVersion>
 }
 
