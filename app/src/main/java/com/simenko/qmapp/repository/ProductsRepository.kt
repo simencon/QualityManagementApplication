@@ -432,7 +432,13 @@ class ProductsRepository @Inject constructor(
             first = version.first.toDatabaseModel().toNetworkModel(),
             second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao = database.productVersionDao, childrenDao = database.productToleranceDao) { service.makeProductVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.productVersionDao, childrenDao = database.productToleranceDao, taskExecutor = { service.makeProductVersion(version = requestBody) }) { r ->
+            if (r.isDefault) {
+                database.productVersionDao.getRecordsByParentId(r.productId).filter { it.id != r.id }.map { it.copy(isDefault = false) }.let { rCpy ->
+                    if (rCpy.isNotEmpty()) database.productVersionDao.updateRecords(rCpy)
+                }
+            }
+        }
     }
 
     fun CoroutineScope.makeComponentVersion(version: Pair<DomainComponentVersion, List<DomainComponentTolerance>>) = crudeOperations.run {
@@ -440,7 +446,13 @@ class ProductsRepository @Inject constructor(
             first = version.first.toDatabaseModel().toNetworkModel(),
             second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao = database.componentVersionDao, childrenDao = database.componentToleranceDao) { service.makeComponentVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.componentVersionDao, childrenDao = database.componentToleranceDao, taskExecutor = { service.makeComponentVersion(version = requestBody) }) { r ->
+            if (r.isDefault) {
+                database.componentVersionDao.getRecordsByParentId(r.componentId).filter { it.id != r.id }.map { it.copy(isDefault = false) }.let { rCpy ->
+                    if (rCpy.isNotEmpty()) database.componentVersionDao.updateRecords(rCpy)
+                }
+            }
+        }
     }
 
     fun CoroutineScope.makeStageVersion(version: Pair<DomainComponentStageVersion, List<DomainComponentInStageTolerance>>) = crudeOperations.run {
@@ -448,7 +460,13 @@ class ProductsRepository @Inject constructor(
             first = version.first.toDatabaseModel().toNetworkModel(),
             second = version.second.map { it.toDatabaseModel().toNetworkModel() }
         )
-        syncParentWithChildren(parentDao = database.componentStageVersionDao, childrenDao = database.stageToleranceDao) { service.makeStageVersion(version = requestBody) }
+        syncParentWithChildren(parentDao = database.componentStageVersionDao, childrenDao = database.stageToleranceDao, taskExecutor = { service.makeStageVersion(version = requestBody) }) { r ->
+            if (r.isDefault) {
+                database.componentStageVersionDao.getRecordsByParentId(r.componentInStageId).filter { it.id != r.id }.map { it.copy(isDefault = false) }.let { rCpy ->
+                    if (rCpy.isNotEmpty()) database.componentStageVersionDao.updateRecords(rCpy)
+                }
+            }
+        }
     }
 
     fun CoroutineScope.deleteProductVersion(versionId: ID) = crudeOperations.run {

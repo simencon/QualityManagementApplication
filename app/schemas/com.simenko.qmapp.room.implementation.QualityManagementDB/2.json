@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "42856a38212d9d29361f2f028cc0166c",
+    "identityHash": "c340801ddf5d4a1bad6e3e877074db0e",
     "entities": [
       {
         "tableName": "user_roles",
@@ -3194,7 +3194,7 @@
       },
       {
         "tableName": "9_8_product_tolerances",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER, `versionId` INTEGER, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `9_products_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER NOT NULL, `versionId` INTEGER NOT NULL, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `9_products_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3206,13 +3206,13 @@
             "fieldPath": "metrixId",
             "columnName": "metrixId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionId",
             "columnName": "versionId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "nominal",
@@ -3292,7 +3292,7 @@
       },
       {
         "tableName": "10_8_component_tolerances",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER, `versionId` INTEGER, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `10_components_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER NOT NULL, `versionId` INTEGER NOT NULL, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `10_components_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3304,13 +3304,13 @@
             "fieldPath": "metrixId",
             "columnName": "metrixId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionId",
             "columnName": "versionId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "nominal",
@@ -3390,7 +3390,7 @@
       },
       {
         "tableName": "11_8_component_in_stage_tolerances",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER, `versionId` INTEGER, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `11_component_in_stage_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `metrixId` INTEGER NOT NULL, `versionId` INTEGER NOT NULL, `nominal` REAL, `lsl` REAL, `usl` REAL, `isActual` INTEGER NOT NULL, FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`versionId`) REFERENCES `11_component_in_stage_versions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3402,13 +3402,13 @@
             "fieldPath": "metrixId",
             "columnName": "metrixId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionId",
             "columnName": "versionId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "nominal",
@@ -4842,7 +4842,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '42856a38212d9d29361f2f028cc0166c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c340801ddf5d4a1bad6e3e877074db0e')"
     ]
   }
 }

@@ -89,8 +89,8 @@ data class NetworkCharacteristicComponentStageKind(
 @Serializable
 data class NetworkProductTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -103,8 +103,8 @@ data class NetworkProductTolerance(
 @Serializable
 data class NetworkComponentTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -117,8 +117,8 @@ data class NetworkComponentTolerance(
 @Serializable
 data class NetworkComponentInStageTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,

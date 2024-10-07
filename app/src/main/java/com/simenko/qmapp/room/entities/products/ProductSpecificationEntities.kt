@@ -44,23 +44,23 @@ import com.simenko.qmapp.utils.ObjectTransformer
 )
 data class DatabaseProductLine(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var companyId: ID,
+    val companyId: ID,
     @ColumnInfo(index = true)
-    var factoryLocationDep: ID,
-    var factoryLocationDetails: String? = null,
-    var customerName: String? = null,
-    var team: ID? = null,
-    var modelYear: String? = null,
-    var projectSubject: String? = null,
-    var startDate: String? = null,
-    var revisionDate: String? = null,
-    var refItem: String? = null,
-    var pfmeaNum: String? = null,
+    val factoryLocationDep: ID,
+    val factoryLocationDetails: String? = null,
+    val customerName: String? = null,
+    val team: ID? = null,
+    val modelYear: String? = null,
+    val projectSubject: String? = null,
+    val startDate: String? = null,
+    val revisionDate: String? = null,
+    val refItem: String? = null,
+    val pfmeaNum: String? = null,
     @ColumnInfo(index = true)
-    var processOwner: ID,
-    var confLevel: ID? = null
+    val processOwner: ID,
+    val confLevel: ID? = null
 ) : DatabaseBaseModel<NetworkProductLine, DomainProductLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductLine::class, NetworkProductLine::class).transform(this)
@@ -116,11 +116,11 @@ data class DatabaseProductLine(
 )
 data class DatabaseKey(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var projectId: ID,
-    var componentKey: String,
-    var componentKeyDescription: String?
+    val projectId: ID,
+    val componentKey: String,
+    val componentKeyDescription: String?
 ) : DatabaseBaseModel<NetworkKey, DomainKey, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseKey::class, NetworkKey::class).transform(this)
@@ -163,10 +163,10 @@ data class DatabaseKey(
 )
 data class DatabaseProductBase(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var projectId: ID?,
-    var componentBaseDesignation: String?
+    val projectId: ID?,
+    val componentBaseDesignation: String?
 ) : DatabaseBaseModel<NetworkProductBase, DomainProductBase, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductBase::class, NetworkProductBase::class).transform(this)
@@ -520,12 +520,12 @@ data class DatabaseComponentStageKindKey(
 )
 data class DatabaseProduct(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var productBaseId: ID,
+    val productBaseId: ID,
     @ColumnInfo(index = true)
-    var keyId: ID,
-    var productDesignation: String
+    val keyId: ID,
+    val productDesignation: String
 ) : DatabaseBaseModel<NetworkProduct, DomainProduct, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProduct::class, NetworkProduct::class).transform(this)
@@ -574,11 +574,11 @@ data class DatabaseProduct(
 )
 data class DatabaseComponent(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var keyId: ID,
-    var componentDesignation: String,
-    var ifAny: Int?
+    val keyId: ID,
+    val componentDesignation: String,
+    val ifAny: Int?
 ) : DatabaseBaseModel<NetworkComponent, DomainComponent, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponent::class, NetworkComponent::class).transform(this)
@@ -620,11 +620,11 @@ data class DatabaseComponent(
 )
 data class DatabaseComponentStage(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var keyId: ID,
-    var componentInStageDescription: String,
-    var ifAny: Int?
+    val keyId: ID,
+    val componentInStageDescription: String,
+    val ifAny: Int?
 ) : DatabaseBaseModel<NetworkComponentStage, DomainComponentStage, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStage::class, NetworkComponentStage::class).transform(this)
@@ -981,8 +981,8 @@ data class DatabaseComponentComponentStage(
 @Entity(tableName = "0_versions_status")
 data class DatabaseVersionStatus(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
-    var statusDescription: String?
+    val id: ID,
+    val statusDescription: String?
 ) : DatabaseBaseModel<NetworkVersionStatus, DomainVersionStatus, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseVersionStatus::class, NetworkVersionStatus::class).transform(this)
@@ -1009,14 +1009,14 @@ data class DatabaseVersionStatus(
 )
 data class DatabaseProductVersion(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var productId: ID,
-    var versionDescription: String,
-    var versionDate: Long,
+    val productId: ID,
+    val versionDescription: String,
+    val versionDate: Long,
     @ColumnInfo(index = true)
-    var statusId: ID,
-    var isDefault: Boolean
+    val statusId: ID,
+    val isDefault: Boolean
 ) : DatabaseBaseModel<NetworkProductVersion, DomainProductVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductVersion::class, NetworkProductVersion::class).transform(this)
@@ -1044,14 +1044,14 @@ data class DatabaseProductVersion(
 )
 data class DatabaseComponentVersion(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var componentId: ID,
-    var versionDescription: String,
-    var versionDate: Long,
+    val componentId: ID,
+    val versionDescription: String,
+    val versionDate: Long,
     @ColumnInfo(index = true)
-    var statusId: ID,
-    var isDefault: Boolean
+    val statusId: ID,
+    val isDefault: Boolean
 ) : DatabaseBaseModel<NetworkComponentVersion, DomainComponentVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentVersion::class, NetworkComponentVersion::class).transform(this)
@@ -1078,14 +1078,14 @@ data class DatabaseComponentVersion(
 )
 data class DatabaseComponentStageVersion(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var componentInStageId: ID,
-    var versionDescription: String,
-    var versionDate: Long,
+    val componentInStageId: ID,
+    val versionDescription: String,
+    val versionDate: Long,
     @ColumnInfo(index = true)
-    var statusId: ID,
-    var isDefault: Boolean
+    val statusId: ID,
+    val isDefault: Boolean
 ) : DatabaseBaseModel<NetworkComponentStageVersion, DomainComponentStageVersion, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageVersion::class, NetworkComponentStageVersion::class).transform(this)

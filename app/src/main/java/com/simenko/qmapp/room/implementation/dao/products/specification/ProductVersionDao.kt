@@ -20,7 +20,7 @@ abstract class ProductVersionDao : DaoBaseModel<ID, ID, DatabaseProductVersion> 
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductVersion>>
 
     @Query("select * from `9_products_versions` where productId = :parentId order by versionDate  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductVersion>
+    abstract suspend fun getRecordsByParentId(parentId: ID): List<DatabaseProductVersion>
 
     @Query("SELECT * FROM `9_products_versions` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseProductVersion?

@@ -257,8 +257,8 @@ data class DomainResultTolerance(
 
 data class DomainProductTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -272,8 +272,8 @@ data class DomainProductTolerance(
 
 data class DomainComponentTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -287,8 +287,8 @@ data class DomainComponentTolerance(
 
 data class DomainComponentInStageTolerance(
     var id: ID,
-    var metrixId: ID?,
-    var versionId: ID?,
+    var metrixId: ID,
+    var versionId: ID,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,

@@ -468,7 +468,6 @@ class VersionTolerancesViewModel @Inject constructor(
                             }
 
                             Status.ERROR -> {
-                                setUpFab(Icons.Filled.Edit)
                                 _isLoading.value = false
                                 mainPageState.sendLoadingState(Pair(_isLoading.value, resource.message))
                             }

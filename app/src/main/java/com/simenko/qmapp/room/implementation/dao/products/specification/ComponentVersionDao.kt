@@ -16,7 +16,7 @@ abstract class ComponentVersionDao: DaoBaseModel<ID, ID, DatabaseComponentVersio
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentVersion>>
 
     @Query("select * from `10_components_versions` where componentId = :parentId order by versionDate  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentVersion>
+    abstract suspend fun getRecordsByParentId(parentId: ID): List<DatabaseComponentVersion>
 
     @Query("SELECT * FROM `10_components_versions` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentVersion?

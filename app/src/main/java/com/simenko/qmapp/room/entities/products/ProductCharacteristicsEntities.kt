@@ -409,9 +409,9 @@ data class DatabaseProductTolerance(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: ID?,
+    val metrixId: ID,
     @ColumnInfo(index = true)
-    val versionId: ID?,
+    val versionId: ID,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
@@ -444,9 +444,9 @@ data class DatabaseComponentTolerance(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: ID?,
+    val metrixId: ID,
     @ColumnInfo(index = true)
-    val versionId: ID?,
+    val versionId: ID,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
@@ -479,9 +479,9 @@ data class DatabaseComponentInStageTolerance(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: ID?,
+    val metrixId: ID,
     @ColumnInfo(index = true)
-    val versionId: ID?,
+    val versionId: ID,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
