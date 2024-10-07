@@ -14,6 +14,7 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
@@ -43,6 +44,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
@@ -62,6 +64,7 @@ class VersionTolerancesViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
 ) : ViewModel() {
+    private val _itemKindId = MutableStateFlow(NoRecord.num)
     private val _itemFId = MutableStateFlow(NoRecordStr.str)
     private val _versionFId = MutableStateFlow(NoRecordStr.str)
 
@@ -73,6 +76,19 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
     private val _versionEditMode = MutableStateFlow(false)
     private val _itemVersionTolerances = MutableStateFlow(listOf<DomainItemTolerance.DomainItemToleranceComplete>())
+
+    private val _availableItemKindChars = _itemKindId.flatMapLatest { itemKindId ->
+        _itemFId.flatMapLatest { itemFId ->
+            _itemVersionTolerances.flatMapLatest { tolerances ->
+                val charIds = tolerances.map { it.metricWithParents.charId }.toSet().toList()
+                flow {
+                    repository.itemKindCharsComplete((itemFId.firstOrNull()?.toString() ?: ProductPref.char.toString()) + itemKindId).collect { allChars ->
+                        emit(allChars.filter { !charIds.contains(it.characteristicWithParents.charId) }.map { it.characteristicWithParents })
+                    }
+                }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val _isAddItemDialogVisible = MutableStateFlow(false)
     private val _characteristicToAdd = MutableStateFlow(Triple(NoRecord.num, NoRecord.num, NoRecord.num))
@@ -102,6 +118,7 @@ class VersionTolerancesViewModel @Inject constructor(
     }
 
     private suspend fun prepareState(route: VersionTolerancesDetails) {
+        _itemKindId.value = route.itemKindId
 
         if (route.itemFId != NoRecordStr.str && route.referenceVersionFId == NoRecordStr.str) {
             _itemFId.value = route.itemFId
@@ -116,6 +133,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 itemComplete = itemComplete,
             )
         } else if (route.itemFId != NoRecordStr.str && route.referenceVersionFId != NoRecordStr.str) {
+            _itemFId.value = route.itemFId
             val itemComplete = repository.itemComplete(route.itemFId)
             _itemVersion.value = DomainItemVersionComplete(
                 itemVersion = DomainItemVersion(
@@ -146,9 +164,9 @@ class VersionTolerancesViewModel @Inject constructor(
 
     // Header state ---------------
     private val _itemVersionErrors: MutableStateFlow<ItemVersionErrors> = MutableStateFlow(ItemVersionErrors())
-    val itemVersion get() = _itemVersion.asStateFlow()
-    val versionEditMode get() = _versionEditMode.asStateFlow()
-    val itemVersionErrors get() = _itemVersionErrors.asStateFlow()
+    val itemVersion get() = _itemVersion.asSharedFlow()
+    val versionEditMode get() = _versionEditMode.asSharedFlow()
+    val itemVersionErrors get() = _itemVersionErrors.asSharedFlow()
 
     fun setItemVersionDescription(it: String) {
         _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(versionDescription = it))
@@ -253,6 +271,7 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
+
     val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
     fun setAddItemDialogVisibility(value: Boolean) {
         if (!value) {
@@ -260,6 +279,104 @@ class VersionTolerancesViewModel @Inject constructor(
         }
         _isAddItemDialogVisible.value = value
     }
+
+    val isReadyToAdd = _characteristicToAdd.flatMapLatest { charToAdd ->
+        flow { emit(charToAdd.third != NoRecord.num) }
+    }
+    val charGroupsFilter = _availableItemKindChars.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow { emit(list.distinctBy { it.groupId }.map { Triple(it.groupId, it.groupDescription, it.groupId == charToAdd.first) }) }
+        }
+    }
+    val charSubGroupsFilter = _availableItemKindChars.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow { emit(list.distinctBy { it.subGroupId }.filter { it.groupId == charToAdd.first }.map { Triple(it.subGroupId, it.subGroupDescription, it.subGroupId == charToAdd.second) }) }
+        }
+    }
+    val charsFilter = _availableItemKindChars.flatMapLatest { list ->
+        _characteristicToAdd.flatMapLatest { charToAdd ->
+            flow {
+                emit(
+                    list.distinctBy { it.charId }.filter { it.subGroupId == charToAdd.second }.map {
+                        DomainCharacteristic(
+                            id = it.charId,
+                            ishSubCharId = it.subGroupId,
+                            charOrder = it.charOrder,
+                            charDesignation = it.charDesignation,
+                            charDescription = it.charDescription,
+                            sampleRelatedTime = it.sampleRelatedTime,
+                            measurementRelatedTime = it.measurementRelatedTime,
+                            isSelected = it.charId == charToAdd.third
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    fun onSelectCharGroup(value: ID) {
+        if (value != _characteristicToAdd.value.first) _characteristicToAdd.value = _characteristicToAdd.value.copy(first = value, second = NoRecord.num, third = NoRecord.num)
+    }
+
+    fun onSelectCharSubGroup(value: ID) {
+        if (value != _characteristicToAdd.value.second) _characteristicToAdd.value = _characteristicToAdd.value.copy(second = value, third = NoRecord.num)
+    }
+
+    fun onSelectChar(value: ID) {
+        if (value != _characteristicToAdd.value.third) _characteristicToAdd.value = _characteristicToAdd.value.copy(third = value)
+    }
+
+    fun onAddCharItemClick() {
+        _availableItemKindChars.value.let { allChars ->
+            allChars.find { it.charId == _characteristicToAdd.value.third }?.let { charToAdd ->
+                viewModelScope.launch {
+                    val metrixes = repository.metricByCharacteristicId(charToAdd.charId)
+
+                    val updatedTolerances: MutableList<DomainItemTolerance.DomainItemToleranceComplete> = mutableListOf<DomainItemTolerance.DomainItemToleranceComplete>().apply {
+                        addAll(_itemVersionTolerances.value)
+                    }
+                    metrixes.map {
+                        val metric = DomainMetrix.DomainMetricWithParents(
+                            groupId = charToAdd.groupId,
+                            groupDescription = charToAdd.groupDescription,
+                            subGroupId = charToAdd.subGroupId,
+                            subGroupDescription = charToAdd.subGroupDescription,
+                            subGroupRelatedTime = charToAdd.subGroupRelatedTime,
+                            charId = charToAdd.charId,
+                            charOrder = charToAdd.charOrder,
+                            charDesignation = charToAdd.charDesignation,
+                            charDescription = charToAdd.charDescription,
+                            sampleRelatedTime = charToAdd.sampleRelatedTime,
+                            metricId = it.id,
+                            metricOrder = it.metrixOrder ?: NoRecord.num.toInt(),
+                            metricDesignation = it.metrixDesignation,
+                            metricDescription = it.metrixDescription,
+                            metricUnits = it.units ?: EmptyString.str
+                        )
+                        val tolerance = DomainItemTolerance.DomainItemToleranceComplete(
+                            metricWithParents = metric,
+                            itemTolerance = DomainItemTolerance(
+                                metrixId = metric.metricId,
+                                versionId = _itemVersion.value.itemVersion.id,
+                                fVersionId = _itemVersion.value.itemVersion.fId
+                            )
+                        )
+                        updatedTolerances.add(tolerance)
+                    }
+
+                    _itemVersionTolerances.value = updatedTolerances
+
+                    _charGroupVisibility.value = _charGroupVisibility.value.copy(first = SelectedNumber(charToAdd.groupId))
+                    _charSubGroupVisibility.value = _charSubGroupVisibility.value.copy(first = SelectedNumber(charToAdd.subGroupId))
+                    _characteristicVisibility.value = _characteristicVisibility.value.copy(first = SelectedNumber(charToAdd.charId))
+
+                    _characteristicToAdd.value = _characteristicToAdd.value.copy(third = NoRecord.num)
+                    setAddItemDialogVisibility(false)
+                }
+            }
+        }
+    }
+
 
     private val _indexOfToleranceErrorRow = MutableStateFlow(NoRecord.num)
     val indexOfToleranceErrorRow get() = _indexOfToleranceErrorRow.asStateFlow()
@@ -426,10 +543,6 @@ class VersionTolerancesViewModel @Inject constructor(
      * PRE REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    fun addCharacteristic(versionFId: String) {
-        TODO("Not yet implemented")
-    }
-
     fun deleteCharacteristic(id: ID) {
         TODO("Not yet implemented")
     }
@@ -461,7 +574,7 @@ class VersionTolerancesViewModel @Inject constructor(
                             }
 
                             Status.SUCCESS -> {
-                                resource.data?.let { onEntered(VersionTolerancesDetails(versionFId = it)) }
+                                resource.data?.let { onEntered(VersionTolerancesDetails(itemKindId = _itemKindId.value, versionFId = it)) }
                                 setUpFab(Icons.Filled.Edit)
                                 _isLoading.value = false
                                 mainPageState.sendLoadingState(Pair(_isLoading.value, null))
@@ -485,13 +598,6 @@ class VersionTolerancesViewModel @Inject constructor(
         _versionEditMode.value = !_versionEditMode.value
         page.value = page.value.withCustomFabIcon(fabIcon)
         viewModelScope.launch { mainPageHandler?.setFabIcon?.invoke(fabIcon) }
-    }
-
-    /**
-     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    private fun onAddCharacteristicClick(pair: Pair<String, Long>) {
-        TODO("Not yet implemented")
     }
 }
 

@@ -232,6 +232,7 @@ sealed interface Route {
                     data object VersionTolerances : Route {
                         @Serializable
                         data class VersionTolerancesDetails(
+                            val itemKindId: ID,
                             val itemFId: String = NoRecordStr.str,
                             val referenceVersionFId: String = NoRecordStr.str,
                             val versionFId: String = NoRecordStr.str, val versionEditMode: Boolean = false,

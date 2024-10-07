@@ -173,6 +173,7 @@ class ItemVersionsViewModel @Inject constructor(
     fun onCopy() {
         appNavigator.tryNavigateTo(
             route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+                itemKindId = _route.value.itemKindID,
                 itemFId = _route.value.itemFId,
                 referenceVersionFId = _selectedVersionFId.value,
                 versionEditMode = true

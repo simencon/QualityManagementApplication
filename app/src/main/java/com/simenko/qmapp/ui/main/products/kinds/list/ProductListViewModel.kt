@@ -402,7 +402,19 @@ class ProductListViewModel @Inject constructor(
             }
 
             is SheetInputData.AddCopyItemVersion -> {
-                appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(itemFId = inputData.itemIdWithPref, versionEditMode = true))
+                val itemKindId = when (inputData.itemIdWithPref.firstOrNull()) {
+                    ProductPref.char -> _productKindId.value
+                    ComponentPref.char -> _componentKindsVisibility.value.first.num
+                    ComponentStagePref.char -> _componentStageKindsVisibility.value.first.num
+                    else -> NoRecord.num
+                }
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+                        itemKindId = itemKindId,
+                        itemFId = inputData.itemIdWithPref,
+                        versionEditMode = true
+                    )
+                )
             }
 
             is SheetInputData.Nothing -> Unit
@@ -517,11 +529,34 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onEditVersionClick(idWithPref: String) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(versionFId = idWithPref, versionEditMode = true))
+        val itemKindId = when (idWithPref.firstOrNull()) {
+            ProductPref.char -> _productKindId.value
+            ComponentPref.char -> _componentKindsVisibility.value.first.num
+            ComponentStagePref.char -> _componentStageKindsVisibility.value.first.num
+            else -> NoRecord.num
+        }
+        appNavigator.tryNavigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+                itemKindId = itemKindId,
+                versionFId = idWithPref,
+                versionEditMode = true
+            )
+        )
     }
 
-    fun onSpecificationClick(it: String) {
-        appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(versionFId = it))
+    fun onSpecificationClick(idWithPref: String) {
+        val itemKindId = when (idWithPref.firstOrNull()) {
+            ProductPref.char -> _productKindId.value
+            ComponentPref.char -> _componentKindsVisibility.value.first.num
+            ComponentStagePref.char -> _componentStageKindsVisibility.value.first.num
+            else -> NoRecord.num
+        }
+        appNavigator.tryNavigateTo(
+            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+                itemKindId = itemKindId,
+                versionFId = idWithPref
+            )
+        )
     }
 }
 

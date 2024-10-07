@@ -55,6 +55,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
+import com.simenko.qmapp.ui.common.dialog.CharacteristicChoiceDialog
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
@@ -78,9 +79,15 @@ fun VersionTolerances(
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
     val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle(DomainItemVersionComplete())
-    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
-    val itemVersionErrors by viewModel.itemVersionErrors.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle(false)
+    val itemVersionErrors by viewModel.itemVersionErrors.collectAsStateWithLifecycle(ItemVersionErrors())
     val versionStatuses by viewModel.versionStatuses.collectAsStateWithLifecycle(emptyList())
+
+    val isAddItemDialogVisible by viewModel.isAddItemDialogVisible.collectAsStateWithLifecycle()
+    val charGroups by viewModel.charGroupsFilter.collectAsStateWithLifecycle(emptyList())
+    val charSubGroups by viewModel.charSubGroupsFilter.collectAsStateWithLifecycle(emptyList())
+    val items by viewModel.charsFilter.collectAsStateWithLifecycle(emptyList())
+    val addIsEnabled by viewModel.isReadyToAdd.collectAsStateWithLifecycle(false)
 
     val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
@@ -152,6 +159,18 @@ fun VersionTolerances(
                 onDateSelected = { viewModel.setItemVersionDate(it) },
                 onDismiss = { isDatePickerVisible = false }
             )
+        }
+        if (isAddItemDialogVisible) CharacteristicChoiceDialog(
+            items = items,
+            charGroups = charGroups,
+            onSelectCharGroup = { viewModel.onSelectCharGroup(it) },
+            charSubGroups = charSubGroups,
+            onSelectCharSubGroup = { viewModel.onSelectCharSubGroup(it) },
+            addIsEnabled = addIsEnabled,
+            onDismiss = { viewModel.setAddItemDialogVisibility(false) },
+            onItemSelect = { viewModel.onSelectChar(it) }
+        ) {
+            viewModel.onAddCharItemClick()
         }
     }
 }

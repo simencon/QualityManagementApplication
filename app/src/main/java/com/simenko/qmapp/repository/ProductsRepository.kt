@@ -521,6 +521,7 @@ class ProductsRepository @Inject constructor(
         database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }
     }
     val metricById: suspend (ID) -> DomainMetrix.DomainMetricWithParents = { database.metricDao.getRecordCompleteById(it).toDomainModel() }
+    val metricByCharacteristicId: suspend (ID) -> List<DomainMetrix> = { database.metricDao.getRecordsByParentId(it).map {item -> item.toDomainModel() }}
 
     val productLineKeys: (ID) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId ->
         database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }

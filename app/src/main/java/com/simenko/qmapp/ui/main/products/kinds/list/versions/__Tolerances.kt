@@ -80,7 +80,7 @@ fun Tolerances(modifier: Modifier = Modifier, viewModel: VersionTolerancesViewMo
     }
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.second.id }) { item ->
+        items(items = items, key = { it.first.id }) { item ->
             MetricCard(
                 viewModel = viewModel,
                 metric = item.first,
@@ -96,7 +96,7 @@ fun MetricCard(
     metric: DomainMetrix,
     tolerance: DomainItemTolerance,
 ) {
-    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle(false)
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = metric,

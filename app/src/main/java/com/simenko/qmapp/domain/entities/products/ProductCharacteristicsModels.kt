@@ -301,15 +301,15 @@ data class DomainComponentInStageTolerance(
 }
 
 data class DomainItemTolerance(
-    var id: ID,
-    var fId: String,
+    var id: ID = NoRecord.num,
+    var fId: String = EmptyString.str,
     var metrixId: ID,
     var versionId: ID,
     var fVersionId: String,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?,
-    var isActual: Boolean,
+    var nominal: Float? = null,
+    var lsl: Float? = null,
+    var usl: Float? = null,
+    var isActual: Boolean = false,
 
     val isLslError: Boolean = false,
     val isNominalError: Boolean = false,

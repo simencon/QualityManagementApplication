@@ -16,7 +16,7 @@ abstract class MetricDao : DaoBaseModel<ID, ID, DatabaseMetrix> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseMetrix>>
 
     @Query("select * from `8_metrixes` where charId = :parentId order by metrixOrder  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseMetrix>
+    abstract suspend fun getRecordsByParentId(parentId: ID): List<DatabaseMetrix>
 
     @Query("SELECT * FROM `8_metrixes` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseMetrix?

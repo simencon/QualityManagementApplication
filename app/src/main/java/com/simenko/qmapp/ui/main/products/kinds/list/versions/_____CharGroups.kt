@@ -40,6 +40,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.HeaderWithTitle
@@ -54,12 +55,12 @@ fun CharGroups(
     modifier: Modifier = Modifier,
     viewModel: VersionTolerancesViewModel = hiltViewModel()
 ) {
-    val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle()
+    val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle(DomainItemVersionComplete())
     val items by viewModel.characteristicGroups.collectAsStateWithLifecycle(listOf())
-    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle(false)
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharGroupsVisibility(dId = SelectedNumber(it)) } }
-    val onClickAddLambda = remember<(String) -> Unit> { { viewModel.addCharacteristic(it) } }
+    val onClickAddLambda = remember<(String) -> Unit> { { viewModel.setAddItemDialogVisibility(true) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 

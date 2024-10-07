@@ -45,7 +45,7 @@ fun Characteristics(
     viewModel: VersionTolerancesViewModel = hiltViewModel()
 ) {
     val items by viewModel.characteristics.collectAsStateWithLifecycle(listOf())
-    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle(false)
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(aId = SelectedNumber(it)) } }
