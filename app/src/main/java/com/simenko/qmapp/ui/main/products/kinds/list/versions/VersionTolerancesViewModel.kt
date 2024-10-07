@@ -332,9 +332,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 viewModelScope.launch {
                     val metrixes = repository.metricByCharacteristicId(charToAdd.charId)
 
-                    val updatedTolerances: MutableList<DomainItemTolerance.DomainItemToleranceComplete> = mutableListOf<DomainItemTolerance.DomainItemToleranceComplete>().apply {
-                        addAll(_itemVersionTolerances.value)
-                    }
+                    val updatedTolerances = _itemVersionTolerances.value.toMutableList()
                     metrixes.map {
                         val metric = DomainMetrix.DomainMetricWithParents(
                             groupId = charToAdd.groupId,
@@ -377,6 +375,11 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
 
+    fun deleteCharacteristic(id: ID) {
+        val updatedTolerances = _itemVersionTolerances.value.toMutableList()
+        updatedTolerances.removeIf { it.metricWithParents.charId == id }
+        _itemVersionTolerances.value = updatedTolerances
+    }
 
     private val _indexOfToleranceErrorRow = MutableStateFlow(NoRecord.num)
     val indexOfToleranceErrorRow get() = _indexOfToleranceErrorRow.asStateFlow()
@@ -542,14 +545,6 @@ class VersionTolerancesViewModel @Inject constructor(
     /**
      * PRE REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-
-    fun deleteCharacteristic(id: ID) {
-        TODO("Not yet implemented")
-    }
-
-    /**
-     * REST operations -------------------------------------------------------------------------------------------------------------------------------
-     * */
     private fun updateTolerancesData() {
         TODO("Not yet implemented")
     }
@@ -591,7 +586,6 @@ class VersionTolerancesViewModel @Inject constructor(
         } else {
             setUpFab(Icons.Filled.Save)
         }
-
     }
 
     private fun setUpFab(fabIcon: ImageVector) {

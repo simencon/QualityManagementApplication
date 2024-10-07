@@ -265,7 +265,7 @@ data class DomainProductTolerance(
     var isActual: Boolean
 ) : DomainBaseModel<DatabaseProductTolerance>() {
     override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
+    override fun getParentId() = versionId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProductTolerance::class, DatabaseProductTolerance::class).transform(this)
 }
@@ -280,7 +280,7 @@ data class DomainComponentTolerance(
     var isActual: Boolean
 ) : DomainBaseModel<DatabaseComponentTolerance>() {
     override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
+    override fun getParentId() = versionId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentTolerance::class, DatabaseComponentTolerance::class).transform(this)
 }
@@ -295,7 +295,7 @@ data class DomainComponentInStageTolerance(
     var isActual: Boolean
 ) : DomainBaseModel<DatabaseComponentInStageTolerance>() {
     override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
+    override fun getParentId() = versionId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentInStageTolerance::class, DatabaseComponentInStageTolerance::class).transform(this)
 }
@@ -319,7 +319,7 @@ data class DomainItemTolerance(
     val toBeDeleted: Boolean = false
 ) : DomainBaseModel<DatabaseItemTolerance>() {
     override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
+    override fun getParentId() = versionId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainItemTolerance::class, DatabaseItemTolerance::class).transform(this)
     data class DomainItemToleranceComplete(

@@ -28,8 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
@@ -38,6 +36,7 @@ import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -45,7 +44,6 @@ fun Characteristics(
     viewModel: VersionTolerancesViewModel = hiltViewModel()
 ) {
     val items by viewModel.characteristics.collectAsStateWithLifecycle(listOf())
-    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle(false)
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(aId = SelectedNumber(it)) } }
@@ -57,7 +55,7 @@ fun Characteristics(
         items.forEach { item ->
             CharacteristicCard(
                 characteristic = item,
-                isEditMode = isEditMode,
+                isEditModeF = viewModel.versionEditMode,
                 onClickDetails = onClickDetailsLambda,
                 onClickActions = onClickActionsLambda,
                 onClickDelete = onClickDeleteLambda
@@ -69,11 +67,12 @@ fun Characteristics(
 @Composable
 fun CharacteristicCard(
     characteristic: DomainCharacteristic,
-    isEditMode: Boolean,
+    isEditModeF: Flow<Boolean>,
     onClickDetails: (ID) -> Unit,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit
 ) {
+    val isEditMode by isEditModeF.collectAsStateWithLifecycle(initialValue = false)
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = characteristic,
