@@ -14,8 +14,8 @@ import com.simenko.qmapp.ui.main.structure.forms.line.LineForm
 import com.simenko.qmapp.ui.main.structure.forms.line.LineViewModel
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
-import com.simenko.qmapp.ui.main.structure.forms.subdepartment.SubDepartmentForm
-import com.simenko.qmapp.ui.main.structure.forms.subdepartment.SubDepartmentViewModel
+import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
+import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.navigation.Route
 

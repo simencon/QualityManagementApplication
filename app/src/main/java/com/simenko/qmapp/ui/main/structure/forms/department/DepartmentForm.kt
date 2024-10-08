@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +40,7 @@ import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
@@ -79,20 +82,20 @@ fun DepartmentForm(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(all = 0.dp)
-            .verticalScroll(rememberScrollState())
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Bottom,
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp).fillMaxWidth(), title = "Company", body = concatTwoStrings1(dComplete.company.companyName, dComplete.company.companyIndustrialClassification))
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(all = 0.dp)
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 0.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Company", body = concatTwoStrings1(dComplete.company.companyName, dComplete.company.companyIndustrialClassification))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),

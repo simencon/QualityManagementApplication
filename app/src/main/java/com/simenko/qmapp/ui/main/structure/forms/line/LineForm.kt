@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -12,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -72,27 +74,38 @@ fun LineForm(
     val (designationFR) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(all = 0.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+        Spacer(modifier = Modifier.height(10.dp))
+        InfoLine(
+            modifier = modifier
+                .padding(start = DEFAULT_SPACE.dp)
+                .fillMaxWidth(),
+            title = "Department",
+            body = concatTwoStrings(lnComplete.channelWithParents.depAbbr, lnComplete.channelWithParents.depName)
+        )
+        InfoLine(
+            modifier = modifier
+                .padding(start = DEFAULT_SPACE.dp)
+                .fillMaxWidth(),
+            title = "Sub department",
+            body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation)
+        )
+        InfoLine(
+            modifier = modifier
+                .padding(start = DEFAULT_SPACE.dp)
+                .fillMaxWidth(),
+            title = "Channel",
+            body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation)
+        )
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(all = 0.dp)
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(all = 0.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(lnComplete.channelWithParents.depAbbr, lnComplete.channelWithParents.depName))
-            InfoLine(
-                modifier = modifier.padding(start = 0.dp),
-                title = "Sub department",
-                body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation)
-            )
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),

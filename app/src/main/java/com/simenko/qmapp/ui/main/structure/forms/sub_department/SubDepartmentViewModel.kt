@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.forms.subdepartment
+package com.simenko.qmapp.ui.main.structure.forms.sub_department
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

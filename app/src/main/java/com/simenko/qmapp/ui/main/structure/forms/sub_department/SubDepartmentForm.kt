@@ -1,9 +1,10 @@
-package com.simenko.qmapp.ui.main.structure.forms.subdepartment
+package com.simenko.qmapp.ui.main.structure.forms.sub_department
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -12,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
@@ -72,26 +75,23 @@ fun SubDepartmentForm(
     val (designationFR) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(all = 0.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+        Spacer(modifier = Modifier.height(10.dp))
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp).fillMaxWidth(), title = "Department", body = concatTwoStrings(sdComplete.department.depAbbr, sdComplete.department.depName))
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(all = 0.dp)
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(all = 0.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(sdComplete.department.depAbbr, sdComplete.department.depName))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(sdComplete.subDepartment.subDepOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.subDepartmentOrderError) {
-                    viewModel.setSubDepartmentOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.setSubDepartmentOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
@@ -100,7 +100,7 @@ fun SubDepartmentForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(sdComplete.subDepartment.subDepAbbr?: EmptyString.str, fillInErrors.subDepartmentAbbrError) { viewModel.setSubDepartmentAbbr(it) },
+                valueParam = Triple(sdComplete.subDepartment.subDepAbbr ?: EmptyString.str, fillInErrors.subDepartmentAbbrError) { viewModel.setSubDepartmentAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Sub department id", "Enter id"),
@@ -108,7 +108,7 @@ fun SubDepartmentForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 modifier = Modifier.width(320.dp),
-                valueParam = Triple(sdComplete.subDepartment.subDepDesignation?: EmptyString.str, fillInErrors.subDepartmentDesignationError) { viewModel.setSubDepartmentDesignation(it) },
+                valueParam = Triple(sdComplete.subDepartment.subDepDesignation ?: EmptyString.str, fillInErrors.subDepartmentDesignationError) { viewModel.setSubDepartmentDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Sub dep. complete name", "Enter complete name"),

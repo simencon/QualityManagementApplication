@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -86,16 +87,16 @@ fun ComponentForm(
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp).fillMaxWidth(), title = "Product", body = productKind.productKind.productKindDesignation)
         InfoLine(
-            modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp),
+            modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp).fillMaxWidth(),
             title = "Product item",
             body = buildString {
                 append(productComponent.product.let { StringUtils.concatTwoStrings3(it.key.componentKey, it.product.productDesignation) })
                 append(" (${productComponent.product.productBase.componentBaseDesignation ?: NoString.str})")
             }
         )
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = productComponent.component.componentKind.componentKindDescription)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp).fillMaxWidth(), title = "Component", body = productComponent.component.componentKind.componentKindDescription)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Column(
             verticalArrangement = Arrangement.Top,
