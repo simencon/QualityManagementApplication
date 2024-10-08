@@ -58,7 +58,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
     val onClickAddLambda = remember { { viewModel.onAddComponentStageClick() } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageClick(it) } }
     val onClickEditLambda = remember<(ID) -> Unit> { { viewModel.onEditComponentStageClick(it) } }
-    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ComponentStagePref.char.toString() + it) } }
+    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ComponentStagePref.char.toString() + it); viewModel.setComponentStagesVisibility(dId = SelectedNumber(it)) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
 
@@ -135,7 +135,7 @@ fun ComponentStage(
                         modifier = Modifier.weight(0.46f),
                         borderColor = borderColor,
                         containerColor = containerColor,
-                        onClick = { onClickVersions(componentStage.componentComponentStage.stageKindStageId) }) {
+                        onClick = { onClickVersions(componentStage.componentStage.componentStage.componentStage.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 modifier = Modifier.height(15.dp),

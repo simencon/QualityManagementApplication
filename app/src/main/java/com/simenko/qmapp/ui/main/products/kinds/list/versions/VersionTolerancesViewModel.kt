@@ -274,6 +274,7 @@ class VersionTolerancesViewModel @Inject constructor(
 
     val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
     fun setAddItemDialogVisibility(value: Boolean) {
+        if (!validateInput()) return
         if (!value) {
             _characteristicToAdd.value = Triple(_charGroupVisibility.value.first.num, _charSubGroupVisibility.value.first.num, NoRecord.num)
         }

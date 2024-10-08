@@ -134,7 +134,7 @@ fun CharacteristicForm(
                     first = characteristic.characteristic.charOrder?.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }?.toString() ?: EmptyString.str,
                     second = fillInErrors.charOrderError
                 ) {
-                    viewModel.onSetOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.onSetOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toIntOrNull()?: NoRecord.num.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
@@ -153,7 +153,7 @@ fun CharacteristicForm(
                 modifier = Modifier.width(320.dp),
                 valueParam = Triple(characteristic.characteristic.charDescription ?: EmptyString.str, fillInErrors.charDescriptionError) { viewModel.onSetCharDescription(it) },
                 keyboardNavigation = Pair(descriptionFR) { sampleRelatedTimeFR.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Char. description", "Enter description")
             )
             Spacer(modifier = Modifier.height(10.dp))
