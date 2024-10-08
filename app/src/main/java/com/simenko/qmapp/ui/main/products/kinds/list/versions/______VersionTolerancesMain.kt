@@ -248,7 +248,7 @@ fun VersionSpecificationHeader(
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             RecordFieldItem(
                 modifier = Modifier.width(125.dp),
-                valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
+                valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDateError) {},
                 enabled = isEditMode,
                 keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),

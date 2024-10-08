@@ -125,6 +125,7 @@ fun RecordFieldItem(
         placeholder = { Text(text = "${contentDescription.third}${if (isMandatoryField) " *" else ""}") },
         maxLines = 1,
         singleLine = true,
+//        supportingText = { if (valueParam.second) Text(modifier = Modifier.fillMaxWidth(), text = "some error here", color = MaterialTheme.colorScheme.error, fontSize = 9.sp) },
         keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
         keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
         enabled = enabled,

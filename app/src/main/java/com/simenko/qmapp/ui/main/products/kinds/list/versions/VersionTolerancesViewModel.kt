@@ -528,17 +528,17 @@ class VersionTolerancesViewModel @Inject constructor(
     }
 
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        tolerances.value.let { values ->
+        setIndexOrMetricWithErrorField()
+        if (_indexOfToleranceErrorRow.value == NoRecord.num) _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
+    }
+
+    private fun setIndexOrMetricWithErrorField() {
+        _indexOfToleranceErrorRow.value = tolerances.value.let { values ->
             listOf(
                 values.indexOfFirst { it.second.isLslError },
                 values.indexOfFirst { it.second.isNominalError },
                 values.indexOfFirst { it.second.isUslError }
-            ).filter { it != NoRecord.num.toInt() }.minOrNull()?.let {
-                _indexOfToleranceErrorRow.value = it.toLong()
-            } ?: run {
-                _indexOfToleranceErrorRow.value = NoRecord.num
-                _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
-            }
+            ).filter { it != NoRecord.num.toInt() }.minOrNull()?.toLong() ?: NoRecord.num
         }
     }
 
@@ -549,9 +549,34 @@ class VersionTolerancesViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    private fun validateInput(): Boolean {
+        setIndexOrMetricWithErrorField()
+        val errorMsg = buildString {
+            if (_indexOfToleranceErrorRow.value != NoRecord.num) {
+                append("Wrong value of metric\n")
+            }
+            with(_itemVersion.value.itemVersion) {
+                if (versionDescription.isNullOrEmpty()) {
+                    _itemVersionErrors.value = _itemVersionErrors.value.copy(versionDescriptionError = true)
+                    append("Set version description\n")
+                }
+                if (versionDate == ZeroValue.num) {
+                    _itemVersionErrors.value = _itemVersionErrors.value.copy(versionDateError = true)
+                    append("Set version date\n")
+                }
+                if (statusId == NoRecord.num) {
+                    _itemVersionErrors.value = _itemVersionErrors.value.copy(versionStatusError = true)
+                    append("Set version status\n")
+                }
+            }
+        }
+        return errorMsg.isEmpty()
+    }
+
     private val _isLoading = mutableStateOf(false)
 
     private fun onFabClick() {
+        if (!validateInput()) return
         if (_isLoading.value) return
 
         if (_versionEditMode.value) {
