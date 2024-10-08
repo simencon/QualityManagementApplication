@@ -642,4 +642,8 @@ class ProductsRepository @Inject constructor(
     }
 
     val versionStatuses = database.versionStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+
+    val departmentProductLines: suspend (ID) -> List<DomainProductLineToDepartment> = { depId ->
+        database.productLineToDepartmentDao.getRecordsByParentId(depId).map { it.toDomainModel() }
+    }
 }

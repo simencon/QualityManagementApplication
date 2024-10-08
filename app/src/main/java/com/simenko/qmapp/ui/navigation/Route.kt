@@ -67,16 +67,31 @@ sealed interface Route {
             data class DepartmentAddEdit(val companyId: ID = NoRecord.num, val departmentId: ID = NoRecord.num) : Route
 
             @Serializable
+            data class DepartmentProductLines(val companyId: ID, val departmentId: ID) : Route
+
+            @Serializable
             data class SubDepartmentAddEdit(val departmentId: ID = NoRecord.num, val subDepartmentId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class SubDepartmentItemKinds(val departmentId: ID = NoRecord.num, val subDepartmentId: ID = NoRecord.num) : Route
 
             @Serializable
             data class ChannelAddEdit(val subDepartmentId: ID = NoRecord.num, val channelId: ID = NoRecord.num) : Route
 
             @Serializable
+            data class ChannelItemKeys(val subDepartmentId: ID = NoRecord.num, val channelId: ID = NoRecord.num) : Route
+
+            @Serializable
             data class LineAddEdit(val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num) : Route
 
             @Serializable
+            data class LineItems(val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num) : Route
+
+            @Serializable
             data class OperationAddEdit(val lineId: ID = NoRecord.num, val operationId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data class OperationCharacteristics(val lineId: ID = NoRecord.num, val operationId: ID = NoRecord.num) : Route
         }
 
         @Serializable

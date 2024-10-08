@@ -16,6 +16,8 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
+import com.simenko.qmapp.ui.main.structure.products.product_line.DepartmentProductLines
+import com.simenko.qmapp.ui.main.structure.products.product_line.DepartmentProductLinesViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.navigation.Route
 
@@ -28,6 +30,10 @@ inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScre
         composable<Route.Main.CompanyStructure.DepartmentAddEdit> {
             val viewModel: DepartmentViewModel = hiltViewModel()
             DepartmentForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.CompanyStructure.DepartmentProductLines> {
+            val viewModel: DepartmentProductLinesViewModel = hiltViewModel()
+            DepartmentProductLines(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.CompanyStructure.SubDepartmentAddEdit> {
             val viewModel: SubDepartmentViewModel = hiltViewModel()

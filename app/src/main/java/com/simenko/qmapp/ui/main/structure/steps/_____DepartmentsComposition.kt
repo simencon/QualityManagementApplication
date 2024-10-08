@@ -66,7 +66,7 @@ fun Departments(
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteDepartmentClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
-    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
+    val onClickProductsLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
@@ -106,7 +106,7 @@ fun DepartmentCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -131,7 +131,7 @@ fun Department(
     viewModel: CompanyStructureViewModel = hiltViewModel(),
     department: DomainDepartmentComplete,
     onClickDetails: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val containerColor = when (department.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -145,7 +145,7 @@ fun Department(
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.37f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
             }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts(department.department.id) }) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts((department.department.companyId ?: NoRecord.num) to department.department.id) }) {
                 Text(
                     text = "Products",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),

@@ -254,6 +254,7 @@ enum class Page(
 
     ADD_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new department", null, null, null, null, Icons.Filled.Save, null),
     EDIT_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit department", null, null, null, null, Icons.Filled.Save, null),
+    DEPARTMENT_PRODUCT_LINES(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Dep. product lines", null, null, null, null, Icons.Filled.Add, null),
 
     ADD_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
     EDIT_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
