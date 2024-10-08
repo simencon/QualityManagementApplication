@@ -208,7 +208,7 @@ inline fun <reified T : Route> NavGraphBuilder.productKindProductsNavigation(mai
             val viewModel: ItemVersionsViewModel = hiltViewModel()
             VersionSingleChoiceDialog(viewModel = viewModel, route = it.toRoute())
         }
-        composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails> {
+        composable<Route.Main.ProductLines.ProductKinds.Products.VersionTolerancesDetails> {
             val viewModel: VersionTolerancesViewModel = hiltViewModel()
             VersionTolerances(mainScreenPadding = mainScreenPadding, viewModel = viewModel, route = it.toRoute())
         }

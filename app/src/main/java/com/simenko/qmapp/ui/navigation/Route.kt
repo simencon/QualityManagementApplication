@@ -229,16 +229,13 @@ sealed interface Route {
                     ) : Route
 
                     @Serializable
-                    data object VersionTolerances : Route {
-                        @Serializable
-                        data class VersionTolerancesDetails(
-                            val itemKindId: ID,
-                            val itemFId: String = NoRecordStr.str,
-                            val referenceVersionFId: String = NoRecordStr.str,
-                            val versionFId: String = NoRecordStr.str, val versionEditMode: Boolean = false,
-                            val charGroupId: ID = NoRecord.num, val charSubGroupId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num, val toleranceId: ID = NoRecord.num
-                        ) : Route
-                    }
+                    data class VersionTolerancesDetails(
+                        val itemKindId: ID,
+                        val itemFId: String = NoRecordStr.str,
+                        val referenceVersionFId: String = NoRecordStr.str,
+                        val versionFId: String = NoRecordStr.str, val versionEditMode: Boolean = false,
+                        val charGroupId: ID = NoRecord.num, val charSubGroupId: ID = NoRecord.num, val characteristicId: ID = NoRecord.num, val toleranceId: ID = NoRecord.num
+                    ) : Route
                 }
             }
         }

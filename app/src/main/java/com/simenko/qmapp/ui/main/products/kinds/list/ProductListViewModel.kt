@@ -409,7 +409,7 @@ class ProductListViewModel @Inject constructor(
                     else -> NoRecord.num
                 }
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+                    route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerancesDetails(
                         itemKindId = itemKindId,
                         itemFId = inputData.itemIdWithPref,
                         versionEditMode = true
@@ -536,7 +536,7 @@ class ProductListViewModel @Inject constructor(
             else -> NoRecord.num
         }
         appNavigator.tryNavigateTo(
-            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerancesDetails(
                 itemKindId = itemKindId,
                 versionFId = idWithPref,
                 versionEditMode = true
@@ -552,7 +552,7 @@ class ProductListViewModel @Inject constructor(
             else -> NoRecord.num
         }
         appNavigator.tryNavigateTo(
-            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails(
+            route = Route.Main.ProductLines.ProductKinds.Products.VersionTolerancesDetails(
                 itemKindId = itemKindId,
                 versionFId = idWithPref
             )

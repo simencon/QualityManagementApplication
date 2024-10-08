@@ -66,7 +66,7 @@ import com.simenko.qmapp.utils.observeAsState
 fun VersionTolerances(
     mainScreenPadding: PaddingValues,
     viewModel: VersionTolerancesViewModel = hiltViewModel(),
-    route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerances.VersionTolerancesDetails
+    route: Route.Main.ProductLines.ProductKinds.Products.VersionTolerancesDetails
 ) {
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
