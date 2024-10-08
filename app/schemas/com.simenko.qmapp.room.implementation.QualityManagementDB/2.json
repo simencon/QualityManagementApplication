@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "c340801ddf5d4a1bad6e3e877074db0e",
+    "identityHash": "f1cc2b4f041843551f3645ba4215b2c4",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2313,6 +2313,524 @@
         ]
       },
       {
+        "tableName": "10_0_prod_projects_to_departments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `depId` INTEGER NOT NULL, `productLineId` INTEGER NOT NULL, FOREIGN KEY(`depId`) REFERENCES `10_departments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`productLineId`) REFERENCES `0_manufacturing_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "depId",
+            "columnName": "depId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productLineId",
+            "columnName": "productLineId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_10_0_prod_projects_to_departments_depId",
+            "unique": false,
+            "columnNames": [
+              "depId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_10_0_prod_projects_to_departments_depId` ON `${TABLE_NAME}` (`depId`)"
+          },
+          {
+            "name": "index_10_0_prod_projects_to_departments_productLineId",
+            "unique": false,
+            "columnNames": [
+              "productLineId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_10_0_prod_projects_to_departments_productLineId` ON `${TABLE_NAME}` (`productLineId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "10_departments",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "depId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "0_manufacturing_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "productLineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "11_1_prod_kinds_to_s_departments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subDepId` INTEGER NOT NULL, `prodKindId` INTEGER NOT NULL, FOREIGN KEY(`subDepId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`prodKindId`) REFERENCES `1_product_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subDepId",
+            "columnName": "subDepId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prodKindId",
+            "columnName": "prodKindId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_11_1_prod_kinds_to_s_departments_subDepId",
+            "unique": false,
+            "columnNames": [
+              "subDepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_1_prod_kinds_to_s_departments_subDepId` ON `${TABLE_NAME}` (`subDepId`)"
+          },
+          {
+            "name": "index_11_1_prod_kinds_to_s_departments_prodKindId",
+            "unique": false,
+            "columnNames": [
+              "prodKindId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_1_prod_kinds_to_s_departments_prodKindId` ON `${TABLE_NAME}` (`prodKindId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "11_sub_departments",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "subDepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "1_product_kinds",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "prodKindId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "11_3_comp_kinds_to_s_departments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subDepId` INTEGER NOT NULL, `compKindId` INTEGER NOT NULL, FOREIGN KEY(`subDepId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`compKindId`) REFERENCES `3_component_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subDepId",
+            "columnName": "subDepId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "compKindId",
+            "columnName": "compKindId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_11_3_comp_kinds_to_s_departments_subDepId",
+            "unique": false,
+            "columnNames": [
+              "subDepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_3_comp_kinds_to_s_departments_subDepId` ON `${TABLE_NAME}` (`subDepId`)"
+          },
+          {
+            "name": "index_11_3_comp_kinds_to_s_departments_compKindId",
+            "unique": false,
+            "columnNames": [
+              "compKindId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_3_comp_kinds_to_s_departments_compKindId` ON `${TABLE_NAME}` (`compKindId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "11_sub_departments",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "subDepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "3_component_kinds",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "compKindId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "11_5_comp_stages_to_s_departments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subDepId` INTEGER NOT NULL, `stageKindId` INTEGER NOT NULL, FOREIGN KEY(`subDepId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`stageKindId`) REFERENCES `5_component_stage_kinds`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subDepId",
+            "columnName": "subDepId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stageKindId",
+            "columnName": "stageKindId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_11_5_comp_stages_to_s_departments_subDepId",
+            "unique": false,
+            "columnNames": [
+              "subDepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_5_comp_stages_to_s_departments_subDepId` ON `${TABLE_NAME}` (`subDepId`)"
+          },
+          {
+            "name": "index_11_5_comp_stages_to_s_departments_stageKindId",
+            "unique": false,
+            "columnNames": [
+              "stageKindId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_11_5_comp_stages_to_s_departments_stageKindId` ON `${TABLE_NAME}` (`stageKindId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "11_sub_departments",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "subDepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "5_component_stage_kinds",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "stageKindId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "12_1_products_keys",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `chId` INTEGER NOT NULL, `keyId` INTEGER NOT NULL, FOREIGN KEY(`chId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chId",
+            "columnName": "chId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyId",
+            "columnName": "keyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_12_1_products_keys_chId",
+            "unique": false,
+            "columnNames": [
+              "chId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_1_products_keys_chId` ON `${TABLE_NAME}` (`chId`)"
+          },
+          {
+            "name": "index_12_1_products_keys_keyId",
+            "unique": false,
+            "columnNames": [
+              "keyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_1_products_keys_keyId` ON `${TABLE_NAME}` (`keyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "12_manufacturing_channels",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "0_keys",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "keyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "12_3_components_keys",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `chId` INTEGER NOT NULL, `keyId` INTEGER NOT NULL, FOREIGN KEY(`chId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chId",
+            "columnName": "chId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyId",
+            "columnName": "keyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_12_3_components_keys_chId",
+            "unique": false,
+            "columnNames": [
+              "chId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_3_components_keys_chId` ON `${TABLE_NAME}` (`chId`)"
+          },
+          {
+            "name": "index_12_3_components_keys_keyId",
+            "unique": false,
+            "columnNames": [
+              "keyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_3_components_keys_keyId` ON `${TABLE_NAME}` (`keyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "12_manufacturing_channels",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "0_keys",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "keyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "12_5_stages_keys",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `chId` INTEGER NOT NULL, `keyId` INTEGER NOT NULL, FOREIGN KEY(`chId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chId",
+            "columnName": "chId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyId",
+            "columnName": "keyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_12_5_stages_keys_chId",
+            "unique": false,
+            "columnNames": [
+              "chId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_5_stages_keys_chId` ON `${TABLE_NAME}` (`chId`)"
+          },
+          {
+            "name": "index_12_5_stages_keys_keyId",
+            "unique": false,
+            "columnNames": [
+              "keyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_5_stages_keys_keyId` ON `${TABLE_NAME}` (`keyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "12_manufacturing_channels",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "0_keys",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "keyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "13_1_products_to_lines",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lineId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
@@ -2527,6 +3045,80 @@
             "onUpdate": "CASCADE",
             "columns": [
               "componentInStageId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "14_7_operations_to_chars",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `charId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "charId",
+            "columnName": "charId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operationId",
+            "columnName": "operationId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_14_7_operations_to_chars_charId",
+            "unique": false,
+            "columnNames": [
+              "charId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_14_7_operations_to_chars_charId` ON `${TABLE_NAME}` (`charId`)"
+          },
+          {
+            "name": "index_14_7_operations_to_chars_operationId",
+            "unique": false,
+            "columnNames": [
+              "operationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_14_7_operations_to_chars_operationId` ON `${TABLE_NAME}` (`operationId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "7_characteristics",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "charId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "14_manufacturing_operations",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "operationId"
             ],
             "referencedColumns": [
               "id"
@@ -4842,7 +5434,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c340801ddf5d4a1bad6e3e877074db0e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f1cc2b4f041843551f3645ba4215b2c4')"
     ]
   }
 }

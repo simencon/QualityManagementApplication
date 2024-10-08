@@ -5,50 +5,64 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SyncProductsUseCase @Inject constructor( private val productsRepository: ProductsRepository) {
+class SyncProductsUseCase @Inject constructor(private val productsRepository: ProductsRepository) {
     suspend fun execute() {
-        productsRepository.syncProductLines()
-        productsRepository.syncProductLineKeys()
-        productsRepository.syncProductBases()
-        productsRepository.syncCharacteristicGroups()
-        productsRepository.syncCharacteristicSubGroups()
-        productsRepository.syncCharacteristics()
-        productsRepository.syncMetrics()
-        productsRepository.syncVersionStatuses()
+        with(productsRepository) {
+            syncProductLines()
+            syncProductLineKeys()
+            syncProductBases()
+            syncCharacteristicGroups()
+            syncCharacteristicSubGroups()
+            syncCharacteristics()
+            syncMetrics()
+            syncVersionStatuses()
 
-        productsRepository.syncProductKinds()
-        productsRepository.syncComponentKinds()
-        productsRepository.syncComponentStageKinds()
+            syncProductKinds()
+            syncComponentKinds()
+            syncComponentStageKinds()
 
-        productsRepository.syncProductKindsKeys()
-        productsRepository.syncComponentKindsKeys()
-        productsRepository.syncComponentStageKindsKeys()
+            syncProductKindsKeys()
+            syncComponentKindsKeys()
+            syncComponentStageKindsKeys()
 
-        productsRepository.syncCharacteristicsProductKinds()
-        productsRepository.syncCharacteristicsComponentKinds()
-        productsRepository.syncCharacteristicsComponentStageKinds()
+            syncCharacteristicsProductKinds()
+            syncCharacteristicsComponentKinds()
+            syncCharacteristicsComponentStageKinds()
 
-        productsRepository.syncProducts()
-        productsRepository.syncComponents()
-        productsRepository.syncComponentStages()
+            syncProducts()
+            syncComponents()
+            syncComponentStages()
 
-        productsRepository.syncProductsToLines()
-        productsRepository.syncComponentsToLines()
-        productsRepository.syncComponentStagesToLines()
+            syncProductLinesDepartments()
 
-        productsRepository.syncProductKindsProducts()
-        productsRepository.syncComponentKindsComponents()
-        productsRepository.syncComponentStageKindsComponentStages()
+            syncProductKindsSubDepartments()
+            syncComponentKindsSubDepartments()
+            syncStageKindsSubDepartments()
 
-        productsRepository.syncProductsComponents()
-        productsRepository.syncComponentsComponentStages()
+            syncProductKeysChannels()
+            syncComponentKeysChannels()
+            syncStageKeysChannels()
 
-        productsRepository.syncProductVersions()
-        productsRepository.syncComponentVersions()
-        productsRepository.syncComponentStageVersions()
+            syncProductsToLines()
+            syncComponentsToLines()
+            syncComponentStagesToLines()
 
-        productsRepository.syncProductTolerances()
-        productsRepository.syncComponentTolerances()
-        productsRepository.syncComponentStageTolerances()
+            syncCharacteristicsOperations()
+
+            syncProductKindsProducts()
+            syncComponentKindsComponents()
+            syncComponentStageKindsComponentStages()
+
+            syncProductsComponents()
+            syncComponentsComponentStages()
+
+            syncProductVersions()
+            syncComponentVersions()
+            syncComponentStageVersions()
+
+            syncProductTolerances()
+            syncComponentTolerances()
+            syncComponentStageTolerances()
+        }
     }
 }

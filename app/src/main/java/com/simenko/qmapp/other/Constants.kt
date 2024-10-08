@@ -50,6 +50,15 @@ object Constants {
     const val MANUFACTURING_OPERATIONS = "manufacturingOperations"
     const val MANUFACTURING_OPERATIONS_FLOWS = "manufacturingOperationsFlows"
 
+    const val PRODUCT_LINE_TO_DEPARTMENT = "productLineToDepartment"
+    const val PRODUCT_KIND_TO_SUB_DEPARTMENT = "productKindToSubDepartment"
+    const val COMPONENT_KIND_TO_SUB_DEPARTMENT = "componentKindToSubDepartment"
+    const val STAGE_KIND_TO_SUB_DEPARTMENT = "stageKindToSubDepartment"
+    const val PRODUCT_KEY_TO_CHANNEL = "productKeyToChannel"
+    const val COMPONENT_KEY_TO_CHANNEL = "componentKeyToChannel"
+    const val STAGE_KEY_TO_CHANNEL = "stageKeyToChannel"
+    const val CHARACTERISTIC_TO_OPERATION = "characteristicToOperation"
+
     const val PRODUCT_LINES = "manufacturingProjects"
     const val PRODUCTS_KEYS = "productsKeys"
     const val PRODUCT_BASES = "productBases"

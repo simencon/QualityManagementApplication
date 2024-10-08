@@ -52,9 +52,21 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseComponent::class,
         DatabaseComponentStage::class,
 
+        DatabaseProductLineToDepartment::class,
+
+        DatabaseProductKindToSubDepartment::class,
+        DatabaseComponentKindToSubDepartment::class,
+        DatabaseStageKindToSubDepartment::class,
+
+        DatabaseProductKeyToChannel::class,
+        DatabaseComponentKeyToChannel::class,
+        DatabaseStageKeyToChannel::class,
+
         DatabaseProductToLine::class,
         DatabaseComponentToLine::class,
         DatabaseComponentInStageToLine::class,
+
+        DatabaseCharacteristicToOperation::class,
 
         DatabaseProductKindProduct::class,
         DatabaseComponentKindComponent::class,
@@ -182,9 +194,21 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val componentDao: ComponentDao
     abstract val componentStageDao: ComponentStageDao
 
+    abstract val productLineToDepartmentDao: ProductLineToDepartmentDao
+
+    abstract val productKindToSubDepartmentDao: ProductKindToSubDepartmentDao
+    abstract val componentKindToSubDepartmentDao: ComponentKindToSubDepartmentDao
+    abstract val stageKindToSubDepartmentDao: StageKindToSubDepartmentDao
+
+    abstract val productKeyToChannelDao: ProductKeyToChannelDao
+    abstract val componentKeyToChannelDao: ComponentKeyToChannelDao
+    abstract val stageKeyToChannelDao: StageKeyToChannelDao
+
     abstract val productToLineDao: ProductToLineDao
     abstract val componentToLineDao: ComponentToLineDao
     abstract val componentStageToLineDao: ComponentStageToLineDao
+
+    abstract val characteristicToOperationDao: CharacteristicToOperationDao
 
     abstract val productKindProductDao: ProductKindProductDao
     abstract val componentKindComponentDao: ComponentKindComponentDao

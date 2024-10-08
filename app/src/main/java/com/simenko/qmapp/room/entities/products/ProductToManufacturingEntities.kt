@@ -9,8 +9,229 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
+import com.simenko.qmapp.room.entities.DatabaseDepartment
+import com.simenko.qmapp.room.entities.DatabaseManufacturingChannel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingLine
+import com.simenko.qmapp.room.entities.DatabaseManufacturingOperation
+import com.simenko.qmapp.room.entities.DatabaseSubDepartment
 import com.simenko.qmapp.utils.ObjectTransformer
+
+@Entity(
+    tableName = "10_0_prod_projects_to_departments",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("depId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseProductLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("productLineId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseProductLineToDepartment(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val depId: ID,
+    @ColumnInfo(index = true)
+    val productLineId: ID
+) : DatabaseBaseModel<NetworkProductLineToDepartment, DomainProductLineToDepartment, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductLineToDepartment::class, NetworkProductLineToDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductLineToDepartment::class, DomainProductLineToDepartment::class).transform(this)
+}
+
+@Entity(
+    tableName = "11_1_prod_kinds_to_s_departments",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseSubDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("subDepId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseProductKind::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("prodKindId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseProductKindToSubDepartment(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val subDepId: ID,
+    @ColumnInfo(index = true)
+    val prodKindId: ID
+) : DatabaseBaseModel<NetworkProductKindToSubDepartment, DomainProductKindToSubDepartment, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductKindToSubDepartment::class, NetworkProductKindToSubDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductKindToSubDepartment::class, DomainProductKindToSubDepartment::class).transform(this)
+}
+
+@Entity(
+    tableName = "11_3_comp_kinds_to_s_departments",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseSubDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("subDepId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseComponentKind::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("compKindId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentKindToSubDepartment(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val subDepId: ID,
+    @ColumnInfo(index = true)
+    val compKindId: ID
+) : DatabaseBaseModel<NetworkComponentKindToSubDepartment, DomainComponentKindToSubDepartment, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKindToSubDepartment::class, NetworkComponentKindToSubDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentKindToSubDepartment::class, DomainComponentKindToSubDepartment::class).transform(this)
+}
+
+@Entity(
+    tableName = "11_5_comp_stages_to_s_departments",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseSubDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("subDepId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseComponentStageKind::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("stageKindId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseStageKindToSubDepartment(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val subDepId: ID,
+    @ColumnInfo(index = true)
+    val stageKindId: ID
+) : DatabaseBaseModel<NetworkStageKindToSubDepartment, DomainStageKindToSubDepartment, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseStageKindToSubDepartment::class, NetworkStageKindToSubDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseStageKindToSubDepartment::class, DomainStageKindToSubDepartment::class).transform(this)
+}
+
+@Entity(
+    tableName = "12_1_products_keys",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingChannel::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("chId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseProductKeyToChannel(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val chId: ID,
+    @ColumnInfo(index = true)
+    val keyId: ID
+) : DatabaseBaseModel<NetworkProductKeyToChannel, DomainProductKeyToChannel, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductKeyToChannel::class, NetworkProductKeyToChannel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductKeyToChannel::class, DomainProductKeyToChannel::class).transform(this)
+}
+
+@Entity(
+    tableName = "12_3_components_keys",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingChannel::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("chId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentKeyToChannel(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val chId: ID,
+    @ColumnInfo(index = true)
+    val keyId: ID
+) : DatabaseBaseModel<NetworkComponentKeyToChannel, DomainComponentKeyToChannel, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKeyToChannel::class, NetworkComponentKeyToChannel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentKeyToChannel::class, DomainComponentKeyToChannel::class).transform(this)
+}
+
+@Entity(
+    tableName = "12_5_stages_keys",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingChannel::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("chId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseStageKeyToChannel(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val chId: ID,
+    @ColumnInfo(index = true)
+    val keyId: ID
+) : DatabaseBaseModel<NetworkStageKeyToChannel, DomainStageKeyToChannel, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseStageKeyToChannel::class, NetworkStageKeyToChannel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseStageKeyToChannel::class, DomainStageKeyToChannel::class).transform(this)
+}
 
 @Entity(
     tableName = "13_1_products_to_lines",
@@ -32,11 +253,11 @@ import com.simenko.qmapp.utils.ObjectTransformer
 )
 data class DatabaseProductToLine(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var lineId: ID,
+    val lineId: ID,
     @ColumnInfo(index = true)
-    var productId: ID
+    val productId: ID
 ) : DatabaseBaseModel<NetworkProductToLine, DomainProductToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductToLine::class, NetworkProductToLine::class).transform(this)
@@ -63,11 +284,11 @@ data class DatabaseProductToLine(
 )
 data class DatabaseComponentToLine(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var lineId: ID,
+    val lineId: ID,
     @ColumnInfo(index = true)
-    var componentId: ID
+    val componentId: ID
 ) : DatabaseBaseModel<NetworkComponentToLine, DomainComponentToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentToLine::class, NetworkComponentToLine::class).transform(this)
@@ -95,11 +316,11 @@ data class DatabaseComponentToLine(
 
 data class DatabaseComponentInStageToLine(
     @PrimaryKey(autoGenerate = true)
-    var id: ID,
+    val id: ID,
     @ColumnInfo(index = true)
-    var lineId: ID,
+    val lineId: ID,
     @ColumnInfo(index = true)
-    var componentInStageId: ID
+    val componentInStageId: ID
 ) : DatabaseBaseModel<NetworkComponentInStageToLine, DomainComponentInStageToLine, ID, ID> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageToLine::class, NetworkComponentInStageToLine::class).transform(this)
@@ -124,4 +345,35 @@ data class DatabaseItemToLine(
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemToLine::class, DomainItemToLine::class).transform(this)
+}
+
+@Entity(
+    tableName = "14_7_operations_to_chars",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseCharacteristic::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("charId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseManufacturingOperation::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("operationId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseCharacteristicToOperation(
+    @PrimaryKey(autoGenerate = true)
+    val id: ID,
+    @ColumnInfo(index = true)
+    val charId: ID,
+    @ColumnInfo(index = true)
+    val operationId: ID
+) : DatabaseBaseModel<NetworkCharacteristicToOperation, DomainCharacteristicToOperation, ID, ID> {
+    override fun getRecordId() = id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicToOperation::class, NetworkCharacteristicToOperation::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicToOperation::class, DomainCharacteristicToOperation::class).transform(this)
 }

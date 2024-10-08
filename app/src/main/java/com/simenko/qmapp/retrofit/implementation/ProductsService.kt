@@ -272,15 +272,6 @@ interface ProductsService {
     suspend fun editComponentStage(@Path("id") id: ID, @Body value: NetworkComponentStage): Response<NetworkComponentStage>
 
 
-    @GET(PRODUCTS_TO_LINES)
-    suspend fun getProductsToLines(): Response<List<NetworkProductToLine>>
-
-    @GET(COMPONENTS_TO_LINES)
-    suspend fun getComponentsToLines(): Response<List<NetworkComponentToLine>>
-
-    @GET(COMPONENTS_IN_STAGE_TO_LINES)
-    suspend fun getComponentStagesToLines(): Response<List<NetworkComponentInStageToLine>>
-
 
     @GET(PRODUCT_KINDS_PRODUCTS)
     suspend fun getProductKindsProducts(): Response<List<NetworkProductKindProduct>>
