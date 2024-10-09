@@ -118,7 +118,7 @@ fun <DB, DM> ProductSingleChoiceDialog(
 
                     LazyColumn(state = listState) {
                         items(items = items, key = { it.getRecordId() }) { item ->
-                            CharacteristicToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
+                            ItemToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
                                 onItemSelect.invoke(selectedName)
                             }
                         }

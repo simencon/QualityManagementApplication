@@ -147,7 +147,7 @@ fun Department(
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts((department.department.companyId ?: NoRecord.num) to department.department.id) }) {
                 Text(
-                    text = "Products",
+                    text = "Product lines",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

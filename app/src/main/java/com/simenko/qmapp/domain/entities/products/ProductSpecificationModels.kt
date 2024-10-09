@@ -27,12 +27,12 @@ data class DomainProductLine(
     var refItem: String? = null,
     var pfmeaNum: String? = EmptyString.str,
     var processOwner: ID = NoRecord.num,
-    var confLevel: ID? = null
+    var confLevel: ID? = null,
 ) : DomainBaseModel<DatabaseProductLine>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProductLine::class, DatabaseProductLine::class).transform(this)
+    override fun setIsSelected(value: Boolean) {}
 
     data class DomainProductLineComplete(
         val manufacturingProject: DomainProductLine = DomainProductLine(),
@@ -40,11 +40,15 @@ data class DomainProductLine(
         val designDepartment: DomainDepartment = DomainDepartment(),
         val designManager: DomainEmployee = DomainEmployee(),
         override var detailsVisibility: Boolean = false,
-        override var isExpanded: Boolean = false
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseProductLine.DatabaseProductLineComplete>() {
         override fun getRecordId() = manufacturingProject.id
         override fun getParentId() = manufacturingProject.companyId
         override fun setIsSelected(value: Boolean) {}
+        override fun getIsSelected(): Boolean = this.isSelected
+        override fun getIdentityName(): String = StringUtils.concatTwoStrings1(this.manufacturingProject.pfmeaNum, this.manufacturingProject.startDate)
+        override fun getName(): String = this.manufacturingProject.projectSubject ?: NoString.str
 
         override fun toDatabaseModel() = DatabaseProductLine.DatabaseProductLineComplete(
             manufacturingProject = this.manufacturingProject.toDatabaseModel(),

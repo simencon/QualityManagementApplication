@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.structure.products.product_line
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
@@ -35,9 +36,16 @@ class DepartmentProductLinesViewModel @Inject constructor(
     private val productRepository: ProductsRepository,
 ) : ViewModel() {
     private val _route = MutableStateFlow(DepartmentProductLines(companyId = NoRecord.num, departmentId = NoRecord.num))
+    private val _allProductLines = _route.flatMapLatest { route ->
+        productRepository.productLines(route.companyId)
+    }
     private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
     private val _departmentProductLinesIds = MutableStateFlow<List<ID>>(emptyList())
     private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+
+    private val _isAddItemDialogVisible = MutableStateFlow(false)
+    private val _itemToAddId: MutableStateFlow<ID> = MutableStateFlow(NoRecord.num)
+    private val _itemToAddSearchStr: MutableStateFlow<String> = MutableStateFlow(EmptyString.str)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -52,7 +60,7 @@ class DepartmentProductLinesViewModel @Inject constructor(
                 _departmentProductLinesIds.value = productRepository.departmentProductLines(route.departmentId).map { it.productLineId }
                 mainPageHandler = MainPageHandler.Builder(Page.DEPARTMENT_PRODUCT_LINES, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                    .setOnFabClickAction { onAddProductLine() }
+                    .setOnFabClickAction { setAddItemDialogVisibility(true) }
                     .build()
                     .apply { setupMainPage(0, true) }
             }
@@ -71,31 +79,55 @@ class DepartmentProductLinesViewModel @Inject constructor(
      * */
     val department get() = _department.asStateFlow()
 
-    val productLines = _route.flatMapLatest { route ->
-        _departmentProductLinesIds.flatMapLatest { productLinesIds ->
-            _productLinesVisibility.flatMapLatest { visibility ->
-                productRepository.productLines(route.companyId).flatMapLatest { allProductLines ->
-                    flow {
-                        emit(allProductLines
-                            .filter { productLinesIds.contains(it.manufacturingProject.id) }
-                            .map {
-                                it.copy(
-                                    detailsVisibility = it.manufacturingProject.id == visibility.first.num,
-                                    isExpanded = it.manufacturingProject.id == visibility.second.num
-                                )
-                            }
-                        )
-                    }
+    val productLines = _departmentProductLinesIds.flatMapLatest { productLinesIds ->
+        _productLinesVisibility.flatMapLatest { visibility ->
+            _allProductLines.flatMapLatest { allProductLines ->
+                flow {
+                    emit(allProductLines
+                        .filter { productLinesIds.contains(it.manufacturingProject.id) }
+                        .map {
+                            it.copy(
+                                detailsVisibility = it.manufacturingProject.id == visibility.first.num,
+                                isExpanded = it.manufacturingProject.id == visibility.second.num
+                            )
+                        }
+                    )
                 }
             }
         }
+    }
+
+    val availableProductLines = _departmentProductLinesIds.flatMapLatest { productLinesIds ->
+        _itemToAddId.flatMapLatest { selectedId ->
+            _allProductLines.flatMapLatest { allProductLines ->
+                flow { emit(allProductLines.filter { !productLinesIds.contains(it.manufacturingProject.id) }.map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }) }
+            }
+        }
+    }
+
+    val isAddItemDialogVisible = _isAddItemDialogVisible.asStateFlow()
+    fun setAddItemDialogVisibility(value: Boolean) {
+        if (!value) {
+            _itemToAddSearchStr.value = EmptyString.str
+            _itemToAddId.value = NoRecord.num
+        }
+        _isAddItemDialogVisible.value = value
+    }
+
+    val itemToAddSearchStr = _itemToAddSearchStr.asStateFlow()
+    fun setItemToAddSearchStr(value: String) {
+        if (_itemToAddSearchStr.value != value) _itemToAddSearchStr.value = value
+    }
+
+    fun onItemSelect(id: ID) {
+        _itemToAddId.value = id
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
 
-    private fun onAddProductLine() {
+    fun onAddProductLine() {
 
     }
 

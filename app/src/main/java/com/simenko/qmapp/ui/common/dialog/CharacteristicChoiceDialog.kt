@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,9 +48,7 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.products.DomainKey
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.Section
 
@@ -107,7 +103,7 @@ fun <DB, DM> CharacteristicChoiceDialog(
 
                     LazyColumn(state = listState) {
                         items(items = items, key = { it.getRecordId() }) { item ->
-                            CharacteristicToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
+                            ItemToSelect(item.getRecordId() as ID, Triple(item.getIdentityName(), item.getName(), item.getIsSelected())) { selectedName ->
                                 onItemSelect.invoke(selectedName)
                             }
                         }
@@ -225,44 +221,7 @@ fun ItemToSelect(
     }
 }
 
-@Composable
-fun CharacteristicToSelect(
-    itemId: ID,
-    itemContent: Triple<String, String, Boolean>,
-    onClick: (ID) -> Unit
-) {
-    val btnColors = ButtonDefaults.buttonColors(
-        contentColor = if (itemContent.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-        containerColor = if (itemContent.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-    )
-    Row(
-        modifier = Modifier.padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(
-            colors = btnColors,
-            elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
-            modifier = Modifier
-                .width((300 - Constants.DEFAULT_SPACE * 2).dp)
-                .wrapContentHeight(),
-            onClick = { onClick(itemId) }
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = itemContent.first.ifEmpty { NoString.str },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = itemContent.second,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
-}
+
 
 @Preview(
     name = "Light Mode",

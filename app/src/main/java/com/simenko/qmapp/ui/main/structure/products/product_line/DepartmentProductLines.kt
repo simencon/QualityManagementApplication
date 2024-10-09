@@ -36,6 +36,7 @@ import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
+import com.simenko.qmapp.ui.common.dialog.SingleChoiceDialog
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
@@ -47,6 +48,10 @@ fun DepartmentProductLines(
 ) {
     val department by viewModel.department.collectAsStateWithLifecycle(DomainDepartment.DomainDepartmentComplete())
     val items by viewModel.productLines.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    val availableItems by viewModel.availableProductLines.collectAsStateWithLifecycle(listOf())
+    val isAddItemDialogVisible by viewModel.isAddItemDialogVisible.collectAsStateWithLifecycle()
+    val searchString by viewModel.itemToAddSearchStr.collectAsStateWithLifecycle()
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductLinesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductLineClick(it) } }
@@ -63,6 +68,17 @@ fun DepartmentProductLines(
                 .fillMaxWidth(), title = "Department", body = concatTwoStrings(department.department.depAbbr, department.department.depName)
         )
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+
+        if (isAddItemDialogVisible) SingleChoiceDialog(
+            items = availableItems,
+            addIsEnabled = availableItems.any { it.isSelected },
+            onDismiss = { viewModel.setAddItemDialogVisibility(false) },
+            searchString = searchString,
+            onSearch = viewModel::setItemToAddSearchStr,
+            onItemSelect = { viewModel.onItemSelect(it) },
+            onAddClick = { viewModel.onAddProductLine() }
+        )
+
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
