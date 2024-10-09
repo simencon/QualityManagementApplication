@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -119,25 +122,12 @@ fun Operation(
     onClickDetails: (ID) -> Unit = {},
     onClickProducts: (ID) -> Unit
 ) {
-    val containerColor = when (operation.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
-    }
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(0.60f)) {
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operation.operationOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment.let { if (it.isNullOrEmpty()) NoString.str else it })
-            }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
-                Text(
-                    text = "Functions",
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(operation.operation.id) }) {
                 Icon(
@@ -146,14 +136,20 @@ fun Operation(
                 )
             }
         }
-        OperationDetails(operation = operation)
+        OperationDetails(operation = operation, onClickProducts = onClickProducts)
     }
 }
 
 @Composable
 fun OperationDetails(
-    operation: DomainManufacturingOperationComplete
+    operation: DomainManufacturingOperationComplete,
+    onClickProducts: (ID) -> Unit
 ) {
+    val containerColor = when (operation.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
+
     if (operation.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
             HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -179,6 +175,20 @@ fun OperationDetails(
                     }
             }
 
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.20f))
+                Column(modifier = Modifier.weight(0.80f)) {
+                    StatusChangeBtn(
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Characteristics (functions)", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product item kinds")
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
     }
 }

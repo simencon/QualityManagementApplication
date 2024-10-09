@@ -93,6 +93,17 @@ class CompanyStructureViewModel @Inject constructor(
         _channelsVisibility.value = _channelsVisibility.value.setVisibility(dId, aId)
     }
 
+    private val _channelDetailsId = MutableStateFlow(NoRecord.num)
+    val channelDetailsId get() = _channelDetailsId.asStateFlow()
+
+    fun setChannelDetailsId(id: ID) {
+        if (id == _channelDetailsId.value) {
+            _channelDetailsId.value = NoRecord.num
+        } else {
+            _channelDetailsId.value = id
+        }
+    }
+
     fun setLinesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _linesVisibility.value = _linesVisibility.value.setVisibility(dId, aId)
     }

@@ -10,15 +10,18 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,7 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,9 +61,12 @@ fun Channels(
 ) {
     val subDepartmentVisibility by viewModel.subDepartmentsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.channels.collectAsStateWithLifecycle(listOf())
+    val itemDetailsId by viewModel.channelDetailsId.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setChannelDetailsId(id = it) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setChannelsVisibility(aId = SelectedNumber(it)) } }
+    val onClickOperationsLambda = remember<(ID) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
+
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteChannelClick(it) } }
     val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddChannelClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditChannelClick(it) } }
@@ -71,11 +79,13 @@ fun Channels(
             items.forEach { channel ->
                 ChannelCard(
                     channel = channel,
+                    itemDetailsId = itemDetailsId,
+                    onClickDetails = { onClickDetailsLambda(it) },
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
                     onClickEdit = { onClickEditLambda(it) },
-                    onClickDetails = { onClickDetailsLambda(it) },
-                    onClickProducts = { onClickProductsLambda(it) }
+                    onClickOperations = { onClickOperationsLambda(it) },
+                    onClickProducts = { onClickProductsLambda(it) },
                 )
             }
         }
@@ -93,10 +103,12 @@ fun Channels(
 @Composable
 fun ChannelCard(
     channel: DomainManufacturingChannel,
+    itemDetailsId: ID,
+    onClickDetails: (ID) -> Unit,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
-    onClickDetails: (ID) -> Unit,
+    onClickOperations: (ID) -> Unit,
     onClickProducts: (ID) -> Unit
 ) {
     ItemCard(
@@ -110,7 +122,9 @@ fun ChannelCard(
     ) {
         Channel(
             channel = channel,
+            itemDetailsId = itemDetailsId,
             onClickDetails = onClickDetails,
+            onClickOperations = onClickOperations,
             onClickProducts = onClickProducts
         )
     }
@@ -119,7 +133,42 @@ fun ChannelCard(
 @Composable
 fun Channel(
     channel: DomainManufacturingChannel,
+    itemDetailsId: ID,
     onClickDetails: (ID) -> Unit,
+    onClickOperations: (ID) -> Unit,
+    onClickProducts: (ID) -> Unit
+) {
+    val detailsVisibility = itemDetailsId == channel.id
+
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
+
+            Column(modifier = Modifier.weight(weight = 0.90f), horizontalAlignment = Alignment.Start) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = channel.channelOrder?.toString() ?: NoString.str)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                HeaderWithTitle(titleWight = 0.34f, title = "Channel:", text = channel.channelAbbr ?: NoString.str)
+            }
+
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = {
+                onClickDetails(channel.id)
+            }) {
+                Icon(
+                    imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
+                )
+            }
+        }
+
+        if (detailsVisibility) {
+            ChannelDetails(channel = channel, onClickOperations = onClickOperations, onClickProducts = onClickProducts)
+        }
+    }
+}
+
+@Composable
+fun ChannelDetails(
+    channel: DomainManufacturingChannel,
+    onClickOperations: (ID) -> Unit,
     onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (channel.isExpanded) {
@@ -127,38 +176,37 @@ fun Channel(
         false -> MaterialTheme.colorScheme.tertiaryContainer
     }
 
-    Row(
-        modifier = Modifier
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-            .padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(0.91f)) {
-            Row {
-                Column(modifier = Modifier.weight(weight = 0.70f), horizontalAlignment = Alignment.Start) {
-                    HeaderWithTitle(titleFirst = false, titleWight = 0f, text = channel.channelOrder?.toString() ?: NoString.str)
-                    Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                    HeaderWithTitle(titleWight = 0.34f, title = "Channel:", text = channel.channelAbbr ?: NoString.str)
-                }
-                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(channel.id) }) {
-                    Text(
-                        text = "Products",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+    Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        ContentWithTitle(title = "Complete name:", value = channel.channelDesignation ?: NoString.str, titleWight = 0.23f)
 
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Row(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.weight(0.30f))
+            Column(modifier = Modifier.weight(0.70f)) {
+                StatusChangeBtn(
+                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickOperations(channel.id) }) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Lines", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Icon(imageVector = if (channel.detailsVisibility) Icons.AutoMirrored.Filled.NavigateBefore else Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Lines")
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
-            ContentWithTitle(title = "Comp. name:", value = channel.channelDesignation ?: NoString.str, titleWight = 0.23f)
         }
 
-        IconButton(onClick = { onClickDetails(channel.id) }, modifier = Modifier.weight(weight = 0.09f)) {
-            Icon(
-                imageVector = if (channel.detailsVisibility) Icons.AutoMirrored.Filled.NavigateBefore else Icons.AutoMirrored.Filled.NavigateNext,
-                contentDescription = if (channel.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-            )
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Row(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.weight(0.30f))
+            Column(modifier = Modifier.weight(0.70f)) {
+                StatusChangeBtn(
+                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(channel.id) }) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Product designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product designations")
+                    }
+                }
+            }
         }
     }
 }

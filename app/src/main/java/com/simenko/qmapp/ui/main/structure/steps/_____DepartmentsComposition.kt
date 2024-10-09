@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
@@ -133,25 +136,12 @@ fun Department(
     onClickDetails: (ID) -> Unit,
     onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
-    val containerColor = when (department.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(0.72f)) {
+            Column(modifier = Modifier.weight(0.90f)) {
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.37f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
-            }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts((department.department.companyId ?: NoRecord.num) to department.department.id) }) {
-                Text(
-                    text = "Product lines",
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(department.department.id) }) {
                 Icon(
@@ -160,26 +150,46 @@ fun Department(
                 )
             }
         }
-        DepartmentDetails(viewModel = viewModel, department = department)
+        DepartmentDetails(viewModel = viewModel, department = department, onClickProducts = onClickProducts)
     }
 }
 
 @Composable
 fun DepartmentDetails(
     viewModel: CompanyStructureViewModel,
-    department: DomainDepartmentComplete
+    department: DomainDepartmentComplete,
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
+    val containerColor = when (department.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
 
     if (department.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+
+
             ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.24f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.24f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.24f)
-            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
+
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.30f))
+                Column(modifier = Modifier.weight(0.70f)) {
+                    StatusChangeBtn(
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(department.department.run { (companyId ?: NoRecord.num) to id }) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Product lines", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show product lines")
+                        }
+                    }
+                }
+            }
         }
         SubDepartments(viewModel = viewModel)
     }

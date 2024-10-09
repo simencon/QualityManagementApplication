@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
@@ -130,25 +133,12 @@ fun Line(
     onClickDetails: (ID) -> Unit = {},
     onClickProducts: (ID) -> Unit
 ) {
-    val containerColor = when (line.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
-            Column(modifier = Modifier.weight(0.61f)) {
+            Column(modifier = Modifier.weight(0.90f)) {
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = line.lineOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.18f, title = "Line:", text = line.lineAbbr)
-            }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.29f), containerColor = containerColor, onClick = { onClickProducts(line.id) }) {
-                Text(
-                    text = "Products",
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(line.id) }) {
                 Icon(
@@ -157,20 +147,40 @@ fun Line(
                 )
             }
         }
-        LineDetails(viewModel = viewModel, line = line)
+        LineDetails(viewModel = viewModel, line = line, onClickProducts = onClickProducts)
     }
 }
 
 @Composable
 fun LineDetails(
     viewModel: CompanyStructureViewModel,
-    line: DomainManufacturingLine
+    line: DomainManufacturingLine,
+    onClickProducts: (ID) -> Unit
 ) {
+    val containerColor = when (line.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     if (line.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Comp. name:", value = line.lineDesignation, titleWight = 0.23f)
+            ContentWithTitle(title = "Complete name:", value = line.lineDesignation, titleWight = 0.23f)
+
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.30f))
+                Column(modifier = Modifier.weight(0.70f)) {
+                    StatusChangeBtn(
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(line.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Product items", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product items")
+                        }
+                    }
+                }
+            }
         }
         Operations(viewModel = viewModel)
     }
