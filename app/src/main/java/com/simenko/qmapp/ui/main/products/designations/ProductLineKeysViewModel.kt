@@ -86,9 +86,9 @@ class ProductLineKeysViewModel @Inject constructor(
                     deleteProductLineKey(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -100,13 +100,13 @@ class ProductLineKeysViewModel @Inject constructor(
     private fun updateProductLineKeysData() {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
 
                 repository.syncProductLineKeys()
 
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
             } catch (e: Exception) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
             }
         }
     }

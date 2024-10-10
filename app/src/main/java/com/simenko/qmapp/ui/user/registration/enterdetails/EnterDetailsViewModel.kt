@@ -146,13 +146,13 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                    mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                     appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails, popUpToRoute = Route.Main, inclusive = true)
                 } else {
-                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, task.exception?.message))
+                    mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, task.exception?.message))
                 }
             }
         }

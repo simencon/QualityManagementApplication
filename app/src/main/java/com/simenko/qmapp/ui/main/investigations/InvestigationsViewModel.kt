@@ -78,7 +78,8 @@ class InvestigationsViewModel @Inject constructor(
                 }
                 .build()
                 .apply {
-                    val selectedTabIndex = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
+                    val selectedTabIndex =
+                        if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
                     setupMainPage.invoke(selectedTabIndex, true)
                 }
         }
@@ -182,7 +183,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _orders: StateFlow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
         _currentOrdersFilter.flatMapLatest { filter ->
-            repository.ordersListByLastVisibleId(key as ID, filter)
+            repository.ordersListByLastVisibleId(key, filter)
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
@@ -235,9 +236,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteOrder(orderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -303,9 +304,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteSubOrder(subOrderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -358,9 +359,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteSubOrderTask(taskId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -372,14 +373,14 @@ class InvestigationsViewModel @Inject constructor(
     fun syncTasks() {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
 
                 repository.syncSubOrderTasks(_currentOrdersRange.value)
                 repository.syncResults(_currentOrdersRange.value)
 
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
             } catch (e: IOException) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
             }
         }
     }
@@ -461,9 +462,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteResults(task.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -475,7 +476,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
                         repository.tasksBySubOrderId(subOrder.id).forEach {
@@ -490,9 +491,9 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
                 hideStatusUpdateDialog()
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
             } catch (e: IOException) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
             }
         }
     }
@@ -500,7 +501,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
 
@@ -515,9 +516,9 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
                 hideStatusUpdateDialog()
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
             } catch (e: IOException) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
             }
         }
     }
@@ -583,7 +584,7 @@ class InvestigationsViewModel @Inject constructor(
                                                     when (resource.status) {
                                                         Status.LOADING -> {}
                                                         Status.SUCCESS -> {}
-                                                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                                                     }
                                                 }
                                             }
@@ -602,14 +603,14 @@ class InvestigationsViewModel @Inject constructor(
                                         when (resource.status) {
                                             Status.LOADING -> {}
                                             Status.SUCCESS -> {}
-                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                                         }
                                     }
                                 }
                             }
                         }
 
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }
@@ -621,9 +622,9 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { updateResult(result) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }
@@ -636,7 +637,7 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> {
                             resource.data?.also {
                                 repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
@@ -647,17 +648,17 @@ class InvestigationsViewModel @Inject constructor(
                                                 resource.data?.let {
                                                     if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
                                                 }
-                                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                                             }
 
-                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                                         }
                                     }
                                 }
-                            } ?: mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            } ?: mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                         }
 
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }
@@ -669,15 +670,15 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { uploadOldInvestigations(earliestOrderDate) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> {
                             resource.data?.let {
                                 if (it.isNotEmpty()) setLastVisibleItemKey(_orders.value[_orders.value.lastIndex - 1].order.id)
                             }
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                         }
 
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }

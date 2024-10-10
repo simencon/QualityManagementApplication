@@ -158,16 +158,16 @@ class CharSubGroupViewModel @Inject constructor(
     }
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
         repository.run {
             if (_charSubGroup.value.charSubGroup.id == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup)
         }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
-                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                     Status.SUCCESS -> navBackToRecord(resource.data?.id)
                     Status.ERROR -> {
-                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                         _fillInState.value = FillInInitialState
                     }
                 }
@@ -176,7 +176,7 @@ class CharSubGroupViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         id?.let {
             val productLine = _charSubGroup.value.charGroup.productLine.manufacturingProject.id
             val charGroupId = _charSubGroup.value.charGroup.charGroup.id

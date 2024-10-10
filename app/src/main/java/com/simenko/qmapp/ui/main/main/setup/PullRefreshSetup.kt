@@ -7,7 +7,7 @@ data class PullRefreshSetup(val refreshAction: (() -> Unit)? = null) {
     private val _isSubLoadingInProgress = MutableStateFlow(false)
     val isSubLoadingInProgress: StateFlow<Boolean> get() = _isSubLoadingInProgress
     private val _isLoadingInProgress = MutableStateFlow(false)
-    val isLoadingInProgress: StateFlow<Boolean> get() = _isSubLoadingInProgress
+    val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
     val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
 

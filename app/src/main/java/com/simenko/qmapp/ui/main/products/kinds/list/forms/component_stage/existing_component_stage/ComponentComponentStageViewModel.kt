@@ -210,13 +210,13 @@ class ComponentComponentStageViewModel @Inject constructor(
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
                                 Status.LOADING -> {
-                                    mainPageState.sendLoadingState(Pair(true, null)); _isLoading.value = true
+                                    mainPageState.sendLoadingState(Triple(true, false, null)); _isLoading.value = true
                                 }
 
                                 Status.SUCCESS -> resource.data?.let { navBackToRecord(it) }
 
                                 Status.ERROR -> {
-                                    mainPageState.sendLoadingState(Pair(false, resource.message)); _isLoading.value = false
+                                    mainPageState.sendLoadingState(Triple(false, false, resource.message)); _isLoading.value = false
                                 }
                             }
                         }

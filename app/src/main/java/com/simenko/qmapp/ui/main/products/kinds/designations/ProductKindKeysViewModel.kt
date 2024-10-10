@@ -135,13 +135,13 @@ class ProductKindKeysViewModel @Inject constructor(
      * */
     private fun updateCompanyProductsData() = viewModelScope.launch(Dispatchers.IO) {
         try {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
 
             repository.syncProductKindsKeys()
 
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         } catch (e: Exception) {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
         }
     }
 
@@ -152,9 +152,9 @@ class ProductKindKeysViewModel @Inject constructor(
                     deleteProductKindKey(itemToDelete.productKindKey.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -179,13 +179,13 @@ class ProductKindKeysViewModel @Inject constructor(
                 ).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                             Status.SUCCESS -> {
-                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                                 resource.data?.let { setProductKindKeysVisibility(dId = SelectedNumber(it.keyId)) }
                             }
 
-                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                         }
                     }
                 }

@@ -56,9 +56,9 @@ class UserViewModel @Inject constructor(
     private val _isErrorMessage = MutableStateFlow<String?>(null)
     val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
 
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
+    fun updateLoadingState(state: Triple<Boolean, Boolean, String?>) {
         _isLoadingInProgress.value = state.first
-        _isErrorMessage.value = state.second
+        _isErrorMessage.value = state.third
     }
 
     fun onNetworkErrorShown() {
@@ -69,7 +69,7 @@ class UserViewModel @Inject constructor(
     val userState: StateFlow<UserState> get() = userRepository.userState
 
     private fun updateCurrentUserState() {
-        updateLoadingState(Pair(true, null))
+        updateLoadingState(Triple(true, false, null))
         userRepository.getActualUserState()
     }
 
@@ -77,32 +77,32 @@ class UserViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onStateIsNoState() {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen, popUpToRoute = Route.LoggedOut, inclusive = true)
         updateCurrentUserState()
     }
 
     fun onStateIsUnregisteredState() {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.Registration, popUpToRoute = Route.LoggedOut, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation(msg), Route.LoggedOut, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     suspend fun onStateIsUserAuthoritiesNotVerifiedState(msg: String) {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation(msg), Route.LoggedOut, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     fun onStateIsUserLoggedOutState() {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn, popUpToRoute = Route.LoggedOut, inclusive = true)
     }
 

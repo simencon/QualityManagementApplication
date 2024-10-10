@@ -258,16 +258,16 @@ class CharacteristicViewModel @Inject constructor(
     }
 
     fun makeRecord() = viewModelScope.launch(Dispatchers.IO) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
         repository.run {
             if (_characteristic.value.characteristic.id == NoRecord.num) insertCharacteristic(_characteristic.value.characteristic) else updateCharacteristic(_characteristic.value.characteristic)
         }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
-                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                     Status.SUCCESS -> navBackToRecord(resource.data?.id)
                     Status.ERROR -> {
-                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                         _fillInState.value = FillInInitialState
                     }
                 }
@@ -276,7 +276,7 @@ class CharacteristicViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
         id?.let {
             val productLine = _characteristic.value.characteristicSubGroup.charGroup.productLine.manufacturingProject.id
             val charGroupId = _characteristic.value.characteristicSubGroup.charGroup.charGroup.id

@@ -591,19 +591,19 @@ class VersionTolerancesViewModel @Inject constructor(
                         when (resource.status) {
                             Status.LOADING -> {
                                 _isLoading.value = true
-                                mainPageState.sendLoadingState(Pair(_isLoading.value, null))
+                                mainPageState.sendLoadingState(Triple(_isLoading.value, false, null))
                             }
 
                             Status.SUCCESS -> {
                                 resource.data?.let { onEntered(VersionTolerancesDetails(itemKindId = _itemKindId.value, versionFId = it)) }
                                 setUpFab(Icons.Filled.Edit)
                                 _isLoading.value = false
-                                mainPageState.sendLoadingState(Pair(_isLoading.value, null))
+                                mainPageState.sendLoadingState(Triple(_isLoading.value, false, null))
                             }
 
                             Status.ERROR -> {
                                 _isLoading.value = false
-                                mainPageState.sendLoadingState(Pair(_isLoading.value, resource.message))
+                                mainPageState.sendLoadingState(Triple(_isLoading.value, false, resource.message))
                             }
                         }
                     }

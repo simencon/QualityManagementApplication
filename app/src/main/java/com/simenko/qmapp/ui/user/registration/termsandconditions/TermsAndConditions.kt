@@ -54,7 +54,7 @@ fun TermsAndConditions(
                 }
             }
         }
-        viewModel.updateLoadingState(Pair(false, null))
+        viewModel.updateLoadingState(Triple(false, false, null))
     }
 
     Box(

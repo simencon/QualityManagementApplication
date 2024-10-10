@@ -548,9 +548,9 @@ class NewItemViewModel @Inject constructor(
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
                             Status.SUCCESS -> {
-                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
                                         route = Route.Main.AllInvestigations.AllInvestigationsList(resource.data?.id ?: NoRecord.num, NoRecord.num),
@@ -560,13 +560,13 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, "Fill in all field before save!"))
     }
 
     private fun makeOrderWithSubOrder(newRecord: Boolean = true) {
@@ -575,7 +575,7 @@ class NewItemViewModel @Inject constructor(
                 repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
 
                             Status.SUCCESS -> {
                                 resource.data?.let {
@@ -586,13 +586,13 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,"Fill in all field before save!"))
     }
 
     private fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
@@ -602,13 +602,13 @@ class NewItemViewModel @Inject constructor(
                     .consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
                                 Status.SUCCESS -> {
                                     resource.data?.let {
                                         postDeleteSubOrderTasks(it.id)
                                         postDeleteSamples(it.id)
                                     }
-                                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
@@ -625,13 +625,13 @@ class NewItemViewModel @Inject constructor(
                                     }
                                 }
 
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
             }
         else
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,"Fill in all field before save!"))
     }
 
     private suspend fun postDeleteSamples(subOrderId: ID) {
@@ -645,9 +645,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,resource.message))
                                 }
                             }
                         }
@@ -656,9 +656,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                                 }
                             }
                         }
@@ -679,9 +679,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                                 }
                             }
                         }
@@ -690,9 +690,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true,  false,null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false,  false,resource.message))
                                 }
                             }
                         }

@@ -231,9 +231,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteDepartment(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -249,9 +249,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteSubDepartment(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -267,9 +267,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteChannel(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -285,9 +285,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteLine(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -303,9 +303,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteOperation(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -317,7 +317,7 @@ class CompanyStructureViewModel @Inject constructor(
     private fun updateCompanyStructureData() {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
 
                 repository.syncTeamMembers()
                 repository.syncCompanies()
@@ -328,9 +328,9 @@ class CompanyStructureViewModel @Inject constructor(
                 repository.syncOperations()
                 repository.syncOperationsFlows()
 
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
             } catch (e: Exception) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
             }
         }
     }

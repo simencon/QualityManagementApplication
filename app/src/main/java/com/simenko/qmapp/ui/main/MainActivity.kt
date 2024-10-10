@@ -102,7 +102,7 @@ class MainActivity : BaseActivity() {
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
 
                 val observerSubLoadingProcess by pullRefreshSetup.isSubLoadingInProgress.collectAsStateWithLifecycle()
-                val observerLoadingProcess by pullRefreshSetup.isSubLoadingInProgress.collectAsStateWithLifecycle()
+                val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
                 BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavMenuClick?.invoke(false) } })

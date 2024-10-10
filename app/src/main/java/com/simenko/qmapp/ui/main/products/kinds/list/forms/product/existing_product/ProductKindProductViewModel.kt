@@ -139,9 +139,9 @@ class ProductKindProductViewModel @Inject constructor(
         with(repository) { insertProductKindProduct(_productKindProduct.value.productKindProduct) }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
-                    Status.LOADING -> mainPageState.sendLoadingState(Pair(true, null))
+                    Status.LOADING -> mainPageState.sendLoadingState(Triple(true, false, null))
                     Status.SUCCESS -> resource.data?.let { navBackToRecord(Pair(it.productKindId, it.productId)) }
-                    Status.ERROR -> mainPageState.sendLoadingState(Pair(true, resource.message))
+                    Status.ERROR -> mainPageState.sendLoadingState(Triple(true, false, resource.message))
                 }
             }
         }

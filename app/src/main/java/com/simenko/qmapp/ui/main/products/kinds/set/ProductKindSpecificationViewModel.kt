@@ -98,9 +98,9 @@ class ProductKindSpecificationViewModel @Inject constructor(
             deleteComponentKind(it).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }
@@ -113,9 +113,9 @@ class ProductKindSpecificationViewModel @Inject constructor(
             deleteComponentStageKind(it).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }
             }
@@ -124,15 +124,15 @@ class ProductKindSpecificationViewModel @Inject constructor(
 
     private fun updateCompanyProductsData() = viewModelScope.launch {
         try {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
 
             repository.syncProductKinds()
             repository.syncComponentKinds()
             repository.syncComponentStageKinds()
 
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         } catch (e: Exception) {
-            mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, e.message))
         }
     }
 

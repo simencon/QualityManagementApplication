@@ -188,10 +188,10 @@ class ProductLineViewModel @Inject constructor(
         }.consumeEach { event ->
             event.getContentIfNotHandled()?.let { resource ->
                 when (resource.status) {
-                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                     Status.SUCCESS -> navBackToRecord(resource.data?.id)
                     Status.ERROR -> {
-                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                         _fillInState.value = FillInInitialState
                     }
                 }
@@ -200,7 +200,7 @@ class ProductLineViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 val companyId = _productLine.value.manufacturingProject.companyId

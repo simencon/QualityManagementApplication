@@ -204,10 +204,10 @@ class ComponentViewModel @Inject constructor(
             ).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> resource.data?.let { navBackToRecord(it) }
                         Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }

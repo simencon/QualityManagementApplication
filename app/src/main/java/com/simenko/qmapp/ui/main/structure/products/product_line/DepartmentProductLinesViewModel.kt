@@ -22,9 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -42,11 +44,11 @@ class DepartmentProductLinesViewModel @Inject constructor(
         productRepository.productLines(route.companyId)
     }
     private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
-    private val _departmentProductLinesIds = _route.flatMapLatest { route ->
+    private val _departmentProductLines = _route.flatMapLatest { route ->
         repository.departmentProductLines(route.departmentId).flatMapLatest { departmentProductLines ->
-            flow { emit(departmentProductLines.map { it.productLineId }) }
+            flow { emit(departmentProductLines) }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
     private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
 
     private val _isAddItemDialogVisible = MutableStateFlow(false)
@@ -84,12 +86,12 @@ class DepartmentProductLinesViewModel @Inject constructor(
      * */
     val department get() = _department.asStateFlow()
 
-    val productLines = _departmentProductLinesIds.flatMapLatest { productLinesIds ->
+    val productLines = _departmentProductLines.flatMapLatest { productLinesIds ->
         _productLinesVisibility.flatMapLatest { visibility ->
             _allProductLines.flatMapLatest { allProductLines ->
                 flow {
                     emit(allProductLines
-                        .filter { productLinesIds.contains(it.manufacturingProject.id) }
+                        .filter { productLinesIds.map { it.productLineId }.contains(it.manufacturingProject.id) }
                         .map {
                             it.copy(
                                 detailsVisibility = it.manufacturingProject.id == visibility.first.num,
@@ -102,10 +104,16 @@ class DepartmentProductLinesViewModel @Inject constructor(
         }
     }
 
-    val availableProductLines = _departmentProductLinesIds.flatMapLatest { productLinesIds ->
+    val availableProductLines = _departmentProductLines.flatMapLatest { productLinesIds ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allProductLines.flatMapLatest { allProductLines ->
-                flow { emit(allProductLines.filter { !productLinesIds.contains(it.manufacturingProject.id) }.map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }) }
+                flow {
+                    emit(
+                        allProductLines
+                            .filter { item -> !productLinesIds.map { it.productLineId }.contains(item.manufacturingProject.id) }
+                            .map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }
+                    )
+                }
             }
         }
     }
@@ -141,11 +149,11 @@ class DepartmentProductLinesViewModel @Inject constructor(
                             Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
 
                             Status.SUCCESS -> {
-                                setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
+                                setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                             }
 
                             Status.ERROR -> {
-                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, resource.message))
+                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                             }
                         }
                     }
@@ -154,7 +162,27 @@ class DepartmentProductLinesViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteProductLineClick(id: ID) {
+    fun onDeleteProductLineClick(productLineId: ID) {
+        _departmentProductLines.value.find { it.productLineId == productLineId }?.let { depProductLine ->
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.run {
+                    deleteDepartmentProductLine(depProductLine.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
 
+                                Status.SUCCESS -> {
+                                    setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                                }
+
+                                Status.ERROR -> {
+                                    mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

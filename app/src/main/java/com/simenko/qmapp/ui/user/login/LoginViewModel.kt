@@ -17,7 +17,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val mainPageState: MainPageState
 ) : ViewModel() {
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
+    fun updateLoadingState(state: Triple<Boolean, Boolean, String?>) {
         mainPageState.trySendLoadingState(state)
     }
 
@@ -39,12 +39,12 @@ class LoginViewModel @Inject constructor(
 
     fun login(username: String, password: String) {
         userRepository.clearErrorMessage()
-        updateLoadingState(Pair(true, null))
+        updateLoadingState(Triple(true, false, null))
         userRepository.loginUser(username, password)
     }
 
     fun sendResetPasswordEmail(email: String) {
-        updateLoadingState(Pair(true, null))
+        updateLoadingState(Triple(true, false, null))
         userRepository.sendResetPasswordEmail(email)
     }
 }

@@ -175,15 +175,15 @@ class UserViewModel @Inject constructor(
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
     fun makeUser() = viewModelScope.launch {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
         withContext(Dispatchers.IO) {
             repository.run { if (_isUserToAuthorize) authorizeUser(_user.value) else updateUserCompanyData(_user.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.email)
                         Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -193,7 +193,7 @@ class UserViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: String?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         withContext(Dispatchers.Main) {
             id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Users(it), popUpToRoute = Route.Main.Team, inclusive = true) }
         }

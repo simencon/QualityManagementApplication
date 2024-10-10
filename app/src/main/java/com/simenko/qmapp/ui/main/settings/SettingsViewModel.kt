@@ -72,14 +72,14 @@ class SettingsViewModel @Inject constructor(
     private fun uploadProfilePicture(picture: Uri, pictureName: String) {
         val storageRef = Firebase.storage("gs://${Constants.USER_PROFILE_PICTURE_BUCKET_NAME}").reference
         val mountainsRef = storageRef.child(pictureName)
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Triple(true, false, null))
         mountainsRef.putFile(picture).addOnCompleteListener {
             if (it.isSuccessful) {
-                mainPageHandler.updateLoadingState(Pair(false, null))
+                mainPageHandler.updateLoadingState(Triple(false, false, null))
                 _profilePhotoRef.value = Pair(it.result.storage, it.result.metadata)
             } else {
                 val errorMsg = it.result.error?.message
-                mainPageHandler.updateLoadingState(Pair(false, errorMsg))
+                mainPageHandler.updateLoadingState(Triple(false, false, errorMsg))
             }
         }
     }
@@ -117,22 +117,22 @@ class SettingsViewModel @Inject constructor(
     val userLocalData: Principle get() = userRepository.user
 
     fun clearLoadingState(error: String? = null) {
-        mainPageHandler.updateLoadingState(Pair(false, error))
+        mainPageHandler.updateLoadingState(Triple(false, false, error))
         userRepository.clearErrorMessage()
     }
 
     fun logout() {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Triple(true, false, null))
         userRepository.logout()
     }
 
     fun deleteAccount(userEmail: String, password: String) {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Triple(true, false, null))
         userRepository.deleteAccount(userEmail, password)
     }
 
     private fun updateUserData() {
-        mainPageHandler.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Triple(true, false, null))
         userRepository.updateUserData()
     }
 }

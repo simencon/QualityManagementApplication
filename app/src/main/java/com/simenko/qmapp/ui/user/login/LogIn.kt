@@ -66,7 +66,7 @@ fun LogIn(
                 msg = state.msg
                 error = UserError.NO_ERROR.error
             }
-            viewModel.updateLoadingState(Pair(false, null))
+            viewModel.updateLoadingState(Triple(false,  false,null))
         }
     }
 

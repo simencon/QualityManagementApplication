@@ -172,15 +172,15 @@ class OperationViewModel @Inject constructor(
     }
 
     fun makeRecord() = viewModelScope.launch {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
         withContext(Dispatchers.IO) {
             repository.run { if (_operation.value.operation.id == NoRecord.num) insertOperation(_operation.value.operation) else updateOperation(_operation.value.operation) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> insertOperationsFlows(resource.data?.id)
                         Status.ERROR -> {
-                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -198,10 +198,10 @@ class OperationViewModel @Inject constructor(
                         insertOpFlows(listToInsert).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                                     Status.SUCCESS -> deleteOperationsFlows(id)
                                     Status.ERROR -> {
-                                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                                         _fillInState.value = FillInInitialState
                                     }
                                 }
@@ -222,10 +222,10 @@ class OperationViewModel @Inject constructor(
                         deleteOpFlows(listToDelete).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                                     Status.SUCCESS -> navBackToRecord(id)
                                     Status.ERROR -> {
-                                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                        mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, resource.message))
                                         _fillInState.value = FillInInitialState
                                     }
                                 }
@@ -239,7 +239,7 @@ class OperationViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: ID?) {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 val companyId = _operation.value.lineWithParents.companyId

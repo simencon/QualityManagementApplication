@@ -134,6 +134,9 @@ class ManufacturingRepository @Inject constructor(
     fun CoroutineScope.insertDepartmentProductLine(record: DomainProductLineToDepartment) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.createProductLineToDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productLineToDepartmentDao.insertRecord(r) }
     }
+    fun CoroutineScope.deleteDepartmentProductLine(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductLineToDepartment(recordId) }) { r -> database.productLineToDepartmentDao.deleteRecord(r) }
+    }
 
     suspend fun syncProductKindsSubDepartments() = crudeOperations.syncRecordsAll(database.productKindToSubDepartmentDao) { service.getProductKindsToSubDepartments() }
     suspend fun syncComponentKindsSubDepartments() = crudeOperations.syncRecordsAll(database.componentKindToSubDepartmentDao) { service.getComponentKindsToSubDepartments() }

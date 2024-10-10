@@ -17,7 +17,7 @@ class RegistrationViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState
 ) : ViewModel() {
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
+    fun updateLoadingState(state: Triple<Boolean, Boolean, String?>) {
         mainPageState.trySendLoadingState(state)
     }
 
@@ -25,14 +25,14 @@ class RegistrationViewModel @Inject constructor(
 
     fun registerUser() {
         assert(userRepository.rawUser != null)
-        updateLoadingState(Pair(true, null))
+        updateLoadingState(Triple(true, false, null))
         userRepository.registerUser(userRepository.rawUser!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
     val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
     fun hideUserExistDialog() {
-        updateLoadingState(Pair(false, null))
+        updateLoadingState(Triple(false, false, null))
         userRepository.clearUserData()
         _isUserExistDialogVisible.value = false
     }
