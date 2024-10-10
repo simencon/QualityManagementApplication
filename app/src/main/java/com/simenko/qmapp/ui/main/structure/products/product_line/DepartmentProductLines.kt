@@ -69,16 +69,6 @@ fun DepartmentProductLines(
         )
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 
-        if (isAddItemDialogVisible) SingleChoiceDialog(
-            items = availableItems,
-            addIsEnabled = availableItems.any { it.isSelected },
-            onDismiss = { viewModel.setAddItemDialogVisibility(false) },
-            searchString = searchString,
-            onSearch = viewModel::setItemToAddSearchStr,
-            onItemSelect = { viewModel.onItemSelect(it) },
-            onAddClick = { viewModel.onAddProductLine() }
-        )
-
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -95,6 +85,18 @@ fun DepartmentProductLines(
                 )
             }
         }
+    }
+
+    if (isAddItemDialogVisible) {
+        SingleChoiceDialog(
+            items = availableItems,
+            addIsEnabled = availableItems.any { it.isSelected },
+            onDismiss = { viewModel.setAddItemDialogVisibility(false) },
+            searchString = searchString,
+            onSearch = viewModel::setItemToAddSearchStr,
+            onItemSelect = { viewModel.onItemSelect(it) },
+            onAddClick = { viewModel.onAddProductLine() }
+        )
     }
 }
 

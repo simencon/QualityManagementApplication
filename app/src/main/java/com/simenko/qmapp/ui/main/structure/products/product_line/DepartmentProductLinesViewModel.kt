@@ -7,18 +7,20 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.Route.Main.CompanyStructure.DepartmentProductLines
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -40,7 +42,11 @@ class DepartmentProductLinesViewModel @Inject constructor(
         productRepository.productLines(route.companyId)
     }
     private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
-    private val _departmentProductLinesIds = MutableStateFlow<List<ID>>(emptyList())
+    private val _departmentProductLinesIds = _route.flatMapLatest { route ->
+        repository.departmentProductLines(route.departmentId).flatMapLatest { departmentProductLines ->
+            flow { emit(departmentProductLines.map { it.productLineId }) }
+        }
+    }
     private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
 
     private val _isAddItemDialogVisible = MutableStateFlow(false)
@@ -57,7 +63,6 @@ class DepartmentProductLinesViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 _route.value = route
                 _department.value = repository.departmentById(route.departmentId)
-                _departmentProductLinesIds.value = productRepository.departmentProductLines(route.departmentId).map { it.productLineId }
                 mainPageHandler = MainPageHandler.Builder(Page.DEPARTMENT_PRODUCT_LINES, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { setAddItemDialogVisibility(true) }
@@ -128,21 +133,28 @@ class DepartmentProductLinesViewModel @Inject constructor(
      * */
 
     fun onAddProductLine() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run {
+                insertDepartmentProductLine(DomainProductLineToDepartment(depId = _route.value.departmentId, productLineId = _itemToAddId.value)).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
+                            Status.SUCCESS -> {
+                                setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                            }
+
+                            Status.ERROR -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onDeleteProductLineClick(id: ID) {
 
-    }
-
-    private suspend fun navBackToRecord() {
-        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-        withContext(Dispatchers.Main) {
-            appNavigator.navigateTo(
-                route = Route.Main.CompanyStructure.StructureView(companyId = _route.value.companyId, departmentId = _route.value.departmentId),
-                popUpToRoute = Route.Main.CompanyStructure,
-                inclusive = true
-            )
-        }
     }
 }

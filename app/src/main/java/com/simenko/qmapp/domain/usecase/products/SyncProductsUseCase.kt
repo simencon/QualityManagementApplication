@@ -1,11 +1,12 @@
 package com.simenko.qmapp.domain.usecase.products
 
+import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SyncProductsUseCase @Inject constructor(private val productsRepository: ProductsRepository) {
+class SyncProductsUseCase @Inject constructor(private val productsRepository: ProductsRepository, private val manufacturingRepository: ManufacturingRepository) {
     suspend fun execute() {
         with(productsRepository) {
             syncProductLines()
@@ -33,21 +34,21 @@ class SyncProductsUseCase @Inject constructor(private val productsRepository: Pr
             syncComponents()
             syncComponentStages()
 
-            syncProductLinesDepartments()
+            manufacturingRepository.syncProductLinesDepartments()
 
-            syncProductKindsSubDepartments()
-            syncComponentKindsSubDepartments()
-            syncStageKindsSubDepartments()
+            manufacturingRepository.syncProductKindsSubDepartments()
+            manufacturingRepository.syncComponentKindsSubDepartments()
+            manufacturingRepository.syncStageKindsSubDepartments()
 
-            syncProductKeysChannels()
-            syncComponentKeysChannels()
-            syncStageKeysChannels()
+            manufacturingRepository.syncProductKeysChannels()
+            manufacturingRepository.syncComponentKeysChannels()
+            manufacturingRepository.syncStageKeysChannels()
 
-            syncProductsToLines()
-            syncComponentsToLines()
-            syncComponentStagesToLines()
+            manufacturingRepository.syncProductsToLines()
+            manufacturingRepository.syncComponentsToLines()
+            manufacturingRepository.syncComponentStagesToLines()
 
-            syncCharacteristicsOperations()
+            manufacturingRepository.syncCharacteristicsOperations()
 
             syncProductKindsProducts()
             syncComponentKindsComponents()

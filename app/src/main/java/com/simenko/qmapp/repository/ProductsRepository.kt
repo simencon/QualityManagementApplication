@@ -9,7 +9,6 @@ import com.simenko.qmapp.domain.entities.products.DomainProductLine.DomainProduc
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
-import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +27,6 @@ class ProductsRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val crudeOperations: CrudeOperations,
     private val service: ProductsService,
-    private val manufacturingService: ManufacturingService,
     private val errorConverter: Converter<ResponseBody, NetworkErrorBody>,
 ) {
     /**
@@ -275,22 +273,6 @@ class ProductsRepository @Inject constructor(
             }
         }
     }
-
-    suspend fun syncProductLinesDepartments() = crudeOperations.syncRecordsAll(database.productLineToDepartmentDao) { manufacturingService.getProductLinesToDepartments() }
-
-    suspend fun syncProductKindsSubDepartments() = crudeOperations.syncRecordsAll(database.productKindToSubDepartmentDao) { manufacturingService.getProductKindsToSubDepartments() }
-    suspend fun syncComponentKindsSubDepartments() = crudeOperations.syncRecordsAll(database.componentKindToSubDepartmentDao) { manufacturingService.getComponentKindsToSubDepartments() }
-    suspend fun syncStageKindsSubDepartments() = crudeOperations.syncRecordsAll(database.stageKindToSubDepartmentDao) { manufacturingService.getStageKindsToSubDepartments() }
-
-    suspend fun syncProductKeysChannels() = crudeOperations.syncRecordsAll(database.productKeyToChannelDao) { manufacturingService.getProductKeysToChannels() }
-    suspend fun syncComponentKeysChannels() = crudeOperations.syncRecordsAll(database.componentKeyToChannelDao) { manufacturingService.getComponentKeysToChannels() }
-    suspend fun syncStageKeysChannels() = crudeOperations.syncRecordsAll(database.stageKeyToChannelDao) { manufacturingService.getStageKeysToChannels() }
-
-    suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { manufacturingService.getProductsToLines() }
-    suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { manufacturingService.getComponentsToLines() }
-    suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { manufacturingService.getComponentStagesToLines() }
-
-    suspend fun syncCharacteristicsOperations() = crudeOperations.syncRecordsAll(database.characteristicToOperationDao) { manufacturingService.getCharacteristicsToOperations() }
 
     suspend fun syncProductKindsProducts() = crudeOperations.syncRecordsAll(database.productKindProductDao) { service.getProductKindsProducts() }
 
@@ -642,8 +624,4 @@ class ProductsRepository @Inject constructor(
     }
 
     val versionStatuses = database.versionStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
-
-    val departmentProductLines: suspend (ID) -> List<DomainProductLineToDepartment> = { depId ->
-        database.productLineToDepartmentDao.getRecordsByParentId(depId).map { it.toDomainModel() }
-    }
 }

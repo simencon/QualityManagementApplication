@@ -7,21 +7,22 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
+import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.EmployeesFilter
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ViewModelScoped
+@Singleton
 class ManufacturingRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val service: ManufacturingService,
@@ -129,6 +130,25 @@ class ManufacturingRepository @Inject constructor(
         responseHandlerForListOfRecords(taskExecutor = { service.createOpFlows(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.operationsFlowDao.insertRecords(r) }
     }
 
+    suspend fun syncProductLinesDepartments() = crudeOperations.syncRecordsAll(database.productLineToDepartmentDao) { service.getProductLinesToDepartments() }
+    fun CoroutineScope.insertDepartmentProductLine(record: DomainProductLineToDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createProductLineToDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productLineToDepartmentDao.insertRecord(r) }
+    }
+
+    suspend fun syncProductKindsSubDepartments() = crudeOperations.syncRecordsAll(database.productKindToSubDepartmentDao) { service.getProductKindsToSubDepartments() }
+    suspend fun syncComponentKindsSubDepartments() = crudeOperations.syncRecordsAll(database.componentKindToSubDepartmentDao) { service.getComponentKindsToSubDepartments() }
+    suspend fun syncStageKindsSubDepartments() = crudeOperations.syncRecordsAll(database.stageKindToSubDepartmentDao) { service.getStageKindsToSubDepartments() }
+
+    suspend fun syncProductKeysChannels() = crudeOperations.syncRecordsAll(database.productKeyToChannelDao) { service.getProductKeysToChannels() }
+    suspend fun syncComponentKeysChannels() = crudeOperations.syncRecordsAll(database.componentKeyToChannelDao) { service.getComponentKeysToChannels() }
+    suspend fun syncStageKeysChannels() = crudeOperations.syncRecordsAll(database.stageKeyToChannelDao) { service.getStageKeysToChannels() }
+
+    suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
+    suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
+    suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { service.getComponentStagesToLines() }
+
+    suspend fun syncCharacteristicsOperations() = crudeOperations.syncRecordsAll(database.characteristicToOperationDao) { service.getCharacteristicsToOperations() }
+
     /**
      * Connecting with LiveData for ViewModel
      */
@@ -170,4 +190,8 @@ class ManufacturingRepository @Inject constructor(
     val operationById: (ID) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+
+    val departmentProductLines: (ID) -> Flow<List<DomainProductLineToDepartment>> = { depId ->
+        database.productLineToDepartmentDao.getRecordsByParentId(depId).map { it.map { item -> item.toDomainModel() } }
+    }
 }

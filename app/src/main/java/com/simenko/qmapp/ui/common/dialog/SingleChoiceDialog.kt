@@ -58,7 +58,7 @@ fun <DB, DM> SingleChoiceDialog(
     searchString: String,
     onSearch: (String) -> Unit,
     onItemSelect: (ID) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
 ) where DM : DomainBaseModel<DB> {
     Dialog(
         onDismissRequest = onDismiss,
@@ -102,7 +102,6 @@ fun <DB, DM> SingleChoiceDialog(
                     }
                 }
 
-
                 Row(
                     Modifier
                         .height(IntrinsicSize.Min)
@@ -119,7 +118,7 @@ fun <DB, DM> SingleChoiceDialog(
                         ),
                     ) {
                         Text(
-                            "Cancel",
+                            "Cancel".uppercase(),
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
@@ -141,7 +140,7 @@ fun <DB, DM> SingleChoiceDialog(
                         ),
                     ) {
                         Text(
-                            "Add",
+                            "Add".uppercase(),
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center

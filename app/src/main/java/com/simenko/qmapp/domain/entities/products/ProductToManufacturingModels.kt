@@ -8,7 +8,7 @@ import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainProductLineToDepartment(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val depId: ID,
     val productLineId: ID
 ) : DomainBaseModel<DatabaseProductLineToDepartment>() {

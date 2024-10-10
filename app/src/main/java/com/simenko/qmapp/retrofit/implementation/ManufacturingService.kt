@@ -140,6 +140,10 @@ interface ManufacturingService {
     @GET(PRODUCT_LINE_TO_DEPARTMENT)
     suspend fun getProductLinesToDepartments(): Response<List<NetworkProductLineToDepartment>>
 
+    @POST(PRODUCT_LINE_TO_DEPARTMENT)
+    suspend fun createProductLineToDepartment(@Body record: NetworkProductLineToDepartment): Response<NetworkProductLineToDepartment>
+
+
     @GET(PRODUCT_KIND_TO_SUB_DEPARTMENT)
     suspend fun getProductKindsToSubDepartments(): Response<List<NetworkProductKindToSubDepartment>>
 
