@@ -42,6 +42,7 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
+import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
@@ -83,7 +84,7 @@ fun ProductLines(
             )
         }
         item {
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
         }
     }
 }

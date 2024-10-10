@@ -45,6 +45,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
+import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -93,6 +94,9 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
                 onClickDetails = { onClickDetailsLambda(it) },
                 onClickProducts = { onClickProductsLambda(it) }
             )
+        }
+        item {
+            Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
         }
     }
 }

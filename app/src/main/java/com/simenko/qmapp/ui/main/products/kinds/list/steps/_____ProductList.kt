@@ -47,6 +47,7 @@ import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductKindProduct
+import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.HeaderWithTitle
@@ -101,7 +102,7 @@ fun ProductList(
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
             }
         }
     }

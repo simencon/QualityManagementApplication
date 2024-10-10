@@ -11,6 +11,8 @@ object Constants {
     const val ANIMATION_DURATION = 500
     const val MIN_DRAG_AMOUNT = 6
 
+    const val BOTTOM_ITEM_HEIGHT = 100
+
     /**
      * To update local DB only in this range of Order Numbers
      * */
