@@ -39,8 +39,8 @@ interface MainPageState {
     fun trySendFabIcon(icon: ImageVector)
     suspend fun sendEndOfListState(state: Boolean)
     fun trySendEndOfListState(state: Boolean)
-    suspend fun sendLoadingState(state: Pair<Boolean, String?>)
-    fun trySendLoadingState(state: Pair<Boolean, String?>)
+    suspend fun sendLoadingState(state: Triple<Boolean, Boolean, String?>)
+    fun trySendLoadingState(state: Triple<Boolean, Boolean, String?>)
 }
 
 sealed interface TopScreenIntent {
@@ -54,7 +54,7 @@ sealed interface TopScreenIntent {
     data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent
     class SelectedTabState(val state: Int) : TopScreenIntent
     data class FabVisibilityState(val state: Boolean) : TopScreenIntent
-    data class FabIconState(val state: ImageVector): TopScreenIntent
+    data class FabIconState(val state: ImageVector) : TopScreenIntent
     data class EndOfListState(val state: Boolean) : TopScreenIntent
-    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent
+    data class LoadingState(val state: Triple<Boolean, Boolean, String?>) : TopScreenIntent
 }

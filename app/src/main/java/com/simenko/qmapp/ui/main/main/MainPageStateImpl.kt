@@ -95,11 +95,11 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         topScreenChannel.trySend(TopScreenIntent.EndOfListState(state))
     }
 
-    override suspend fun sendLoadingState(state: Pair<Boolean, String?>) {
+    override suspend fun sendLoadingState(state: Triple<Boolean, Boolean, String?>) {
         topScreenChannel.send(TopScreenIntent.LoadingState(state))
     }
 
-    override fun trySendLoadingState(state: Pair<Boolean, String?>) {
+    override fun trySendLoadingState(state: Triple<Boolean, Boolean, String?>) {
         topScreenChannel.trySend(TopScreenIntent.LoadingState(state))
     }
 }

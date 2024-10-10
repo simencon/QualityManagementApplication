@@ -138,14 +138,14 @@ class DepartmentProductLinesViewModel @Inject constructor(
                 insertDepartmentProductLine(DomainProductLineToDepartment(depId = _route.value.departmentId, productLineId = _itemToAddId.value)).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
 
                             Status.SUCCESS -> {
-                                setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                setAddItemDialogVisibility(false); mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
                             }
 
                             Status.ERROR -> {
-                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, resource.message))
                             }
                         }
                     }

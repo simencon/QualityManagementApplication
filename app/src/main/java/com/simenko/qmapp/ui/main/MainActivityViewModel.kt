@@ -149,7 +149,7 @@ class MainActivityViewModel @Inject constructor(
 
     private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
-            pullRefreshSetup.value.updateLoadingState(Pair(true, null))
+            pullRefreshSetup.value.updateLoadingState(Triple(true, false, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -172,9 +172,9 @@ class MainActivityViewModel @Inject constructor(
             repository.syncInvestigationTypes()
             repository.syncResultsDecryptions()
 
-            pullRefreshSetup.value.updateLoadingState(Pair(false, null))
+            pullRefreshSetup.value.updateLoadingState(Triple(false, false, null))
         } catch (e: Exception) {
-            pullRefreshSetup.value.updateLoadingState(Pair(false, e.message))
+            pullRefreshSetup.value.updateLoadingState(Triple(false, false, e.message))
         }
     }
 }

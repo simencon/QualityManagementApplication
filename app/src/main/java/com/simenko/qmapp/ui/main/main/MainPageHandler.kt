@@ -20,7 +20,7 @@ class MainPageHandler private constructor(
     private val refreshAction: (() -> Unit)?,
     private val tabBadges: Flow<List<Triple<Int, Color, Color>>>,
 
-    private var onUpdateLoadingStateExtraAction: ((Pair<Boolean, String?>) -> Unit)?
+    private var onUpdateLoadingStateExtraAction: ((Triple<Boolean, Boolean, String?>) -> Unit)?
 ) {
     class Builder(private val page: Page, private val mainPageState: MainPageState) {
         private var onNavMenuClick: (suspend (Boolean) -> Unit)? = null
@@ -31,7 +31,7 @@ class MainPageHandler private constructor(
         private var refreshAction: (() -> Unit)? = null
         private var tabBadges: Flow<List<Triple<Int, Color, Color>>> = flow { }
 
-        private var onUpdateLoadingStateExtraAction: ((Pair<Boolean, String?>) -> Unit)? = null
+        private var onUpdateLoadingStateExtraAction: ((Triple<Boolean, Boolean, String?>) -> Unit)? = null
         fun setOnNavMenuClickAction(action: (suspend (Boolean) -> Unit)?) = apply { this.onNavMenuClick = action }
         fun setOnSearchClickAction(action: ((BaseFilter) -> Unit)?) = apply { this.onSearchAction = action }
         fun setOnActionItemClickAction(action: ((MenuItem) -> Unit)?) = apply { this.onActionItemClick = action }
@@ -40,7 +40,7 @@ class MainPageHandler private constructor(
         fun setOnPullRefreshAction(action: (() -> Unit)?) = apply { this.refreshAction = action }
         fun setTabBadgesFlow(flow: Flow<List<Triple<Int, Color, Color>>>) = apply { this.tabBadges = flow }
 
-        fun setOnUpdateLoadingExtraAction(action: ((Pair<Boolean, String?>) -> Unit)?) = apply { this.onUpdateLoadingStateExtraAction = action }
+        fun setOnUpdateLoadingExtraAction(action: ((Triple<Boolean, Boolean, String?>) -> Unit)?) = apply { this.onUpdateLoadingStateExtraAction = action }
 
         fun build(): MainPageHandler {
             return MainPageHandler(
@@ -67,7 +67,7 @@ class MainPageHandler private constructor(
 
     val setFabIcon: suspend (ImageVector) -> Unit = { mainPageState.sendFabIcon(it) }
 
-    val updateLoadingState: (Pair<Boolean, String?>) -> Unit = {
+    val updateLoadingState: (Triple<Boolean, Boolean, String?>) -> Unit = {
         onUpdateLoadingStateExtraAction?.invoke(it)
         mainPageState.trySendLoadingState(it)
     }

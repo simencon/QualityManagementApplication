@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -100,7 +101,8 @@ class MainActivity : BaseActivity() {
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
 
-                val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerSubLoadingProcess by pullRefreshSetup.isSubLoadingInProgress.collectAsStateWithLifecycle()
+                val observerLoadingProcess by pullRefreshSetup.isSubLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
                 BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavMenuClick?.invoke(false) } })
@@ -122,77 +124,94 @@ class MainActivity : BaseActivity() {
                     scope.launch { topBarSetup.onNavMenuClick?.invoke(false) }
                 }
 
-                ModalNavigationDrawer(
-                    gesturesEnabled = topBarSetup.navIcon == Icons.Filled.Menu,
-                    drawerState = drawerMenuState,
-                    drawerContent = {
-                        ModalDrawerSheet(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            DrawerHeader(userInfo = viewModel.userInfo)
-                            DrawerBody(
-                                selectedItemId = topBarSetup.link,
-                                onDrawerItemClick = { id -> onDrawerItemClick(id) }
-                            )
-                        }
-                    },
-                    content = {
-                        Scaffold(
-                            topBar = { AppBar(topBarSetup = topBarSetup) },
-                            floatingActionButton = {
-                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null && fabSetup.isFabVisible)
-                                    FloatingActionButton(
-                                        containerColor = MaterialTheme.colorScheme.tertiary,
-                                        onClick = { fabSetup.fabAction!!.invoke() },
-                                        content = {
-                                            Icon(
-                                                imageVector = fabSetup.fabIcon!!,
-                                                contentDescription = "Floating action button",
-                                                tint = MaterialTheme.colorScheme.onTertiary
-                                            )
-                                        }
-                                    )
-                            },
-                            floatingActionButtonPosition = fabSetup.fabPosition
-                        ) {
-
-                            val pullRefreshState = rememberPullRefreshState(
-                                refreshing = observerLoadingProcess,
-                                onRefresh = { pullRefreshSetup.refreshAction?.invoke() }
-                            )
-                            Box(
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ModalNavigationDrawer(
+                        gesturesEnabled = topBarSetup.navIcon == Icons.Filled.Menu,
+                        drawerState = drawerMenuState,
+                        drawerContent = {
+                            ModalDrawerSheet(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(all = 0.dp)
-                                    .pullRefresh(pullRefreshState)
+                                    .fillMaxHeight()
+                                    .verticalScroll(rememberScrollState())
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(it)
-                                ) {
-                                    TopTabs(topTabsSetup)
-                                    MainScreenNavigation(navController, it)
-                                }
-                                PullRefreshIndicator(
-                                    refreshing = observerLoadingProcess,
-                                    state = pullRefreshState,
-                                    modifier = Modifier
-                                        .padding(it)
-                                        .align(Alignment.TopCenter),
-                                    backgroundColor = MaterialTheme.colorScheme.onSecondary,
-                                    contentColor = MaterialTheme.colorScheme.secondary
+                                DrawerHeader(userInfo = viewModel.userInfo)
+                                DrawerBody(
+                                    selectedItemId = topBarSetup.link,
+                                    onDrawerItemClick = { id -> onDrawerItemClick(id) }
                                 )
                             }
-                            if (observerIsNetworkError != null) {
-                                showDialog("Error", observerIsNetworkError!!)
-                                pullRefreshSetup.onNetworkErrorShown()
+                        },
+                        content = {
+                            Scaffold(
+                                topBar = { AppBar(topBarSetup = topBarSetup) },
+                                floatingActionButton = {
+                                    if (fabSetup.fabAction != null && fabSetup.fabIcon != null && fabSetup.isFabVisible)
+                                        FloatingActionButton(
+                                            containerColor = MaterialTheme.colorScheme.tertiary,
+                                            onClick = { fabSetup.fabAction!!.invoke() },
+                                            content = {
+                                                Icon(
+                                                    imageVector = fabSetup.fabIcon!!,
+                                                    contentDescription = "Floating action button",
+                                                    tint = MaterialTheme.colorScheme.onTertiary
+                                                )
+                                            }
+                                        )
+                                },
+                                floatingActionButtonPosition = fabSetup.fabPosition
+                            ) {
+                                val pullRefreshState = rememberPullRefreshState(
+                                    refreshing = observerSubLoadingProcess,
+                                    onRefresh = { pullRefreshSetup.refreshAction?.invoke() }
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(all = 0.dp)
+                                        .pullRefresh(pullRefreshState)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(it)
+                                    ) {
+                                        TopTabs(topTabsSetup)
+                                        MainScreenNavigation(navController, it)
+                                    }
+                                    PullRefreshIndicator(
+                                        refreshing = observerSubLoadingProcess,
+                                        state = pullRefreshState,
+                                        modifier = Modifier
+                                            .padding(it)
+                                            .align(Alignment.TopCenter),
+                                        backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                        contentColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                                if (observerIsNetworkError != null) {
+                                    showDialog("Error", observerIsNetworkError!!)
+                                    pullRefreshSetup.onNetworkErrorShown()
+                                }
+                            }
+                        }
+                    )
+
+                    if (observerLoadingProcess) {
+                        Dialog(onDismissRequest = {}) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            )
+                            {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(64.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
                             }
                         }
                     }
-                )
+                }
             }
         }
     }
