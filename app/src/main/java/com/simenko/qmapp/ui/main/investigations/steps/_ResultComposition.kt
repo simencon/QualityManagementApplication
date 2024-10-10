@@ -166,14 +166,6 @@ fun Result(
                 modifier = Modifier.padding(start = (DEFAULT_SPACE / 2).dp),
                 titleFirst = false,
                 titleWight = 0.55f,
-                title = " - units",
-                textTextSize = 10.sp,
-                text = result.metrix.units ?: NoString.str
-            )
-            HeaderWithTitle(
-                modifier = Modifier.padding(start = (DEFAULT_SPACE / 2).dp),
-                titleFirst = false,
-                titleWight = 0.55f,
                 title = " - nominal",
                 textTextSize = 10.sp,
                 text = result.resultTolerance.nominal?.toString() ?: NoString.str

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.products.product_line
+package com.simenko.qmapp.ui.main.structure.products.product_lines
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

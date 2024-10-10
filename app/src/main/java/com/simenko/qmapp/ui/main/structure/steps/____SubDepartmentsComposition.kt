@@ -62,7 +62,7 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteSubDepartmentClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
-    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
+    val onClickProductsLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(1, true) }
 
@@ -98,7 +98,7 @@ fun SubDepartmentCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -123,7 +123,7 @@ fun SubDepartment(
     viewModel: CompanyStructureViewModel,
     subDepartment: DomainSubDepartment,
     onClickDetails: (ID) -> Unit = {},
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
@@ -147,7 +147,7 @@ fun SubDepartment(
 fun SubDepartmentDetails(
     viewModel: CompanyStructureViewModel,
     subDepartment: DomainSubDepartment,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val containerColor = when (subDepartment.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -165,7 +165,7 @@ fun SubDepartmentDetails(
                 Spacer(modifier = Modifier.weight(0.30f))
                 Column(modifier = Modifier.weight(0.70f)) {
                     StatusChangeBtn(
-                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(subDepartment.id) }) {
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(subDepartment.depId to subDepartment.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Product item kinds", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product item kinds")

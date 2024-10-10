@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.products.product_line
+package com.simenko.qmapp.ui.main.structure.products.item_kinds
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -30,6 +30,7 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -41,12 +42,12 @@ import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @Composable
-fun DepartmentProductLines(
+fun SubDepartmentItemKinds(
     modifier: Modifier = Modifier,
-    viewModel: DepartmentProductLinesViewModel,
-    route: Route.Main.CompanyStructure.DepartmentProductLines
+    viewModel: SubDepartmentItemKindsViewModel,
+    route: Route.Main.CompanyStructure.SubDepartmentItemKinds
 ) {
-    val department by viewModel.department.collectAsStateWithLifecycle(DomainDepartment.DomainDepartmentComplete())
+    val subDepartment by viewModel.subDepartment.collectAsStateWithLifecycle(DomainSubDepartment.DomainSubDepartmentComplete())
     val items by viewModel.productLines.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val availableItems by viewModel.availableProductLines.collectAsStateWithLifecycle(listOf())
@@ -54,7 +55,7 @@ fun DepartmentProductLines(
     val searchString by viewModel.itemToAddSearchStr.collectAsStateWithLifecycle()
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductLinesVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductLineClick(it) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductKind(it) } }
 
     LaunchedEffect(Unit) { viewModel.onEntered(route = route) }
 
@@ -65,7 +66,12 @@ fun DepartmentProductLines(
         InfoLine(
             modifier = modifier
                 .padding(start = DEFAULT_SPACE.dp)
-                .fillMaxWidth(), title = "Department", body = concatTwoStrings(department.department.depAbbr, department.department.depName)
+                .fillMaxWidth(), title = "Department", body = concatTwoStrings(subDepartment.department.depAbbr, subDepartment.department.depName)
+        )
+        InfoLine(
+            modifier = modifier
+                .padding(start = DEFAULT_SPACE.dp)
+                .fillMaxWidth(), title = "Sub department", body = concatTwoStrings(subDepartment.subDepartment.subDepAbbr, subDepartment.subDepartment.subDepDesignation)
         )
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 
@@ -78,7 +84,7 @@ fun DepartmentProductLines(
             state = listState
         ) {
             items(items = items, key = { it.manufacturingProject.id }) { productLine ->
-                ProductLineCard(
+                ItemKindCard(
                     productLine = productLine,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -95,13 +101,13 @@ fun DepartmentProductLines(
             searchString = searchString,
             onSearch = viewModel::setItemToAddSearchStr,
             onItemSelect = { viewModel.onItemSelect(it) },
-            onAddClick = { viewModel.onAddProductLine() }
+            onAddClick = { viewModel.onAddProductKind() }
         )
     }
 }
 
 @Composable
-fun ProductLineCard(
+fun ItemKindCard(
     productLine: DomainProductLine.DomainProductLineComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
@@ -114,14 +120,14 @@ fun ProductLineCard(
         contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete),
     ) {
-        ProductLine(
+        ItemKind(
             productLine = productLine,
         )
     }
 }
 
 @Composable
-fun ProductLine(
+fun ItemKind(
     productLine: DomainProductLine.DomainProductLineComplete,
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {

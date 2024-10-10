@@ -16,8 +16,10 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
-import com.simenko.qmapp.ui.main.structure.products.product_line.DepartmentProductLines
-import com.simenko.qmapp.ui.main.structure.products.product_line.DepartmentProductLinesViewModel
+import com.simenko.qmapp.ui.main.structure.products.item_kinds.SubDepartmentItemKinds
+import com.simenko.qmapp.ui.main.structure.products.item_kinds.SubDepartmentItemKindsViewModel
+import com.simenko.qmapp.ui.main.structure.products.product_lines.DepartmentProductLines
+import com.simenko.qmapp.ui.main.structure.products.product_lines.DepartmentProductLinesViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.navigation.Route
 
@@ -38,6 +40,10 @@ inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScre
         composable<Route.Main.CompanyStructure.SubDepartmentAddEdit> {
             val viewModel: SubDepartmentViewModel = hiltViewModel()
             SubDepartmentForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.CompanyStructure.SubDepartmentItemKinds> {
+            val viewModel: SubDepartmentItemKindsViewModel = hiltViewModel()
+            SubDepartmentItemKinds(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.CompanyStructure.ChannelAddEdit> {
             val viewModel: ChannelViewModel = hiltViewModel()

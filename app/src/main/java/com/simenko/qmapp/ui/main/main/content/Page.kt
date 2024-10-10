@@ -258,6 +258,17 @@ enum class Page(
 
     ADD_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
     EDIT_SUB_DEPARTMENT(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
+    SUB_DEPARTMENT_ITEM_KINDS(
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        title = "Sub dep. item kinds",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = ProductsToManufacturingTabs.toList(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null
+    ),
 
     ADD_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
     EDIT_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),

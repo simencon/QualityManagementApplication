@@ -358,8 +358,8 @@ class CompanyStructureViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit(departmentId = it.first, subDepartmentId = it.second))
     }
 
-    fun onSubDepartmentProductsClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onSubDepartmentProductsClick(it: Pair<ID, ID>) {
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentItemKinds(departmentId = it.first, subDepartmentId = it.second))
     }
 
     fun onAddChannelClick(it: ID) {
