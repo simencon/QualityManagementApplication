@@ -19,7 +19,7 @@ data class DomainProductLineToDepartment(
 }
 
 data class DomainProductKindToSubDepartment(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val subDepId: ID,
     val prodKindId: ID
 ) : DomainBaseModel<DatabaseProductKindToSubDepartment>() {

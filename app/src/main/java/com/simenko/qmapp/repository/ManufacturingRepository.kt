@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
+import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
@@ -139,8 +140,15 @@ class ManufacturingRepository @Inject constructor(
     }
 
     suspend fun syncProductKindsSubDepartments() = crudeOperations.syncRecordsAll(database.productKindToSubDepartmentDao) { service.getProductKindsToSubDepartments() }
+    fun CoroutineScope.insertSubDepartmentProductKind(record: DomainProductKindToSubDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createProductKindToSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindToSubDepartmentDao.insertRecord(r) }
+    }
+    fun CoroutineScope.deleteSubDepartmentProductKind(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductKindToSubDepartment(recordId) }) { r -> database.productKindToSubDepartmentDao.deleteRecord(r) }
+    }
     suspend fun syncComponentKindsSubDepartments() = crudeOperations.syncRecordsAll(database.componentKindToSubDepartmentDao) { service.getComponentKindsToSubDepartments() }
     suspend fun syncStageKindsSubDepartments() = crudeOperations.syncRecordsAll(database.stageKindToSubDepartmentDao) { service.getStageKindsToSubDepartments() }
+
 
     suspend fun syncProductKeysChannels() = crudeOperations.syncRecordsAll(database.productKeyToChannelDao) { service.getProductKeysToChannels() }
     suspend fun syncComponentKeysChannels() = crudeOperations.syncRecordsAll(database.componentKeyToChannelDao) { service.getComponentKeysToChannels() }
@@ -196,5 +204,8 @@ class ManufacturingRepository @Inject constructor(
 
     val departmentProductLines: (ID) -> Flow<List<DomainProductLineToDepartment>> = { depId ->
         database.productLineToDepartmentDao.getRecordsByParentId(depId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val subDepartmentProductKinds: (ID) -> Flow<List<DomainProductKindToSubDepartment>> = { subDepId ->
+        database.productKindToSubDepartmentDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
     }
 }

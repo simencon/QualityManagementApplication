@@ -2,12 +2,18 @@ package com.simenko.qmapp.ui.main.structure.products.item_kinds
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.ComponentPref
+import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ProductPref
+import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
-import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
+import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -39,17 +45,18 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     private val repository: ManufacturingRepository,
     private val productRepository: ProductsRepository,
 ) : ViewModel() {
+    private val _itemKindPref = MutableStateFlow(ProductPref.char)
     private val _route = MutableStateFlow(SubDepartmentItemKinds(departmentId = NoRecord.num, subDepartmentId = NoRecord.num))
-    private val _allProductLines = _route.flatMapLatest { route ->
-        productRepository.productLines(route.departmentId)
+    private val _allProductKinds = _route.flatMapLatest { route ->
+        productRepository.productKindsByDepartmentId(route.departmentId)
     }
     private val _subDepartment = MutableStateFlow(DomainSubDepartment.DomainSubDepartmentComplete())
-    private val _departmentProductLines = _route.flatMapLatest { route ->
-        repository.departmentProductLines(route.departmentId).flatMapLatest { departmentProductLines ->
-            flow { emit(departmentProductLines) }
+    private val _subDepartmentItemKinds = _route.flatMapLatest { route ->
+        repository.subDepartmentProductKinds(route.subDepartmentId).flatMapLatest { subDepartmentProductKinds ->
+            flow { emit(subDepartmentProductKinds) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
-    private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
+    private val _itemKindVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
 
     private val _isAddItemDialogVisible = MutableStateFlow(false)
     private val _itemToAddId: MutableStateFlow<ID> = MutableStateFlow(NoRecord.num)
@@ -68,6 +75,19 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
                 mainPageHandler = MainPageHandler.Builder(Page.SUB_DEPARTMENT_ITEM_KINDS, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { setAddItemDialogVisibility(true) }
+                    .setOnTabSelectAction {
+                        when (it) {
+                            FirstTabId -> {
+                                _itemKindPref.value = ProductPref.char
+                            }
+                            SecondTabId -> {
+                                _itemKindPref.value = ComponentPref.char
+                            }
+                            ThirdTabId -> {
+                                _itemKindPref.value = ComponentStagePref.char
+                            }
+                        }
+                    }
                     .build()
                     .apply { setupMainPage(0, true) }
             }
@@ -78,24 +98,25 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
     fun setProductLinesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _productLinesVisibility.value = _productLinesVisibility.value.setVisibility(dId, aId)
+        _itemKindVisibility.value = _itemKindVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
+    val itemKindPref get() = _itemKindPref.asStateFlow()
     val subDepartment get() = _subDepartment.asStateFlow()
 
-    val productLines = _departmentProductLines.flatMapLatest { productLinesIds ->
-        _productLinesVisibility.flatMapLatest { visibility ->
-            _allProductLines.flatMapLatest { allProductLines ->
+    val productLines = _subDepartmentItemKinds.flatMapLatest { productKinds ->
+        _itemKindVisibility.flatMapLatest { visibility ->
+            _allProductKinds.flatMapLatest { allProductLines ->
                 flow {
                     emit(allProductLines
-                        .filter { productLinesIds.map { it.productLineId }.contains(it.manufacturingProject.id) }
+                        .filter { productKinds.map { it.prodKindId }.contains(it.productKind.id) }
                         .map {
                             it.copy(
-                                detailsVisibility = it.manufacturingProject.id == visibility.first.num,
-                                isExpanded = it.manufacturingProject.id == visibility.second.num
+                                detailsVisibility = it.productKind.id == visibility.first.num,
+                                isExpanded = it.productKind.id == visibility.second.num
                             )
                         }
                     )
@@ -104,14 +125,14 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
         }
     }
 
-    val availableProductLines = _departmentProductLines.flatMapLatest { productLinesIds ->
+    val availableProductLines = _subDepartmentItemKinds.flatMapLatest { productLinesIds ->
         _itemToAddId.flatMapLatest { selectedId ->
-            _allProductLines.flatMapLatest { allProductLines ->
+            _allProductKinds.flatMapLatest { allProductLines ->
                 flow {
                     emit(
                         allProductLines
-                            .filter { item -> !productLinesIds.map { it.productLineId }.contains(item.manufacturingProject.id) }
-                            .map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }
+                            .filter { item -> !productLinesIds.map { it.prodKindId }.contains(item.productKind.id) }
+                            .map { it.copy(isSelected = it.productKind.id == selectedId) }
                     )
                 }
             }
@@ -143,7 +164,7 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     fun onAddProductKind() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.run {
-                insertDepartmentProductLine(DomainProductLineToDepartment(depId = _route.value.departmentId, productLineId = _itemToAddId.value)).consumeEach { event ->
+                insertSubDepartmentProductKind(DomainProductKindToSubDepartment(subDepId = _route.value.subDepartmentId, prodKindId = _itemToAddId.value)).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
@@ -163,10 +184,10 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     }
 
     fun onDeleteProductKind(productLineId: ID) {
-        _departmentProductLines.value.find { it.productLineId == productLineId }?.let { depProductLine ->
+        _subDepartmentItemKinds.value.find { it.prodKindId == productLineId }?.let { depProductLine ->
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run {
-                    deleteDepartmentProductLine(depProductLine.id).consumeEach { event ->
+                    deleteSubDepartmentProductKind(depProductLine.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
                                 Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))

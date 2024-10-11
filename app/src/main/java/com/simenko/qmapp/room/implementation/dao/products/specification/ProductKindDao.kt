@@ -34,4 +34,15 @@ abstract class ProductKindDao : DaoBaseModel<ID, ID, DatabaseProductKind> {
     @Transaction
     @Query("SELECT * FROM item_kind_characteristic where itemKindFId = :itemKindFId")
     abstract fun getItemKindCharacteristics(itemKindFId: String): Flow<List<DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete>>
+
+    @Transaction
+    @Query(
+        """select pk.*, pl.projectSubject, pl_to_dep.depID
+            from product_kinds_complete pk 
+                join `0_manufacturing_project` pl on pk.projectID = pl.ID 
+                join `10_0_prod_projects_to_departments` pl_to_dep on pl.ID = pl_to_dep.productLineId
+                where pl_to_dep.depId = :depId
+        """
+    )
+    abstract fun getRecordsByDepartmentId(depId: ID): Flow<List<DatabaseProductKind.DatabaseProductKindComplete>>
 }

@@ -138,11 +138,17 @@ data class DomainProductKind(
         val productKind: DomainProductKind = DomainProductKind(),
         val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete(),
         override var detailsVisibility: Boolean = false,
-        override var isExpanded: Boolean = false
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseProductKind.DatabaseProductKindComplete>() {
         override fun getRecordId() = productKind.id
         override fun getParentId() = productKind.projectId
         override fun setIsSelected(value: Boolean) {}
+
+        override fun getIsSelected() = isSelected
+        override fun getIdentityName() = productKind.productKindDesignation
+        override fun getName() = EmptyString.str
+
         override fun toDatabaseModel() = DatabaseProductKind.DatabaseProductKindComplete(
             productKind = productKind.toDatabaseModel(),
             productLine = productLine.toDatabaseModel()
