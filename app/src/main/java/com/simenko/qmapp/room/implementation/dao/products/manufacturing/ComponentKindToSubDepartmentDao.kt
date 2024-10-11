@@ -16,7 +16,7 @@ abstract class ComponentKindToSubDepartmentDao: DaoBaseModel<ID, ID, DatabaseCom
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentKindToSubDepartment>>
 
     @Query("select * from `11_3_comp_kinds_to_s_departments` where subDepId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKindToSubDepartment>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseComponentKindToSubDepartment>>
 
     @Query("SELECT * FROM `11_3_comp_kinds_to_s_departments` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentKindToSubDepartment?

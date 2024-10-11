@@ -172,11 +172,17 @@ data class DomainComponentKind(
         val productKind: DomainProductKind.DomainProductKindComplete = DomainProductKind.DomainProductKindComplete(),
         var hasComponents: Boolean = false,
         override var detailsVisibility: Boolean = false,
-        override var isExpanded: Boolean = false
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseComponentKind.DatabaseComponentKindComplete>() {
         override fun getRecordId() = componentKind.id
         override fun getParentId() = componentKind.productKindId
         override fun setIsSelected(value: Boolean) {}
+
+        override fun getIsSelected() = isSelected
+        override fun getIdentityName() = componentKind.componentKindDescription
+        override fun getName() = EmptyString.str
+
         override fun toDatabaseModel() = DatabaseComponentKind.DatabaseComponentKindComplete(
             componentKind = componentKind.toDatabaseModel(),
             productKind = productKind.toDatabaseModel()

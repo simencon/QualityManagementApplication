@@ -33,6 +33,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -52,9 +53,12 @@ fun SubDepartmentItemKinds(
 ) {
     val subDepartment by viewModel.subDepartment.collectAsStateWithLifecycle(DomainSubDepartment.DomainSubDepartmentComplete())
     val itemKindPref by viewModel.itemKindPref.collectAsStateWithLifecycle()
-    val items by viewModel.productLines.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    val availableItems by viewModel.availableProductLines.collectAsStateWithLifecycle(listOf())
+    val productKinds by viewModel.productKinds.collectAsStateWithLifecycle(initialValue = emptyList())
+    val componentKinds by viewModel.componentKinds.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    val availableItemKinds by viewModel.availableItemKinds.collectAsStateWithLifecycle(listOf())
+
     val isAddItemDialogVisible by viewModel.isAddItemDialogVisible.collectAsStateWithLifecycle()
     val searchString by viewModel.itemToAddSearchStr.collectAsStateWithLifecycle()
 
@@ -89,16 +93,22 @@ fun SubDepartmentItemKinds(
         ) {
             when(itemKindPref) {
                 ProductPref.char -> {
-                    items(items = items, key = { it.productKind.id }) { productLine ->
-                        ItemKindCard(
-                            productKind = productLine,
+                    items(items = productKinds, key = { it.productKind.id }) { item ->
+                        ProductKindCard(
+                            productKind = item,
                             onClickActions = { onClickActionsLambda(it) },
                             onClickDelete = { onClickDeleteLambda(it) },
                         )
                     }
                 }
                 ComponentPref.char -> {
-
+                    items(items = componentKinds, key = { it.componentKind.id }) { item ->
+                        ComponentKindCard(
+                            productKind = item,
+                            onClickActions = { onClickActionsLambda(it) },
+                            onClickDelete = { onClickDeleteLambda(it) },
+                        )
+                    }
                 }
                 ComponentStagePref.char -> {
 
@@ -112,8 +122,8 @@ fun SubDepartmentItemKinds(
 
     if (isAddItemDialogVisible) {
         SingleChoiceDialog(
-            items = availableItems,
-            addIsEnabled = availableItems.any { it.isSelected },
+            items = availableItemKinds,
+            addIsEnabled = availableItemKinds.any { it.getIsSelected() },
             onDismiss = { viewModel.setAddItemDialogVisibility(false) },
             searchString = searchString,
             onSearch = viewModel::setItemToAddSearchStr,
@@ -124,7 +134,7 @@ fun SubDepartmentItemKinds(
 }
 
 @Composable
-fun ItemKindCard(
+fun ProductKindCard(
     productKind: DomainProductKind.DomainProductKindComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
@@ -137,14 +147,14 @@ fun ItemKindCard(
         contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete),
     ) {
-        ItemKind(
+        ProductKind(
             productKind = productKind,
         )
     }
 }
 
 @Composable
-fun ItemKind(
+fun ProductKind(
     productKind: DomainProductKind.DomainProductKindComplete,
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
@@ -153,6 +163,41 @@ fun ItemKind(
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.productKind.productKindDesignation)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(titleWight = 0.50f, title = "Industry:", value = productKind.productKind.comments ?: NoString.str)
+            }
+        }
+    }
+}
+
+@Composable
+fun ComponentKindCard(
+    productKind: DomainComponentKind.DomainComponentKindComplete,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+) {
+    ItemCard(
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
+        item = productKind,
+        onClickActions = onClickActions,
+        onClickDelete = onClickDelete,
+        contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
+        actionButtonsImages = arrayOf(Icons.Filled.Delete),
+    ) {
+        ComponentKind(
+            productKind = productKind,
+        )
+    }
+}
+
+@Composable
+fun ComponentKind(
+    productKind: DomainComponentKind.DomainComponentKindComplete,
+) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(0.54f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.componentKind.componentKindDescription)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(titleWight = 0.50f, title = "Quantity units:", value = productKind.componentKind.quantityUnits)
             }
         }
     }

@@ -30,7 +30,7 @@ data class DomainProductKindToSubDepartment(
 }
 
 data class DomainComponentKindToSubDepartment(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val subDepId: ID,
     val compKindId: ID
 ) : DomainBaseModel<DatabaseComponentKindToSubDepartment>() {

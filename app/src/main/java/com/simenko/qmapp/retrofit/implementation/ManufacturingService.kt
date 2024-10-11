@@ -158,6 +158,12 @@ interface ManufacturingService {
 
     @GET(COMPONENT_KIND_TO_SUB_DEPARTMENT)
     suspend fun getComponentKindsToSubDepartments(): Response<List<NetworkComponentKindToSubDepartment>>
+    @POST(COMPONENT_KIND_TO_SUB_DEPARTMENT)
+    suspend fun createComponentKindToSubDepartment(@Body record: NetworkComponentKindToSubDepartment): Response<NetworkComponentKindToSubDepartment>
+    @DELETE("$COMPONENT_KIND_TO_SUB_DEPARTMENT/{id}")
+    suspend fun deleteComponentKindToSubDepartment(@Path("id") id: ID): Response<NetworkComponentKindToSubDepartment>
+
+
 
     @GET(STAGE_KIND_TO_SUB_DEPARTMENT)
     suspend fun getStageKindsToSubDepartments(): Response<List<NetworkStageKindToSubDepartment>>

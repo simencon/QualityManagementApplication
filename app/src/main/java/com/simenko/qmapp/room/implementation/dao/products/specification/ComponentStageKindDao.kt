@@ -29,4 +29,17 @@ abstract class ComponentStageKindDao : DaoBaseModel<ID, ID, DatabaseComponentSta
     @Transaction
     @Query("select * from component_stage_kinds_complete where componentKindId = :pId order by componentStageOrder desc")
     abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>>
+
+    @Transaction
+    @Query(
+        """select sk.*, pl.projectSubject, pl_to_dep.depID
+            from `5_component_stage_kinds` sk 
+                join `3_component_kinds` ck on sk.componentKindID = ck.ID
+                join `1_product_kinds` pk on ck.productKindID = pk.ID
+                join `0_manufacturing_project` pl on pk.projectID = pl.ID 
+                join `10_0_prod_projects_to_departments` pl_to_dep on pl.ID = pl_to_dep.productLineId
+                where pl_to_dep.depId = :depId
+        """
+    )
+    abstract fun getRecordsByDepartmentId(depId: ID): Flow<List<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>>
 }
