@@ -16,7 +16,7 @@ abstract class StageKindToSubDepartmentDao: DaoBaseModel<ID, ID, DatabaseStageKi
     abstract override fun getRecordsForUI(): Flow<List<DatabaseStageKindToSubDepartment>>
 
     @Query("select * from `11_5_comp_stages_to_s_departments` where subDepId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseStageKindToSubDepartment>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseStageKindToSubDepartment>>
 
     @Query("SELECT * FROM `11_5_comp_stages_to_s_departments` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseStageKindToSubDepartment?

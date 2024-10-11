@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.products.DomainComponentKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
+import com.simenko.qmapp.domain.entities.products.DomainStageKindToSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
@@ -155,6 +156,12 @@ class ManufacturingRepository @Inject constructor(
         responseHandlerForSingleRecord({ service.deleteComponentKindToSubDepartment(recordId) }) { r -> database.componentKindToSubDepartmentDao.deleteRecord(r) }
     }
     suspend fun syncStageKindsSubDepartments() = crudeOperations.syncRecordsAll(database.stageKindToSubDepartmentDao) { service.getStageKindsToSubDepartments() }
+    fun CoroutineScope.insertSubDepartmentStageKind(record: DomainStageKindToSubDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createStageKindToSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.stageKindToSubDepartmentDao.insertRecord(r) }
+    }
+    fun CoroutineScope.deleteSubDepartmentStageKind(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteStageKindToSubDepartment(recordId) }) { r -> database.stageKindToSubDepartmentDao.deleteRecord(r) }
+    }
 
 
     suspend fun syncProductKeysChannels() = crudeOperations.syncRecordsAll(database.productKeyToChannelDao) { service.getProductKeysToChannels() }
@@ -217,5 +224,8 @@ class ManufacturingRepository @Inject constructor(
     }
     val subDepartmentComponentKinds: (ID) -> Flow<List<DomainComponentKindToSubDepartment>> = { subDepId ->
         database.componentKindToSubDepartmentDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val subDepartmentStageKinds: (ID) -> Flow<List<DomainStageKindToSubDepartment>> = { subDepId ->
+        database.stageKindToSubDepartmentDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
     }
 }

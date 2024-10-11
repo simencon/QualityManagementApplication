@@ -93,8 +93,10 @@ fun ProductKinds(
                     onClickItems = onClickItemsLambda
                 )
             }
-            item {
-                Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
+            if (items.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
+                }
             }
         }
     }

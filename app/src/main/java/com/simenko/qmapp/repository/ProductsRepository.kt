@@ -600,6 +600,9 @@ class ProductsRepository @Inject constructor(
     val componentStageKinds: (ID) -> Flow<List<DomainComponentStageKind.DomainComponentStageKindComplete>> = { pId ->
         database.componentStageKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val stageKindsByDepartmentId: (ID) -> Flow<List<DomainComponentStageKind.DomainComponentStageKindComplete>> = { depId ->
+        database.componentStageKindDao.getRecordsByDepartmentId(depId).map { list -> list.map { it.toDomainModel() } }
+    }
     val componentStageKindKeysByParent: suspend (ID) -> List<DomainComponentStageKindKey.DomainComponentStageKindKeyComplete> = { pId ->
         database.componentStageKindKeyDao.getRecordsByParentId(pId).map { it.toDomainModel() }
     }

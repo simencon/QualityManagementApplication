@@ -41,7 +41,7 @@ data class DomainComponentKindToSubDepartment(
 }
 
 data class DomainStageKindToSubDepartment(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val subDepId: ID,
     val stageKindId: ID
 ) : DomainBaseModel<DatabaseStageKindToSubDepartment>() {

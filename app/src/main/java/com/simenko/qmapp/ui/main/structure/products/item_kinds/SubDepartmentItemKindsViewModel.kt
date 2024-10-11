@@ -16,6 +16,7 @@ import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainComponentKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
+import com.simenko.qmapp.domain.entities.products.DomainStageKindToSubDepartment
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -59,6 +60,9 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     private val _allComponentKinds = _route.flatMapLatest { route ->
         productRepository.componentKindsByDepartmentId(route.departmentId)
     }
+    private val _allStageKinds = _route.flatMapLatest { route ->
+        productRepository.stageKindsByDepartmentId(route.departmentId)
+    }
 
 
     private val _subDepartmentProductKinds = _route.flatMapLatest { route ->
@@ -68,6 +72,11 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
     private val _subDepartmentComponentKinds = _route.flatMapLatest { route ->
         repository.subDepartmentComponentKinds(route.subDepartmentId).flatMapLatest { subDepartmentProductKinds ->
+            flow { emit(subDepartmentProductKinds) }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    private val _subDepartmentStageKinds = _route.flatMapLatest { route ->
+        repository.subDepartmentStageKinds(route.subDepartmentId).flatMapLatest { subDepartmentProductKinds ->
             flow { emit(subDepartmentProductKinds) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -191,10 +200,43 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
         }
     }
 
+    val stageKinds = _subDepartmentStageKinds.flatMapLatest { productKinds ->
+        _itemKindVisibility.flatMapLatest { visibility ->
+            _allStageKinds.flatMapLatest { allProductKinds ->
+                flow {
+                    emit(allProductKinds
+                        .filter { item -> productKinds.map { it.stageKindId }.contains(item.componentStageKind.id) }
+                        .map {
+                            it.copy(
+                                detailsVisibility = it.componentStageKind.id == visibility.first.num,
+                                isExpanded = it.componentStageKind.id == visibility.second.num
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private val _availableStageKinds = _subDepartmentStageKinds.flatMapLatest { productKinds ->
+        _itemToAddId.flatMapLatest { selectedId ->
+            _allStageKinds.flatMapLatest { allProductLines ->
+                flow {
+                    emit(
+                        allProductLines
+                            .filter { item -> !productKinds.map { it.stageKindId }.contains(item.componentStageKind.id) }
+                            .map { it.copy(isSelected = it.componentStageKind.id == selectedId) }
+                    )
+                }
+            }
+        }
+    }
+
     val availableItemKinds: Flow<List<DomainBaseModel<Any>>> = _itemKindPref.flatMapLatest {
         when (it) {
             ProductPref.char -> _availableProductKinds
             ComponentPref.char -> _availableComponentKinds
+            ComponentStagePref.char -> _availableStageKinds
             else -> flow { emit(emptyList()) }
         }
     }
@@ -228,6 +270,7 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
                 when (_itemKindPref.value) {
                     ProductPref.char -> insertSubDepartmentProductKind(DomainProductKindToSubDepartment(subDepId = _route.value.subDepartmentId, prodKindId = _itemToAddId.value))
                     ComponentPref.char -> insertSubDepartmentComponentKind(DomainComponentKindToSubDepartment(subDepId = _route.value.subDepartmentId, compKindId = _itemToAddId.value))
+                    ComponentStagePref.char -> insertSubDepartmentStageKind(DomainStageKindToSubDepartment(subDepId = _route.value.subDepartmentId, stageKindId = _itemToAddId.value))
                     else -> return@run
                 }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
@@ -252,6 +295,7 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
         when (_itemKindPref.value) {
             ProductPref.char -> _subDepartmentProductKinds.value.find { it.prodKindId == productLineId }?.id
             ComponentPref.char -> _subDepartmentComponentKinds.value.find { it.compKindId == productLineId }?.id
+            ComponentStagePref.char -> _subDepartmentStageKinds.value.find { it.stageKindId == productLineId }?.id
             else -> null
         }?.let { itemId ->
             viewModelScope.launch(Dispatchers.IO) {
@@ -259,6 +303,7 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
                     when (_itemKindPref.value) {
                         ProductPref.char -> deleteSubDepartmentProductKind(itemId)
                         ComponentPref.char -> deleteSubDepartmentComponentKind(itemId)
+                        ComponentStagePref.char -> deleteSubDepartmentStageKind(itemId)
                         else -> return@run
                     }.consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->

@@ -206,11 +206,17 @@ data class DomainComponentStageKind(
         val componentKind: DomainComponentKind.DomainComponentKindComplete = DomainComponentKind.DomainComponentKindComplete(),
         val hasComponentStages: Boolean = false,
         override var detailsVisibility: Boolean = false,
-        override var isExpanded: Boolean = false
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>() {
         override fun getRecordId() = componentStageKind.id
         override fun getParentId() = componentStageKind.componentKindId
         override fun setIsSelected(value: Boolean) {}
+
+        override fun getIsSelected() = isSelected
+        override fun getIdentityName() = componentStageKind.componentStageDescription
+        override fun getName() = EmptyString.str
+
         override fun toDatabaseModel() = DatabaseComponentStageKind.DatabaseComponentStageKindComplete(
             componentStageKind = componentStageKind.toDatabaseModel(),
             componentKind = componentKind.toDatabaseModel()

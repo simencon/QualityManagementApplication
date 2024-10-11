@@ -34,6 +34,7 @@ import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainComponentKind
+import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -56,6 +57,7 @@ fun SubDepartmentItemKinds(
 
     val productKinds by viewModel.productKinds.collectAsStateWithLifecycle(initialValue = emptyList())
     val componentKinds by viewModel.componentKinds.collectAsStateWithLifecycle(initialValue = emptyList())
+    val stageKinds by viewModel.stageKinds.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val availableItemKinds by viewModel.availableItemKinds.collectAsStateWithLifecycle(listOf())
 
@@ -91,7 +93,7 @@ fun SubDepartmentItemKinds(
                 .padding(all = (DEFAULT_SPACE / 2).dp),
             state = listState
         ) {
-            when(itemKindPref) {
+            when (itemKindPref) {
                 ProductPref.char -> {
                     items(items = productKinds, key = { it.productKind.id }) { item ->
                         ProductKindCard(
@@ -101,6 +103,7 @@ fun SubDepartmentItemKinds(
                         )
                     }
                 }
+
                 ComponentPref.char -> {
                     items(items = componentKinds, key = { it.componentKind.id }) { item ->
                         ComponentKindCard(
@@ -110,12 +113,21 @@ fun SubDepartmentItemKinds(
                         )
                     }
                 }
-                ComponentStagePref.char -> {
 
+                ComponentStagePref.char -> {
+                    items(items = stageKinds, key = { it.componentStageKind.id }) { item ->
+                        StageKindCard(
+                            productKind = item,
+                            onClickActions = { onClickActionsLambda(it) },
+                            onClickDelete = { onClickDeleteLambda(it) },
+                        )
+                    }
                 }
             }
-            item {
-                Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
+            if (!(productKinds.isEmpty() && componentKinds.isEmpty() && stageKinds.isEmpty())) {
+                item {
+                    Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
+                }
             }
         }
     }
@@ -179,7 +191,7 @@ fun ComponentKindCard(
         item = productKind,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
-        contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
+        contentColors = Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete),
     ) {
         ComponentKind(
@@ -198,6 +210,41 @@ fun ComponentKind(
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.componentKind.componentKindDescription)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(titleWight = 0.50f, title = "Quantity units:", value = productKind.componentKind.quantityUnits)
+            }
+        }
+    }
+}
+
+@Composable
+fun StageKindCard(
+    productKind: DomainComponentStageKind.DomainComponentStageKindComplete,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+) {
+    ItemCard(
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
+        item = productKind,
+        onClickActions = onClickActions,
+        onClickDelete = onClickDelete,
+        contentColors = Triple(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
+        actionButtonsImages = arrayOf(Icons.Filled.Delete),
+    ) {
+        StageKind(
+            productKind = productKind,
+        )
+    }
+}
+
+@Composable
+fun StageKind(
+    productKind: DomainComponentStageKind.DomainComponentStageKindComplete,
+) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(0.54f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.componentStageKind.componentStageDescription)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(titleWight = 0.50f, title = "Quantity units:", value = productKind.componentStageKind.quantityUnits)
             }
         }
     }
