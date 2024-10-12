@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.products.product_lines
+package com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring

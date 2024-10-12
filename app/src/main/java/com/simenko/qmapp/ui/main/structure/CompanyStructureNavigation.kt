@@ -16,10 +16,10 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
-import com.simenko.qmapp.ui.main.structure.products.item_kinds.SubDepartmentItemKinds
-import com.simenko.qmapp.ui.main.structure.products.item_kinds.SubDepartmentItemKindsViewModel
-import com.simenko.qmapp.ui.main.structure.products.product_lines.DepartmentProductLines
-import com.simenko.qmapp.ui.main.structure.products.product_lines.DepartmentProductLinesViewModel
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKinds
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKindsViewModel
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department.DepartmentProductLines
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department.DepartmentProductLinesViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.navigation.Route
 
