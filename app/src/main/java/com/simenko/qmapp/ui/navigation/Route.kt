@@ -85,7 +85,7 @@ sealed interface Route {
             data class LineAddEdit(val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num) : Route
 
             @Serializable
-            data class LineItems(val channelId: ID = NoRecord.num, val lineId: ID = NoRecord.num) : Route
+            data class LineItems(val subDepartmentId: ID, val channelId: ID, val lineId: ID ) : Route
 
             @Serializable
             data class OperationAddEdit(val lineId: ID = NoRecord.num, val operationId: ID = NoRecord.num) : Route

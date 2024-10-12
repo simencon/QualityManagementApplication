@@ -566,6 +566,9 @@ class ProductsRepository @Inject constructor(
     val productById: suspend (ID) -> DomainProduct.DomainProductComplete = { id ->
         database.productDao.getRecordById(id)?.toDomainModel() ?: DomainProduct.DomainProductComplete()
     }
+    val productsItemsBySubDepartmentIdAndChannelId: (ID, ID) -> Flow<List<DomainProduct.DomainProductComplete>> = { subDepId, chId ->
+        database.productDao.getRecordsBySubDepIdAndChannelId(subDepId, chId).map { list -> list.map { it.toDomainModel() } }
+    }
 
 
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
@@ -598,6 +601,9 @@ class ProductsRepository @Inject constructor(
     val componentById: suspend (ID) -> DomainComponent.DomainComponentComplete = { id ->
         database.componentDao.getRecordById(id)?.toDomainModel() ?: DomainComponent.DomainComponentComplete()
     }
+    val componentsItemsBySubDepartmentIdAndChannelId: (ID, ID) -> Flow<List<DomainComponent.DomainComponentComplete>> = { subDepId, chId ->
+        database.componentDao.getRecordsBySubDepIdAndChannelId(subDepId, chId).map { list -> list.map { it.toDomainModel() } }
+    }
 
 
     val componentStageKind: suspend (ID) -> DomainComponentStageKind.DomainComponentStageKindComplete = { id ->
@@ -627,6 +633,10 @@ class ProductsRepository @Inject constructor(
     val allComponentComponentStages: () -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = {
         database.componentComponentStageDao.getAllRecordsComplete().map { list -> list.map { it.toDomainModel() } }
     }
+    val stageItemsBySubDepartmentIdAndChannelId: (ID, ID) -> Flow<List<DomainComponentStage.DomainComponentStageComplete>> = { subDepId, chId ->
+        database.componentStageDao.getRecordsBySubDepIdAndChannelId(subDepId, chId).map { list -> list.map { it.toDomainModel() } }
+    }
+
 
     val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->
         database.productVersionDao.getRecordsCompleteForUI(fpId).map { list -> list.map { it.toDomainModel() } }

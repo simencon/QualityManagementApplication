@@ -286,6 +286,17 @@ enum class Page(
 
     ADD_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
     EDIT_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
+    LINE_ITEMS(
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        title = "Manufacturing line items",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = LineItemsTabs.toList(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null
+    ),
 
     ADD_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
     EDIT_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),

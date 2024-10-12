@@ -430,14 +430,16 @@ fun ContentWithTitle(modifier: Modifier = Modifier, title: String, contentTextSi
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = titleWight)
-        )
+        if(title.isNotEmpty()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(weight = titleWight)
+            )
+        }
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = contentTextSize),

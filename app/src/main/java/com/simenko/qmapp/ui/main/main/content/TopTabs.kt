@@ -108,3 +108,29 @@ enum class ChannelItemKeysTabs(override val tag: SelectedNumber) : TabItem {
         override val startingTabItem: TabItem = PRODUCT_KEYS
     }
 }
+
+enum class LineItemsTabs(override val tag: SelectedNumber) : TabItem {
+    PRODUCTS(FirstTabId),
+    COMPONENTS(SecondTabId),
+    STAGES(ThirdTabId);
+
+    override val index: Int get() = this.ordinal
+    override val title: String get() = getWithSpaces(this.name)
+
+    override var badgeCount: Int = 0
+    override var badgeBackgroundColor: Color = Color.Red
+    override var badgeContentColor: Color = Color.White
+
+    override fun getBadge(): Triple<Int, Color, Color> = Triple(this.badgeCount, this.badgeBackgroundColor, this.badgeContentColor)
+    override fun updateBadge(state: Triple<Int, Color, Color>): TabItem {
+        this.badgeCount = state.first
+        this.badgeBackgroundColor = state.second
+        this.badgeContentColor = state.third
+        return this
+    }
+
+    companion object : TabItem.Static {
+        fun toList(): List<TabItem> = entries
+        override val startingTabItem: TabItem = PRODUCTS
+    }
+}

@@ -67,7 +67,7 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteLineClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditLineClick(it) } }
-    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onLineProductsClick(it) } }
+    val onClickProductsLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
 
@@ -112,7 +112,7 @@ fun LineCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -137,7 +137,7 @@ fun Line(
     viewModel: CompanyStructureViewModel,
     line: DomainManufacturingLine,
     onClickDetails: (ID) -> Unit = {},
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
@@ -161,7 +161,7 @@ fun Line(
 fun LineDetails(
     viewModel: CompanyStructureViewModel,
     line: DomainManufacturingLine,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val containerColor = when (line.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -179,7 +179,7 @@ fun LineDetails(
                 Spacer(modifier = Modifier.weight(0.30f))
                 Column(modifier = Modifier.weight(0.70f)) {
                     StatusChangeBtn(
-                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(line.id) }) {
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(line.chId to line.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Product items", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product items")

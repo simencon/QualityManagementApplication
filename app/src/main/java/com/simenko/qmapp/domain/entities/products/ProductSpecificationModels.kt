@@ -309,17 +309,15 @@ data class DomainProduct(
         val product: DomainProduct = DomainProduct(),
         val productBase: DomainProductBase = DomainProductBase(),
         val key: DomainKey = DomainKey(),
-        var isSelected: Boolean = false,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseProduct.DatabaseProductComplete>() {
         override fun getRecordId() = product.id
         override fun getParentId() = key.projectId
+        override fun setIsSelected(value: Boolean) {}
         override fun getIdentityName() = product.productDesignation
         override fun getName() = productBase.componentBaseDesignation ?: NoString.str
-
-        override fun setIsSelected(value: Boolean) {
-            isSelected = value
-        }
-
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseProduct.DatabaseProductComplete(
             product = this.product.toDatabaseModel(),
@@ -342,25 +340,16 @@ data class DomainComponent(
     data class DomainComponentComplete(
         val component: DomainComponent = DomainComponent(),
         val key: DomainKey = DomainKey(),
-        var isSelected: Boolean = false
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseComponent.DatabaseComponentComplete>() {
         override fun getRecordId() = component.id
         override fun getParentId() = key.projectId
-
-        override fun getIdentityName(): String {
-            return NoString.str
-        }
-
-        override fun getName(): String {
-            return StringUtils.concatTwoStrings3(key.componentKey, component.componentDesignation)
-        }
-
-        override fun setIsSelected(value: Boolean) {
-            isSelected = value
-        }
-
+        override fun setIsSelected(value: Boolean) {}
+        override fun getIdentityName(): String = NoString.str
+        override fun getName(): String = StringUtils.concatTwoStrings3(key.componentKey, component.componentDesignation)
         override fun getIsSelected() = isSelected
-
         override fun toDatabaseModel() = DatabaseComponent.DatabaseComponentComplete(
             component = this.component.toDatabaseModel(),
             key = this.key.toDatabaseModel()
@@ -381,22 +370,15 @@ data class DomainComponentStage(
     data class DomainComponentStageComplete(
         val componentStage: DomainComponentStage = DomainComponentStage(),
         val key: DomainKey = DomainKey(),
-        var isSelected: Boolean = false,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false,
+        val isSelected: Boolean = false,
     ) : DomainBaseModel<DatabaseComponentStage.DatabaseComponentStageComplete>() {
         override fun getRecordId() = componentStage.id
         override fun getParentId() = key.projectId
-        override fun getIdentityName(): String {
-            return NoString.str
-        }
-
-        override fun getName(): String {
-            return StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
-        }
-
-        override fun setIsSelected(value: Boolean) {
-            isSelected = value
-        }
-
+        override fun setIsSelected(value: Boolean) {}
+        override fun getIdentityName(): String = NoString.str
+        override fun getName(): String = StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),

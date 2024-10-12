@@ -382,8 +382,10 @@ class CompanyStructureViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit(channelId = it.first, lineId = it.second))
     }
 
-    fun onLineProductsClick(it: ID) {
-        TODO("Not yet implemented")
+    fun onLineProductsClick(it: Pair<ID, ID>) {
+        if (_subDepartmentsVisibility.value.first.num != NoRecord.num) {
+            appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineItems(subDepartmentId = _subDepartmentsVisibility.value.first.num, channelId = it.first, lineId = it.second))
+        }
     }
 
     fun onAddOperationClick(it: ID) {

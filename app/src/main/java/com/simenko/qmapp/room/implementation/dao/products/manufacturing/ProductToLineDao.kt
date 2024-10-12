@@ -16,7 +16,7 @@ abstract class ProductToLineDao : DaoBaseModel<ID, ID, DatabaseProductToLine> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductToLine>>
 
     @Query("select * from `13_1_products_to_lines` where lineId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductToLine>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseProductToLine>>
 
     @Query("SELECT * FROM `13_1_products_to_lines` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseProductToLine?

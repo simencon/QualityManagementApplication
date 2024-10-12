@@ -85,7 +85,7 @@ data class DomainStageKeyToChannel(
 }
 
 data class DomainProductToLine(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val lineId: ID,
     val productId: ID
 ) : DomainBaseModel<DatabaseProductToLine>() {
@@ -96,7 +96,7 @@ data class DomainProductToLine(
 }
 
 data class DomainComponentToLine(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val lineId: ID,
     val componentId: ID
 ) : DomainBaseModel<DatabaseComponentToLine>() {
@@ -107,7 +107,7 @@ data class DomainComponentToLine(
 }
 
 data class DomainComponentInStageToLine(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val lineId: ID,
     val componentInStageId: ID
 ) : DomainBaseModel<DatabaseComponentInStageToLine>() {

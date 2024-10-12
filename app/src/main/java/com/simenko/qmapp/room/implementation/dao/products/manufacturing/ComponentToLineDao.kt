@@ -16,7 +16,7 @@ abstract class ComponentToLineDao : DaoBaseModel<ID, ID, DatabaseComponentToLine
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentToLine>>
 
     @Query("select * from `13_3_components_to_lines` where lineId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentToLine>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseComponentToLine>>
 
     @Query("SELECT * FROM `13_3_components_to_lines` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentToLine?

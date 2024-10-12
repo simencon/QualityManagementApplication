@@ -7,11 +7,14 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
+import com.simenko.qmapp.domain.entities.products.DomainComponentInStageToLine
 import com.simenko.qmapp.domain.entities.products.DomainComponentKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainComponentKindToSubDepartment
+import com.simenko.qmapp.domain.entities.products.DomainComponentToLine
 import com.simenko.qmapp.domain.entities.products.DomainProductKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
+import com.simenko.qmapp.domain.entities.products.DomainProductToLine
 import com.simenko.qmapp.domain.entities.products.DomainStageKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainStageKindToSubDepartment
 import com.simenko.qmapp.other.Event
@@ -204,8 +207,34 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
+    fun CoroutineScope.insertLineProduct(record: DomainProductToLine) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createProductToLine(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productToLineDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteLineProduct(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductToLine(recordId) }) { r -> database.productToLineDao.deleteRecord(r) }
+    }
+
+
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
+    fun CoroutineScope.insertLineComponent(record: DomainComponentToLine) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createComponentToLine(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentToLineDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteLineComponent(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteComponentToLine(recordId) }) { r -> database.componentToLineDao.deleteRecord(r) }
+    }
+
+
     suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { service.getComponentStagesToLines() }
+    fun CoroutineScope.insertLineStage(record: DomainComponentInStageToLine) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createStageToLine(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentStageToLineDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteLineStage(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteStageToLine(recordId) }) { r -> database.componentStageToLineDao.deleteRecord(r) }
+    }
+
 
     suspend fun syncCharacteristicsOperations() = crudeOperations.syncRecordsAll(database.characteristicToOperationDao) { service.getCharacteristicsToOperations() }
 
@@ -272,5 +301,14 @@ class ManufacturingRepository @Inject constructor(
     }
     val channelStageKeys: (ID) -> Flow<List<DomainStageKeyToChannel>> = { subDepId ->
         database.stageKeyToChannelDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val lineProductItems: (ID) -> Flow<List<DomainProductToLine>> = { lineId ->
+        database.productToLineDao.getRecordsByParentId(lineId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val lineComponentItems: (ID) -> Flow<List<DomainComponentToLine>> = { lineId ->
+        database.componentToLineDao.getRecordsByParentId(lineId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val lineStageItems: (ID) -> Flow<List<DomainComponentInStageToLine>> = { lineId ->
+        database.componentStageToLineDao.getRecordsByParentId(lineId).map { it.map { item -> item.toDomainModel() } }
     }
 }

@@ -20,6 +20,8 @@ import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_c
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_channel.ChannelItemKeysViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKinds
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKindsViewModel
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.items_line.LineItems
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.items_line.LineItemsViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department.DepartmentProductLines
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department.DepartmentProductLinesViewModel
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
@@ -58,6 +60,10 @@ inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScre
         composable<Route.Main.CompanyStructure.LineAddEdit> {
             val viewModel: LineViewModel = hiltViewModel()
             LineForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.CompanyStructure.LineItems> {
+            val viewModel: LineItemsViewModel = hiltViewModel()
+            LineItems(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.CompanyStructure.OperationAddEdit> {
             val viewModel: OperationViewModel = hiltViewModel()

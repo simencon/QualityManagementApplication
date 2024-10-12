@@ -149,66 +149,92 @@ interface ManufacturingService {
 
     @GET(PRODUCT_KIND_TO_SUB_DEPARTMENT)
     suspend fun getProductKindsToSubDepartments(): Response<List<NetworkProductKindToSubDepartment>>
+
     @POST(PRODUCT_KIND_TO_SUB_DEPARTMENT)
     suspend fun createProductKindToSubDepartment(@Body record: NetworkProductKindToSubDepartment): Response<NetworkProductKindToSubDepartment>
+
     @DELETE("$PRODUCT_KIND_TO_SUB_DEPARTMENT/{id}")
     suspend fun deleteProductKindToSubDepartment(@Path("id") id: ID): Response<NetworkProductKindToSubDepartment>
 
 
     @GET(COMPONENT_KIND_TO_SUB_DEPARTMENT)
     suspend fun getComponentKindsToSubDepartments(): Response<List<NetworkComponentKindToSubDepartment>>
+
     @POST(COMPONENT_KIND_TO_SUB_DEPARTMENT)
     suspend fun createComponentKindToSubDepartment(@Body record: NetworkComponentKindToSubDepartment): Response<NetworkComponentKindToSubDepartment>
+
     @DELETE("$COMPONENT_KIND_TO_SUB_DEPARTMENT/{id}")
     suspend fun deleteComponentKindToSubDepartment(@Path("id") id: ID): Response<NetworkComponentKindToSubDepartment>
 
 
-
     @GET(STAGE_KIND_TO_SUB_DEPARTMENT)
     suspend fun getStageKindsToSubDepartments(): Response<List<NetworkStageKindToSubDepartment>>
+
     @POST(STAGE_KIND_TO_SUB_DEPARTMENT)
     suspend fun createStageKindToSubDepartment(@Body record: NetworkStageKindToSubDepartment): Response<NetworkStageKindToSubDepartment>
+
     @DELETE("$STAGE_KIND_TO_SUB_DEPARTMENT/{id}")
     suspend fun deleteStageKindToSubDepartment(@Path("id") id: ID): Response<NetworkStageKindToSubDepartment>
 
 
-
     @GET(PRODUCT_KEY_TO_CHANNEL)
     suspend fun getProductKeysToChannels(): Response<List<NetworkProductKeyToChannel>>
+
     @POST(PRODUCT_KEY_TO_CHANNEL)
     suspend fun createProductKeyToChannel(@Body record: NetworkProductKeyToChannel): Response<NetworkProductKeyToChannel>
+
     @DELETE("$PRODUCT_KEY_TO_CHANNEL/{id}")
     suspend fun deleteProductKeyToChannel(@Path("id") id: ID): Response<NetworkProductKeyToChannel>
 
 
-
     @GET(COMPONENT_KEY_TO_CHANNEL)
     suspend fun getComponentKeysToChannels(): Response<List<NetworkComponentKeyToChannel>>
+
     @POST(COMPONENT_KEY_TO_CHANNEL)
     suspend fun createComponentKeyToChannel(@Body record: NetworkComponentKeyToChannel): Response<NetworkComponentKeyToChannel>
+
     @DELETE("$COMPONENT_KEY_TO_CHANNEL/{id}")
     suspend fun deleteComponentKeyToChannel(@Path("id") id: ID): Response<NetworkComponentKeyToChannel>
 
 
-
     @GET(STAGE_KEY_TO_CHANNEL)
     suspend fun getStageKeysToChannels(): Response<List<NetworkStageKeyToChannel>>
+
     @POST(STAGE_KEY_TO_CHANNEL)
     suspend fun createStageKeyToChannel(@Body record: NetworkStageKeyToChannel): Response<NetworkStageKeyToChannel>
+
     @DELETE("$STAGE_KEY_TO_CHANNEL/{id}")
     suspend fun deleteStageKeyToChannel(@Path("id") id: ID): Response<NetworkStageKeyToChannel>
-
 
 
     @GET(PRODUCTS_TO_LINES)
     suspend fun getProductsToLines(): Response<List<NetworkProductToLine>>
 
+    @POST(PRODUCTS_TO_LINES)
+    suspend fun createProductToLine(@Body record: NetworkProductToLine): Response<NetworkProductToLine>
+
+    @DELETE("$PRODUCTS_TO_LINES/{id}")
+    suspend fun deleteProductToLine(@Path("id") id: ID): Response<NetworkProductToLine>
+
+
     @GET(COMPONENTS_TO_LINES)
     suspend fun getComponentsToLines(): Response<List<NetworkComponentToLine>>
+
+    @POST(COMPONENTS_TO_LINES)
+    suspend fun createComponentToLine(@Body record: NetworkComponentToLine): Response<NetworkComponentToLine>
+
+    @DELETE("$COMPONENTS_TO_LINES/{id}")
+    suspend fun deleteComponentToLine(@Path("id") id: ID): Response<NetworkComponentToLine>
+
 
     @GET(COMPONENTS_IN_STAGE_TO_LINES)
     suspend fun getComponentStagesToLines(): Response<List<NetworkComponentInStageToLine>>
 
+    @POST(COMPONENTS_IN_STAGE_TO_LINES)
+    suspend fun createStageToLine(@Body record: NetworkComponentInStageToLine): Response<NetworkComponentInStageToLine>
+
+    @DELETE("$COMPONENTS_IN_STAGE_TO_LINES/{id}")
+    suspend fun deleteStageToLine(@Path("id") id: ID): Response<NetworkComponentInStageToLine>
 
 
     @GET(CHARACTERISTIC_TO_OPERATION)
