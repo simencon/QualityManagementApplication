@@ -31,9 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -70,7 +68,7 @@ fun Channels(
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteChannelClick(it) } }
     val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddChannelClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditChannelClick(it) } }
-    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onChannelProductsClick(it) } }
+    val onClickProductsLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onChannelProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(2, true) }
 
@@ -109,7 +107,7 @@ fun ChannelCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickOperations: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -136,7 +134,7 @@ fun Channel(
     itemDetailsId: ID,
     onClickDetails: (ID) -> Unit,
     onClickOperations: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val detailsVisibility = itemDetailsId == channel.id
 
@@ -169,7 +167,7 @@ fun Channel(
 fun ChannelDetails(
     channel: DomainManufacturingChannel,
     onClickOperations: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val containerColor = when (channel.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -200,7 +198,7 @@ fun ChannelDetails(
             Spacer(modifier = Modifier.weight(0.30f))
             Column(modifier = Modifier.weight(0.70f)) {
                 StatusChangeBtn(
-                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(channel.id) }) {
+                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(channel.subDepId to channel.id) }) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "Product designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product designations")

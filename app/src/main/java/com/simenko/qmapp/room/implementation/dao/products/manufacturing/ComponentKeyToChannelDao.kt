@@ -16,7 +16,7 @@ abstract class ComponentKeyToChannelDao: DaoBaseModel<ID, ID, DatabaseComponentK
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentKeyToChannel>>
 
     @Query("select * from `12_3_components_keys` where chId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseComponentKeyToChannel>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseComponentKeyToChannel>>
 
     @Query("SELECT * FROM `12_3_components_keys` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseComponentKeyToChannel?

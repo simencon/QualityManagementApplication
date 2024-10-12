@@ -52,7 +52,7 @@ data class DomainStageKindToSubDepartment(
 }
 
 data class DomainProductKeyToChannel(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val chId: ID,
     val keyId: ID
 ) : DomainBaseModel<DatabaseProductKeyToChannel>() {
@@ -63,7 +63,7 @@ data class DomainProductKeyToChannel(
 }
 
 data class DomainComponentKeyToChannel(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val chId: ID,
     val keyId: ID
 ) : DomainBaseModel<DatabaseComponentKeyToChannel>() {
@@ -74,7 +74,7 @@ data class DomainComponentKeyToChannel(
 }
 
 data class DomainStageKeyToChannel(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val chId: ID,
     val keyId: ID
 ) : DomainBaseModel<DatabaseStageKeyToChannel>() {

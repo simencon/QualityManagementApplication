@@ -7,9 +7,12 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
+import com.simenko.qmapp.domain.entities.products.DomainComponentKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainComponentKindToSubDepartment
+import com.simenko.qmapp.domain.entities.products.DomainProductKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainProductKindToSubDepartment
 import com.simenko.qmapp.domain.entities.products.DomainProductLineToDepartment
+import com.simenko.qmapp.domain.entities.products.DomainStageKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainStageKindToSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
@@ -137,6 +140,7 @@ class ManufacturingRepository @Inject constructor(
     fun CoroutineScope.insertDepartmentProductLine(record: DomainProductLineToDepartment) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.createProductLineToDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productLineToDepartmentDao.insertRecord(r) }
     }
+
     fun CoroutineScope.deleteDepartmentProductLine(recordId: ID) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteProductLineToDepartment(recordId) }) { r -> database.productLineToDepartmentDao.deleteRecord(r) }
     }
@@ -145,28 +149,59 @@ class ManufacturingRepository @Inject constructor(
     fun CoroutineScope.insertSubDepartmentProductKind(record: DomainProductKindToSubDepartment) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.createProductKindToSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKindToSubDepartmentDao.insertRecord(r) }
     }
+
     fun CoroutineScope.deleteSubDepartmentProductKind(recordId: ID) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteProductKindToSubDepartment(recordId) }) { r -> database.productKindToSubDepartmentDao.deleteRecord(r) }
     }
+
     suspend fun syncComponentKindsSubDepartments() = crudeOperations.syncRecordsAll(database.componentKindToSubDepartmentDao) { service.getComponentKindsToSubDepartments() }
     fun CoroutineScope.insertSubDepartmentComponentKind(record: DomainComponentKindToSubDepartment) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.createComponentKindToSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKindToSubDepartmentDao.insertRecord(r) }
     }
+
     fun CoroutineScope.deleteSubDepartmentComponentKind(recordId: ID) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteComponentKindToSubDepartment(recordId) }) { r -> database.componentKindToSubDepartmentDao.deleteRecord(r) }
     }
+
     suspend fun syncStageKindsSubDepartments() = crudeOperations.syncRecordsAll(database.stageKindToSubDepartmentDao) { service.getStageKindsToSubDepartments() }
     fun CoroutineScope.insertSubDepartmentStageKind(record: DomainStageKindToSubDepartment) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.createStageKindToSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.stageKindToSubDepartmentDao.insertRecord(r) }
     }
+
     fun CoroutineScope.deleteSubDepartmentStageKind(recordId: ID) = crudeOperations.run {
         responseHandlerForSingleRecord({ service.deleteStageKindToSubDepartment(recordId) }) { r -> database.stageKindToSubDepartmentDao.deleteRecord(r) }
     }
 
 
     suspend fun syncProductKeysChannels() = crudeOperations.syncRecordsAll(database.productKeyToChannelDao) { service.getProductKeysToChannels() }
+    fun CoroutineScope.insertChannelProductKey(record: DomainProductKeyToChannel) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createProductKeyToChannel(record.toDatabaseModel().toNetworkModel()) }) { r -> database.productKeyToChannelDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteChannelProductKey(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteProductKeyToChannel(recordId) }) { r -> database.productKeyToChannelDao.deleteRecord(r) }
+    }
+
+
     suspend fun syncComponentKeysChannels() = crudeOperations.syncRecordsAll(database.componentKeyToChannelDao) { service.getComponentKeysToChannels() }
+    fun CoroutineScope.insertChannelComponentKey(record: DomainComponentKeyToChannel) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createComponentKeyToChannel(record.toDatabaseModel().toNetworkModel()) }) { r -> database.componentKeyToChannelDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteChannelComponentKey(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteComponentKeyToChannel(recordId) }) { r -> database.componentKeyToChannelDao.deleteRecord(r) }
+    }
+
+
     suspend fun syncStageKeysChannels() = crudeOperations.syncRecordsAll(database.stageKeyToChannelDao) { service.getStageKeysToChannels() }
+    fun CoroutineScope.insertChannelStageKey(record: DomainStageKeyToChannel) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createStageKeyToChannel(record.toDatabaseModel().toNetworkModel()) }) { r -> database.stageKeyToChannelDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteChannelStageKey(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteStageKeyToChannel(recordId) }) { r -> database.stageKeyToChannelDao.deleteRecord(r) }
+    }
+
 
     suspend fun syncProductsToLines() = crudeOperations.syncRecordsAll(database.productToLineDao) { service.getProductsToLines() }
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
@@ -227,5 +262,15 @@ class ManufacturingRepository @Inject constructor(
     }
     val subDepartmentStageKinds: (ID) -> Flow<List<DomainStageKindToSubDepartment>> = { subDepId ->
         database.stageKindToSubDepartmentDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
+    }
+
+    val channelProductKeys: (ID) -> Flow<List<DomainProductKeyToChannel>> = { subDepId ->
+        database.productKeyToChannelDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val channelComponentKeys: (ID) -> Flow<List<DomainComponentKeyToChannel>> = { subDepId ->
+        database.componentKeyToChannelDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
+    }
+    val channelStageKeys: (ID) -> Flow<List<DomainStageKeyToChannel>> = { subDepId ->
+        database.stageKeyToChannelDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
     }
 }

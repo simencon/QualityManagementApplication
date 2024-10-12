@@ -16,7 +16,7 @@ abstract class StageKeyToChannelDao: DaoBaseModel<ID, ID, DatabaseStageKeyToChan
     abstract override fun getRecordsForUI(): Flow<List<DatabaseStageKeyToChannel>>
 
     @Query("select * from `12_5_stages_keys` where chId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseStageKeyToChannel>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseStageKeyToChannel>>
 
     @Query("SELECT * FROM `12_5_stages_keys` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseStageKeyToChannel?

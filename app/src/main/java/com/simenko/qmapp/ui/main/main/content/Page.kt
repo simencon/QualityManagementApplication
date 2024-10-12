@@ -265,13 +265,24 @@ enum class Page(
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
-        topTabsContent = ProductsToManufacturingTabs.toList(),
+        topTabsContent = SubDepItemKindsTabs.toList(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null
     ),
 
     ADD_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
     EDIT_CHANNEL(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),
+    CHANNEL_ITEM_KEYS(
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        title = "Channel item keys",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = ChannelItemKeysTabs.toList(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null
+    ),
 
     ADD_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
     EDIT_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),

@@ -57,7 +57,7 @@ enum class ProgressTabs(override val tag: SelectedNumber) : TabItem {
     }
 }
 
-enum class ProductsToManufacturingTabs(override val tag: SelectedNumber) : TabItem {
+enum class SubDepItemKindsTabs(override val tag: SelectedNumber) : TabItem {
     PRODUCT_KINDS(FirstTabId),
     COMPONENT_KINDS(SecondTabId),
     STAGE_KINDS(ThirdTabId);
@@ -80,5 +80,31 @@ enum class ProductsToManufacturingTabs(override val tag: SelectedNumber) : TabIt
     companion object : TabItem.Static {
         fun toList(): List<TabItem> = entries
         override val startingTabItem: TabItem = PRODUCT_KINDS
+    }
+}
+
+enum class ChannelItemKeysTabs(override val tag: SelectedNumber) : TabItem {
+    PRODUCT_KEYS(FirstTabId),
+    COMPONENT_KEYS(SecondTabId),
+    STAGE_KEYS(ThirdTabId);
+
+    override val index: Int get() = this.ordinal
+    override val title: String get() = getWithSpaces(this.name)
+
+    override var badgeCount: Int = 0
+    override var badgeBackgroundColor: Color = Color.Red
+    override var badgeContentColor: Color = Color.White
+
+    override fun getBadge(): Triple<Int, Color, Color> = Triple(this.badgeCount, this.badgeBackgroundColor, this.badgeContentColor)
+    override fun updateBadge(state: Triple<Int, Color, Color>): TabItem {
+        this.badgeCount = state.first
+        this.badgeBackgroundColor = state.second
+        this.badgeContentColor = state.third
+        return this
+    }
+
+    companion object : TabItem.Static {
+        fun toList(): List<TabItem> = entries
+        override val startingTabItem: TabItem = PRODUCT_KEYS
     }
 }

@@ -16,7 +16,7 @@ abstract class ProductKeyToChannelDao: DaoBaseModel<ID, ID, DatabaseProductKeyTo
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductKeyToChannel>>
 
     @Query("select * from `12_1_products_keys` where chId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseProductKeyToChannel>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseProductKeyToChannel>>
 
     @Query("SELECT * FROM `12_1_products_keys` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseProductKeyToChannel?

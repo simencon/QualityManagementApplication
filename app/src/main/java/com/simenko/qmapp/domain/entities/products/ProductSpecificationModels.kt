@@ -64,22 +64,16 @@ data class DomainKey(
     var projectId: ID = NoRecord.num,
     var componentKey: String = EmptyString.str,
     var componentKeyDescription: String? = EmptyString.str,
-    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false,
+    val isSelected: Boolean = false,
 ) : DomainBaseModel<DatabaseKey>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
-    override fun getIdentityName(): String {
-        return componentKey
-    }
-
-    override fun getName(): String {
-        return componentKeyDescription ?: EmptyString.str
-    }
-
-    override fun setIsSelected(value: Boolean) {
-        isSelected = value
-    }
-
+    override fun getIsSelected(): Boolean = this.isSelected
+    override fun setIsSelected(value: Boolean) {}
+    override fun getIdentityName(): String = componentKey
+    override fun getName(): String = componentKeyDescription ?: EmptyString.str
 
     override fun toDatabaseModel() = ObjectTransformer(DomainKey::class, DatabaseKey::class).transform(this)
 

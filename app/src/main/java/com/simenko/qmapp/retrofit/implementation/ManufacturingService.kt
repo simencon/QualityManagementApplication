@@ -151,7 +151,6 @@ interface ManufacturingService {
     suspend fun getProductKindsToSubDepartments(): Response<List<NetworkProductKindToSubDepartment>>
     @POST(PRODUCT_KIND_TO_SUB_DEPARTMENT)
     suspend fun createProductKindToSubDepartment(@Body record: NetworkProductKindToSubDepartment): Response<NetworkProductKindToSubDepartment>
-
     @DELETE("$PRODUCT_KIND_TO_SUB_DEPARTMENT/{id}")
     suspend fun deleteProductKindToSubDepartment(@Path("id") id: ID): Response<NetworkProductKindToSubDepartment>
 
@@ -176,12 +175,30 @@ interface ManufacturingService {
 
     @GET(PRODUCT_KEY_TO_CHANNEL)
     suspend fun getProductKeysToChannels(): Response<List<NetworkProductKeyToChannel>>
+    @POST(PRODUCT_KEY_TO_CHANNEL)
+    suspend fun createProductKeyToChannel(@Body record: NetworkProductKeyToChannel): Response<NetworkProductKeyToChannel>
+    @DELETE("$PRODUCT_KEY_TO_CHANNEL/{id}")
+    suspend fun deleteProductKeyToChannel(@Path("id") id: ID): Response<NetworkProductKeyToChannel>
+
+
 
     @GET(COMPONENT_KEY_TO_CHANNEL)
     suspend fun getComponentKeysToChannels(): Response<List<NetworkComponentKeyToChannel>>
+    @POST(COMPONENT_KEY_TO_CHANNEL)
+    suspend fun createComponentKeyToChannel(@Body record: NetworkComponentKeyToChannel): Response<NetworkComponentKeyToChannel>
+    @DELETE("$COMPONENT_KEY_TO_CHANNEL/{id}")
+    suspend fun deleteComponentKeyToChannel(@Path("id") id: ID): Response<NetworkComponentKeyToChannel>
+
+
 
     @GET(STAGE_KEY_TO_CHANNEL)
     suspend fun getStageKeysToChannels(): Response<List<NetworkStageKeyToChannel>>
+    @POST(STAGE_KEY_TO_CHANNEL)
+    suspend fun createStageKeyToChannel(@Body record: NetworkStageKeyToChannel): Response<NetworkStageKeyToChannel>
+    @DELETE("$STAGE_KEY_TO_CHANNEL/{id}")
+    suspend fun deleteStageKeyToChannel(@Path("id") id: ID): Response<NetworkStageKeyToChannel>
+
+
 
     @GET(PRODUCTS_TO_LINES)
     suspend fun getProductsToLines(): Response<List<NetworkProductToLine>>
@@ -191,6 +208,8 @@ interface ManufacturingService {
 
     @GET(COMPONENTS_IN_STAGE_TO_LINES)
     suspend fun getComponentStagesToLines(): Response<List<NetworkComponentInStageToLine>>
+
+
 
     @GET(CHARACTERISTIC_TO_OPERATION)
     suspend fun getCharacteristicsToOperations(): Response<List<NetworkCharacteristicToOperation>>

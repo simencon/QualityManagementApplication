@@ -16,6 +16,8 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_channel.ChannelItemKeys
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_channel.ChannelItemKeysViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKinds
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKindsViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.product_lines_department.DepartmentProductLines
@@ -48,6 +50,10 @@ inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScre
         composable<Route.Main.CompanyStructure.ChannelAddEdit> {
             val viewModel: ChannelViewModel = hiltViewModel()
             ChannelForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.CompanyStructure.ChannelItemKeys> {
+            val viewModel: ChannelItemKeysViewModel = hiltViewModel()
+            ChannelItemKeys(viewModel = viewModel, route = it.toRoute())
         }
         composable<Route.Main.CompanyStructure.LineAddEdit> {
             val viewModel: LineViewModel = hiltViewModel()

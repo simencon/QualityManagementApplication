@@ -548,6 +548,9 @@ class ProductsRepository @Inject constructor(
     val productKindKeys: (ID) -> Flow<List<DomainProductKindKey.DomainProductKindKeyComplete>> = { pId ->
         database.productKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val productKeysBySubDepartmentId: (ID) -> Flow<List<DomainKey>> = { subDepId ->
+        database.productKeyDao.getAllProductKeysBySubDepartmentId(subDepId).map { list -> list.map { it.toDomainModel() }.distinctBy { it.id } }
+    }
     val productKindKeysByParent: suspend (ID) -> List<DomainProductKindKey.DomainProductKindKeyComplete> = { pId ->
         database.productKindKeyDao.getRecordsByParentId(pId).map { it.toDomainModel() }
     }
@@ -580,6 +583,9 @@ class ProductsRepository @Inject constructor(
     val componentKindKeys: (ID) -> Flow<List<DomainComponentKindKey.DomainComponentKindKeyComplete>> = { pId ->
         database.componentKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentKeysBySubDepartmentId: (ID) -> Flow<List<DomainKey>> = { subDepId ->
+        database.productKeyDao.getAllComponentKeysBySubDepartmentId(subDepId).map { list -> list.map { it.toDomainModel() }.distinctBy { it.id } }
+    }
     val components: (ID, ID) -> Flow<List<DomainProductComponent.DomainProductComponentComplete>> = { pId, ckId ->
         database.productComponentDao.getRecordsCompleteForUI(pId, ckId).map { list -> list.map { it.toDomainModel() } }
     }
@@ -608,6 +614,9 @@ class ProductsRepository @Inject constructor(
     }
     val componentStageKindKeys: (ID) -> Flow<List<DomainComponentStageKindKey.DomainComponentStageKindKeyComplete>> = { pId ->
         database.componentStageKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+    val stageKeysBySubDepartmentId: (ID) -> Flow<List<DomainKey>> = { subDepId ->
+        database.productKeyDao.getAllStageKeysBySubDepartmentId(subDepId).map { list -> list.map { it.toDomainModel() }.distinctBy { it.id } }
     }
     val componentStages: (ID, ID) -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = { cId, cskId ->
         database.componentComponentStageDao.getRecordsCompleteForUI(cId, cskId).map { list -> list.map { it.toDomainModel() } }
