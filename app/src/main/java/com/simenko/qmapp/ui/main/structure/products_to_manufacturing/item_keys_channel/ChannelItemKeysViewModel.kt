@@ -57,7 +57,7 @@ class ChannelItemKeysViewModel @Inject constructor(
     private val _allProductKeys = _route.flatMapLatest { route ->
         productRepository.productKeysBySubDepartmentId(route.subDepartmentId)
     }
-    private val _allComponentKinds = _route.flatMapLatest { route ->
+    private val _allComponentKeys = _route.flatMapLatest { route ->
         productRepository.componentKeysBySubDepartmentId(route.subDepartmentId)
     }
     private val _allStageKinds = _route.flatMapLatest { route ->
@@ -71,12 +71,12 @@ class ChannelItemKeysViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
     private val _channelComponentKeys = _route.flatMapLatest { route ->
-        repository.channelComponentKeys(route.subDepartmentId).flatMapLatest { items ->
+        repository.channelComponentKeys(route.channelId).flatMapLatest { items ->
             flow { emit(items) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
     private val _channelStageKeys = _route.flatMapLatest { route ->
-        repository.channelStageKeys(route.subDepartmentId).flatMapLatest { items ->
+        repository.channelStageKeys(route.channelId).flatMapLatest { items ->
             flow { emit(items) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -170,7 +170,7 @@ class ChannelItemKeysViewModel @Inject constructor(
 
     private val _componentKeys = _channelComponentKeys.flatMapLatest { existingRecords ->
         _itemKindVisibility.flatMapLatest { visibility ->
-            _allComponentKinds.flatMapLatest { allRecords ->
+            _allComponentKeys.flatMapLatest { allRecords ->
                 flow {
                     emit(allRecords
                         .filter { item -> existingRecords.map { it.keyId }.contains(item.id) }
@@ -188,7 +188,7 @@ class ChannelItemKeysViewModel @Inject constructor(
 
     private val _availableComponentKinds = _channelComponentKeys.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
-            _allComponentKinds.flatMapLatest { allRecords ->
+            _allComponentKeys.flatMapLatest { allRecords ->
                 flow {
                     emit(
                         allRecords
@@ -277,9 +277,9 @@ class ChannelItemKeysViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.run {
                 when (_itemKindPref.value) {
-                    ProductPref.char -> insertChannelProductKey(DomainProductKeyToChannel(chId = _route.value.subDepartmentId, keyId = _itemToAddId.value))
-                    ComponentPref.char -> insertChannelComponentKey(DomainComponentKeyToChannel(chId = _route.value.subDepartmentId, keyId = _itemToAddId.value))
-                    ComponentStagePref.char -> insertChannelStageKey(DomainStageKeyToChannel(chId = _route.value.subDepartmentId, keyId = _itemToAddId.value))
+                    ProductPref.char -> insertChannelProductKey(DomainProductKeyToChannel(chId = _route.value.channelId, keyId = _itemToAddId.value))
+                    ComponentPref.char -> insertChannelComponentKey(DomainComponentKeyToChannel(chId = _route.value.channelId, keyId = _itemToAddId.value))
+                    ComponentStagePref.char -> insertChannelStageKey(DomainStageKeyToChannel(chId = _route.value.channelId, keyId = _itemToAddId.value))
                     else -> return@run
                 }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
