@@ -347,8 +347,8 @@ data class DomainComponent(
         override fun getRecordId() = component.id
         override fun getParentId() = key.projectId
         override fun setIsSelected(value: Boolean) {}
-        override fun getIdentityName(): String = NoString.str
-        override fun getName(): String = StringUtils.concatTwoStrings3(key.componentKey, component.componentDesignation)
+        override fun getIdentityName(): String = StringUtils.concatTwoStrings3(key.componentKey, component.componentDesignation)
+        override fun getName(): String = EmptyString.str
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponent.DatabaseComponentComplete(
             component = this.component.toDatabaseModel(),
@@ -377,8 +377,8 @@ data class DomainComponentStage(
         override fun getRecordId() = componentStage.id
         override fun getParentId() = key.projectId
         override fun setIsSelected(value: Boolean) {}
-        override fun getIdentityName(): String = NoString.str
-        override fun getName(): String = StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
+        override fun getIdentityName(): String = StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
+        override fun getName(): String = NoString.str
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),

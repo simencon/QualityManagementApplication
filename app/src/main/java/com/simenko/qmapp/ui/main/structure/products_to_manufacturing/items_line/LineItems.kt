@@ -91,7 +91,7 @@ fun LineItems(
         InfoLine(
             modifier = modifier
                 .padding(start = DEFAULT_SPACE.dp)
-                .fillMaxWidth(), title = "Sub department", body = concatTwoStrings(line.line.lineAbbr, line.line.lineDesignation)
+                .fillMaxWidth(), title = "Line", body = concatTwoStrings(line.line.lineAbbr, line.line.lineDesignation)
         )
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 

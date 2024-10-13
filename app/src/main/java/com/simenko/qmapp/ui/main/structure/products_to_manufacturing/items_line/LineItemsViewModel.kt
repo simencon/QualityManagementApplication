@@ -268,9 +268,9 @@ class LineItemsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.run {
                 when (_itemKindPref.value) {
-                    ProductPref.char -> insertLineProduct(DomainProductToLine(lineId = _route.value.subDepartmentId, productId = _itemToAddId.value))
-                    ComponentPref.char -> insertLineComponent(DomainComponentToLine(lineId = _route.value.subDepartmentId, componentId = _itemToAddId.value))
-                    ComponentStagePref.char -> insertLineStage(DomainComponentInStageToLine(lineId = _route.value.subDepartmentId, componentInStageId = _itemToAddId.value))
+                    ProductPref.char -> insertLineProduct(DomainProductToLine(lineId = _route.value.lineId, productId = _itemToAddId.value))
+                    ComponentPref.char -> insertLineComponent(DomainComponentToLine(lineId = _route.value.lineId, componentId = _itemToAddId.value))
+                    ComponentStagePref.char -> insertLineStage(DomainComponentInStageToLine(lineId = _route.value.lineId, componentInStageId = _itemToAddId.value))
                     else -> return@run
                 }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
