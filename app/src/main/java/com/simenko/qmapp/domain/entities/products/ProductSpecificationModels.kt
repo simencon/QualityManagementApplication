@@ -378,7 +378,7 @@ data class DomainComponentStage(
         override fun getParentId() = key.projectId
         override fun setIsSelected(value: Boolean) {}
         override fun getIdentityName(): String = StringUtils.concatTwoStrings3(key.componentKey, componentStage.componentInStageDescription)
-        override fun getName(): String = NoString.str
+        override fun getName(): String = EmptyString.str
         override fun getIsSelected() = isSelected
         override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),

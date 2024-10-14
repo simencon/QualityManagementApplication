@@ -157,12 +157,21 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     private val _availableProductKinds = _subDepartmentProductKinds.flatMapLatest { productKinds ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allProductKinds.flatMapLatest { allProductLines ->
-                flow {
-                    emit(
-                        allProductLines
-                            .filter { item -> !productKinds.map { it.prodKindId }.contains(item.productKind.id) }
-                            .map { it.copy(isSelected = it.productKind.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allProductLines
+                                .filter { item -> !productKinds.map { it.prodKindId }.contains(item.productKind.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.productKind.productKindDesignation.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.productKind.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -189,12 +198,21 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     private val _availableComponentKinds = _subDepartmentComponentKinds.flatMapLatest { productKinds ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allComponentKinds.flatMapLatest { allProductLines ->
-                flow {
-                    emit(
-                        allProductLines
-                            .filter { item -> !productKinds.map { it.compKindId }.contains(item.componentKind.id) }
-                            .map { it.copy(isSelected = it.componentKind.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allProductLines
+                                .filter { item -> !productKinds.map { it.compKindId }.contains(item.componentKind.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.componentKind.componentKindDescription.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.componentKind.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -221,12 +239,21 @@ class SubDepartmentItemKindsViewModel @Inject constructor(
     private val _availableStageKinds = _subDepartmentStageKinds.flatMapLatest { productKinds ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allStageKinds.flatMapLatest { allProductLines ->
-                flow {
-                    emit(
-                        allProductLines
-                            .filter { item -> !productKinds.map { it.stageKindId }.contains(item.componentStageKind.id) }
-                            .map { it.copy(isSelected = it.componentStageKind.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allProductLines
+                                .filter { item -> !productKinds.map { it.stageKindId }.contains(item.componentStageKind.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.componentStageKind.componentStageDescription.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.componentStageKind.id == selectedId) }
+                        )
+                    }
                 }
             }
         }

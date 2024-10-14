@@ -107,12 +107,22 @@ class DepartmentProductLinesViewModel @Inject constructor(
     val availableProductLines = _departmentProductLines.flatMapLatest { productLinesIds ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allProductLines.flatMapLatest { allProductLines ->
-                flow {
-                    emit(
-                        allProductLines
-                            .filter { item -> !productLinesIds.map { it.productLineId }.contains(item.manufacturingProject.id) }
-                            .map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allProductLines
+                                .filter { item -> !productLinesIds.map { it.productLineId }.contains(item.manufacturingProject.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.manufacturingProject.projectSubject?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                                || it.manufacturingProject.pfmeaNum?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.manufacturingProject.id == selectedId) }
+                        )
+                    }
                 }
             }
         }

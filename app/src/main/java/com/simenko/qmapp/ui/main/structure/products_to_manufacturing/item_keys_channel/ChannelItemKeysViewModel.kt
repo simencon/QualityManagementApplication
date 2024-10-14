@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -144,12 +143,22 @@ class ChannelItemKeysViewModel @Inject constructor(
     private val _availableProductKeys = _channelProductKeys.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allProductKeys.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
-                            .map { it.copy(isSelected = it.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.componentKeyDescription?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                                || it.componentKey.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -176,12 +185,22 @@ class ChannelItemKeysViewModel @Inject constructor(
     private val _availableComponentKinds = _channelComponentKeys.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allComponentKeys.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
-                            .map { it.copy(isSelected = it.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.componentKeyDescription?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                                || it.componentKey.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -208,12 +227,22 @@ class ChannelItemKeysViewModel @Inject constructor(
     private val _availableStageKinds = _channelStageKeys.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allStageKinds.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
-                            .map { it.copy(isSelected = it.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.keyId }.contains(item.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.componentKeyDescription?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                                || it.componentKey.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.id == selectedId) }
+                        )
+                    }
                 }
             }
         }

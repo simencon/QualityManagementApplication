@@ -178,7 +178,19 @@ fun ChannelDetails(
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         ContentWithTitle(title = "Complete name:", value = channel.channelDesignation ?: NoString.str, titleWight = 0.23f)
-
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Row(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.weight(0.30f))
+            Column(modifier = Modifier.weight(0.70f)) {
+                StatusChangeBtn(
+                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(channel.subDepId to channel.id) }) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Product designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product designations")
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         Row(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.weight(0.30f))
@@ -193,18 +205,5 @@ fun ChannelDetails(
             }
         }
 
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        Row(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.weight(0.30f))
-            Column(modifier = Modifier.weight(0.70f)) {
-                StatusChangeBtn(
-                    modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(channel.subDepId to channel.id) }) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "Product designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product designations")
-                    }
-                }
-            }
-        }
     }
 }

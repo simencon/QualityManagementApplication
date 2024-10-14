@@ -26,6 +26,7 @@ import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route.Main.CompanyStructure.LineItems
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
+import com.simenko.qmapp.utils.StringUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -157,12 +158,22 @@ class LineItemsViewModel @Inject constructor(
     private val _availableProductItems = _lineProductItems.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allProductItems.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.productId }.contains(item.product.id) }
-                            .map { it.copy(isSelected = it.product.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.productId }.contains(item.product.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        it.productBase.componentBaseDesignation?.lowercase()?.contains(searchStr.lowercase()) ?: false
+                                                || it.product.productDesignation.lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.product.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -189,12 +200,21 @@ class LineItemsViewModel @Inject constructor(
     private val _availableComponentItems = _lineComponentItems.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allComponentItems.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.componentId }.contains(item.component.id) }
-                            .map { it.copy(isSelected = it.component.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.componentId }.contains(item.component.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        StringUtils.concatTwoStrings3(it.key.componentKey, it.component.componentDesignation).lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.component.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
@@ -221,12 +241,21 @@ class LineItemsViewModel @Inject constructor(
     private val _availableStageItems = _lineStageItems.flatMapLatest { existingRecords ->
         _itemToAddId.flatMapLatest { selectedId ->
             _allStageItems.flatMapLatest { allRecords ->
-                flow {
-                    emit(
-                        allRecords
-                            .filter { item -> !existingRecords.map { it.componentInStageId }.contains(item.componentStage.id) }
-                            .map { it.copy(isSelected = it.componentStage.id == selectedId) }
-                    )
+                _itemToAddSearchStr.flatMapLatest { searchStr ->
+                    flow {
+                        emit(
+                            allRecords
+                                .filter { item -> !existingRecords.map { it.componentInStageId }.contains(item.componentStage.id) }
+                                .filter {
+                                    if (searchStr.isNotEmpty()) {
+                                        StringUtils.concatTwoStrings3(it.key.componentKey, it.componentStage.componentInStageDescription).lowercase().contains(searchStr.lowercase())
+                                    } else {
+                                        true
+                                    }
+                                }
+                                .map { it.copy(isSelected = it.componentStage.id == selectedId) }
+                        )
+                    }
                 }
             }
         }
