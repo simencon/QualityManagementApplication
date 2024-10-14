@@ -39,6 +39,7 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
@@ -64,9 +65,14 @@ object AppModule {
         @Named("authorization_interceptor") authInterceptor: Interceptor,
         @Named("error_handler_interceptor") errorHandlerInterceptor: Interceptor
     ): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+        if (BuildConfig.DEBUG) {
+            okHttpClientBuilder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
+        }
+
         val tm = MyTrustManager()
         return if (BuildConfig.IS_API_LOCAL_HOST)
-            OkHttpClient.Builder()
+            okHttpClientBuilder
                 .addInterceptor(authInterceptor)
                 .addInterceptor(errorHandlerInterceptor)
                 .readTimeout(360, TimeUnit.SECONDS)
@@ -75,7 +81,7 @@ object AppModule {
                 .hostnameVerifier { _, _ -> true }
                 .build()
         else
-            OkHttpClient.Builder()
+            okHttpClientBuilder
                 .addInterceptor(authInterceptor)
                 .addInterceptor(errorHandlerInterceptor)
                 .readTimeout(360, TimeUnit.SECONDS)
