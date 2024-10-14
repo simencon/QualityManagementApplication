@@ -2,7 +2,7 @@ package com.simenko.qmapp.utils
 
 import com.google.common.truth.Truth
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.works.SyncPeriods
+import com.simenko.qmapp.presentation.works.SyncPeriods
 import org.junit.Test
 import java.time.Instant
 

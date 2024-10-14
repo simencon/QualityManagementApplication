@@ -6,7 +6,7 @@ import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.domain.entities.products.DomainResultTolerance
-import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.data.cache.db.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainInputForOrder constructor(

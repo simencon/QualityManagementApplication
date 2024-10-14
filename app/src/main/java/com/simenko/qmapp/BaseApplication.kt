@@ -8,11 +8,11 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_NAME
-import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManager
-import com.simenko.qmapp.works.SyncEntitiesWorker
-import com.simenko.qmapp.works.SyncPeriods
-import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
-import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
+import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.ErrorManager
+import com.simenko.qmapp.presentation.works.SyncEntitiesWorker
+import com.simenko.qmapp.presentation.works.SyncPeriods
+import com.simenko.qmapp.presentation.works.WorkerKeys.EXCLUDE_MILLIS
+import com.simenko.qmapp.presentation.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.HiltAndroidApp
 import java.time.Duration
 import javax.inject.Inject

@@ -25,7 +25,7 @@
         tools:targetApi="34">
 
         <activity
-            android:name=".ui.user.UserActivity"
+            android:name=".presentation.ui.user.UserActivity"
             android:exported="true"
             android:screenOrientation="fullSensor"
             android:theme="@style/Theme.App.Starting">
@@ -39,7 +39,7 @@
         </activity>
 
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".presentation.ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -61,17 +61,17 @@
         </activity>
 
         <service
-            android:name=".services.MessagingService"
+            android:name=".presentation.services.MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".services.app_update.UpdateService" />
+        <service android:name=".presentation.services.app_update.UpdateService" />
 
         <receiver
-            android:name=".receivers.NotificationActionsReceiver"
+            android:name=".presentation.receivers.NotificationActionsReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="@string/REMIND_LATER_ACTION" />
@@ -79,7 +79,7 @@
         </receiver>
 
         <receiver
-            android:name=".services.app_update.UpdateReceiver"
+            android:name=".presentation.services.app_update.UpdateReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

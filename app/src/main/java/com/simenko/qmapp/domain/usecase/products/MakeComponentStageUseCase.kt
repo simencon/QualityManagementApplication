@@ -9,7 +9,7 @@ import com.simenko.qmapp.domain.entities.products.DomainComponentStageKindCompon
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.other.Status
-import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.data.repository.ProductsRepository
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

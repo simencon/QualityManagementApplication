@@ -6,7 +6,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.data.cache.db.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable

@@ -5,8 +5,8 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.room.entities.DatabaseUser
-import com.simenko.qmapp.room.entities.DatabaseUserRole
+import com.simenko.qmapp.data.cache.db.entities.DatabaseUser
+import com.simenko.qmapp.data.cache.db.entities.DatabaseUserRole
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainUserRole(

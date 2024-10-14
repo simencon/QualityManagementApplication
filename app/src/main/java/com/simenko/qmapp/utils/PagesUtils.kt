@@ -2,8 +2,8 @@ package com.simenko.qmapp.utils
 
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainOrderComplete
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
-import com.simenko.qmapp.works.SyncPeriods
+import com.simenko.qmapp.data.remote.entities.NetworkOrder
+import com.simenko.qmapp.presentation.works.SyncPeriods
 import java.time.Instant
 
 open class BaseFilter constructor(

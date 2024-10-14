@@ -8,7 +8,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.room.entities.products.*
+import com.simenko.qmapp.data.cache.db.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate

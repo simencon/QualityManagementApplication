@@ -1,7 +1,7 @@
 package com.simenko.qmapp.domain.usecase.products
 
-import com.simenko.qmapp.repository.ManufacturingRepository
-import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.data.repository.ManufacturingRepository
+import com.simenko.qmapp.data.repository.ProductsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

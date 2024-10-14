@@ -1,7 +1,7 @@
 package com.simenko.qmapp.di
 
-import com.simenko.qmapp.storage.SharedPreferencesStorage
-import com.simenko.qmapp.storage.Storage
+import com.simenko.qmapp.data.cache.prefs.storage.SharedPreferencesStorage
+import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
