@@ -64,7 +64,7 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteOperationClick(it) } }
     val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddOperationClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditOperationClick(it) } }
-    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onOperationProductsClick(it) } }
+    val onClickProductsLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onOperationProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
 
@@ -97,7 +97,7 @@ fun OperationCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -120,7 +120,7 @@ fun OperationCard(
 fun Operation(
     operation: DomainManufacturingOperationComplete,
     onClickDetails: (ID) -> Unit = {},
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
@@ -143,7 +143,7 @@ fun Operation(
 @Composable
 fun OperationDetails(
     operation: DomainManufacturingOperationComplete,
-    onClickProducts: (ID) -> Unit
+    onClickProducts: (Pair<ID, ID>) -> Unit
 ) {
     val containerColor = when (operation.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -180,7 +180,7 @@ fun OperationDetails(
                 Spacer(modifier = Modifier.weight(0.20f))
                 Column(modifier = Modifier.weight(0.80f)) {
                     StatusChangeBtn(
-                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
+                        modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickProducts(operation.operation.lineId to operation.operation.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Characteristics (functions)", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Product item kinds")

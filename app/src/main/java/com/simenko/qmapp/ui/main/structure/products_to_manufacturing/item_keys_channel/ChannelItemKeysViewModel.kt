@@ -66,19 +66,15 @@ class ChannelItemKeysViewModel @Inject constructor(
 
 
     private val _channelProductKeys = _route.flatMapLatest { route ->
-        repository.channelProductKeys(route.channelId).flatMapLatest { items ->
-            flow { emit(items) }
-        }
+        repository.channelProductKeys(route.channelId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
     private val _channelComponentKeys = _route.flatMapLatest { route ->
-        repository.channelComponentKeys(route.channelId).flatMapLatest { items ->
-            flow { emit(items) }
-        }
+        repository.channelComponentKeys(route.channelId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
     private val _channelStageKeys = _route.flatMapLatest { route ->
-        repository.channelStageKeys(route.channelId).flatMapLatest { items ->
-            flow { emit(items) }
-        }
+        repository.channelStageKeys(route.channelId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
 
@@ -94,32 +90,23 @@ class ChannelItemKeysViewModel @Inject constructor(
     private var mainPageHandler: MainPageHandler? = null
 
     fun onEntered(route: ChannelItemKeys) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _route.value = route
-                _channel.value = repository.channelById(route.channelId)
-                mainPageHandler = MainPageHandler.Builder(Page.CHANNEL_ITEM_KEYS, mainPageState)
-                    .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                    .setOnFabClickAction { setAddItemDialogVisibility(true) }
-                    .setOnTabSelectAction {
-                        when (it) {
-                            FirstTabId -> {
-                                _itemKindPref.value = ProductPref.char
-                            }
-
-                            SecondTabId -> {
-                                _itemKindPref.value = ComponentPref.char
-                            }
-
-                            ThirdTabId -> {
-                                _itemKindPref.value = ComponentStagePref.char
-                            }
-                        }
-                        _itemKindVisibility.value = Pair(SelectedNumber(NoRecord.num), NoRecord)
+        viewModelScope.launch(Dispatchers.IO) {
+            _route.value = route
+            _channel.value = repository.channelById(route.channelId)
+            mainPageHandler = MainPageHandler.Builder(Page.CHANNEL_ITEM_KEYS, mainPageState)
+                .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                .setOnFabClickAction { setAddItemDialogVisibility(true) }
+                .setOnTabSelectAction {
+                    _itemKindPref.value = when (it) {
+                        FirstTabId -> ProductPref.char
+                        SecondTabId -> ComponentPref.char
+                        ThirdTabId -> ComponentStagePref.char
+                        else -> ProductPref.char
                     }
-                    .build()
-                    .apply { setupMainPage(0, true) }
-            }
+                    _itemKindVisibility.value = Pair(SelectedNumber(NoRecord.num), NoRecord)
+                }
+                .build()
+                .apply { setupMainPage(0, true) }
         }
     }
 

@@ -18,7 +18,6 @@ fun ComponentComponentStageDialog(viewModel: ComponentComponentStageViewModel, r
     val items by viewModel.availableComponentStages.collectAsStateWithLifecycle(initialValue = emptyList())
     val quantityInProduct by viewModel.quantityInProduct.collectAsStateWithLifecycle()
     val isReadyToAdd by viewModel.isReadyToAdd.collectAsStateWithLifecycle(initialValue = false)
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(key1 = Unit) {
@@ -37,9 +36,8 @@ fun ComponentComponentStageDialog(viewModel: ComponentComponentStageViewModel, r
         quantity = quantityInProduct,
         onEnterQuantity = viewModel::onSetProductComponentQuantity,
         addIsEnabled = isReadyToAdd,
-        isLoadingState = isLoading,
-        onDismiss = { if (!isLoading) viewModel.navBack() },
+        onDismiss = { viewModel.navBack() },
         onItemSelect = viewModel::onSelectComponentStage,
-        onAddClick = { if (!isLoading) viewModel.makeRecord() }
+        onAddClick = { viewModel.makeRecord() }
     )
 }

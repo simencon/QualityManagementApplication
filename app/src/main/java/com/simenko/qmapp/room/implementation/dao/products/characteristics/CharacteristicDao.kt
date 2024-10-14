@@ -32,4 +32,43 @@ abstract class CharacteristicDao : DaoBaseModel<ID, ID, DatabaseCharacteristic> 
 
     @Query("select * from characteristicWithParents where productLineId = :parentId ")
     abstract fun getAllCharacteristicsPerProductLine(parentId: ID): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicWithParents>>
+
+    @Transaction
+    @Query(
+        """select ch.*
+            from `characteristicWithParents` ch
+                join `8_metrixes` m on ch.charId = m.charID
+                join `9_8_product_tolerances` pt on m.ID = pt.metrixID
+                join `9_products_versions` pv on pt.versionID = pv.ID
+                join `13_1_products_to_lines` p_l on pv.productID = p_l.productID
+            where p_l.lineId = :lineId
+    """
+    )
+    abstract fun getAllProductCharsByLineId(lineId: ID): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicWithParents>>
+
+    @Transaction
+    @Query(
+        """select ch.*
+            from `characteristicWithParents` ch
+                join `8_metrixes` m on ch.charId = m.charID
+                join `10_8_component_tolerances` pt on m.ID = pt.metrixID
+                join `10_components_versions` pv on pt.versionID = pv.ID
+                join `13_3_components_to_lines` p_l on pv.componentId = p_l.componentId
+            where p_l.lineId = :lineId
+    """
+    )
+    abstract fun getAllComponentCharsByLineId(lineId: ID): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicWithParents>>
+
+    @Transaction
+    @Query(
+        """select ch.*
+            from `characteristicWithParents` ch
+                join `8_metrixes` m on ch.charId = m.charID
+                join `11_8_component_in_stage_tolerances` pt on m.ID = pt.metrixID
+                join `11_component_in_stage_versions` pv on pt.versionID = pv.ID
+                join `13_5_component_in_stages_to_lines` p_l on pv.componentInStageId = p_l.componentInStageId
+            where p_l.lineId = :lineId
+    """
+    )
+    abstract fun getAllStageCharsByLineId(lineId: ID): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicWithParents>>
 }

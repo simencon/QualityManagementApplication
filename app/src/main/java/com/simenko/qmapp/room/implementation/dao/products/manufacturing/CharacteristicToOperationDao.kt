@@ -16,7 +16,7 @@ abstract class CharacteristicToOperationDao: DaoBaseModel<ID, ID, DatabaseCharac
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharacteristicToOperation>>
 
     @Query("select * from `14_7_operations_to_chars` where operationId = :parentId order by id  asc")
-    abstract fun getRecordsByParentId(parentId: ID): List<DatabaseCharacteristicToOperation>
+    abstract fun getRecordsByParentId(parentId: ID): Flow<List<DatabaseCharacteristicToOperation>>
 
     @Query("SELECT * FROM `14_7_operations_to_chars` WHERE id = :id")
     abstract fun getRecordById(id: ID): DatabaseCharacteristicToOperation?

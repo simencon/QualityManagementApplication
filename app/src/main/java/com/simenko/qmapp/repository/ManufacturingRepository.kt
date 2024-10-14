@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufactu
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristicToOperation
 import com.simenko.qmapp.domain.entities.products.DomainComponentInStageToLine
 import com.simenko.qmapp.domain.entities.products.DomainComponentKeyToChannel
 import com.simenko.qmapp.domain.entities.products.DomainComponentKindToSubDepartment
@@ -237,6 +238,13 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncCharacteristicsOperations() = crudeOperations.syncRecordsAll(database.characteristicToOperationDao) { service.getCharacteristicsToOperations() }
+    fun CoroutineScope.insertOperationCharacteristic(record: DomainCharacteristicToOperation) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.createCharacteristicToOperation(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicToOperationDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.deleteOperationCharacteristic(recordId: ID) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicToOperation(recordId) }) { r -> database.characteristicToOperationDao.deleteRecord(r) }
+    }
 
     /**
      * Connecting with LiveData for ViewModel
@@ -302,6 +310,7 @@ class ManufacturingRepository @Inject constructor(
     val channelStageKeys: (ID) -> Flow<List<DomainStageKeyToChannel>> = { subDepId ->
         database.stageKeyToChannelDao.getRecordsByParentId(subDepId).map { it.map { item -> item.toDomainModel() } }
     }
+
     val lineProductItems: (ID) -> Flow<List<DomainProductToLine>> = { lineId ->
         database.productToLineDao.getRecordsByParentId(lineId).map { it.map { item -> item.toDomainModel() } }
     }
@@ -310,5 +319,9 @@ class ManufacturingRepository @Inject constructor(
     }
     val lineStageItems: (ID) -> Flow<List<DomainComponentInStageToLine>> = { lineId ->
         database.componentStageToLineDao.getRecordsByParentId(lineId).map { it.map { item -> item.toDomainModel() } }
+    }
+
+    val itemCharsByOperationId: (ID) -> Flow<List<DomainCharacteristicToOperation>> = { operationId ->
+        database.characteristicToOperationDao.getRecordsByParentId(operationId).map { it.map { item -> item.toDomainModel() } }
     }
 }

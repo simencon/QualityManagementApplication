@@ -29,7 +29,6 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -81,8 +80,6 @@ fun <DB, DM> ComponentSingleChoiceDialog(
 
     quantity: Pair<String, Boolean>,
     onEnterQuantity: (String) -> Unit,
-
-    isLoadingState: Boolean,
 
     addIsEnabled: Boolean,
     onDismiss: () -> Unit,
@@ -224,14 +221,6 @@ fun <DB, DM> ComponentSingleChoiceDialog(
                     }
                 }
             }
-
-            if (isLoadingState) {
-                CircularProgressIndicator(
-                    modifier = Modifier.width(64.dp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-            }
         }
     }
 }
@@ -294,7 +283,6 @@ fun PreviewComponentSingleChoiceDialog() {
         onSearch = {},
         quantity = Pair("10", true),
         onEnterQuantity = {},
-        isLoadingState = true,
         addIsEnabled = true,
         onDismiss = {},
         onItemSelect = {},

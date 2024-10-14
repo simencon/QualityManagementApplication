@@ -187,9 +187,6 @@ class ComponentComponentStageViewModel @Inject constructor(
         flow { emit(it.first != NoRecord.num) }
     }
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
@@ -209,15 +206,9 @@ class ComponentComponentStageViewModel @Inject constructor(
                     ).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> {
-                                    mainPageState.sendLoadingState(Triple(true, false, null)); _isLoading.value = true
-                                }
-
+                                Status.LOADING -> mainPageState.sendLoadingState(Triple(false, true, null))
                                 Status.SUCCESS -> resource.data?.let { navBackToRecord(it) }
-
-                                Status.ERROR -> {
-                                    mainPageState.sendLoadingState(Triple(false, false, resource.message)); _isLoading.value = false
-                                }
+                                Status.ERROR -> mainPageState.sendLoadingState(Triple(false, false, resource.message))
                             }
                         }
                     }

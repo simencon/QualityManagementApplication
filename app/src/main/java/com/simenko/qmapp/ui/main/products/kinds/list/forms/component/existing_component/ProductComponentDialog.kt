@@ -18,8 +18,6 @@ fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Ma
     val items by viewModel.availableComponents.collectAsStateWithLifecycle(initialValue = emptyList())
     val quantityInProduct by viewModel.quantityInProduct.collectAsStateWithLifecycle()
     val isReadyToAdd by viewModel.isReadyToAdd.collectAsStateWithLifecycle(initialValue = false)
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-
 
     LaunchedEffect(key1 = Unit) {
         viewModel.onEntered(route)
@@ -37,9 +35,8 @@ fun ProductComponentDialog(viewModel: ProductComponentViewModel, route: Route.Ma
         quantity = quantityInProduct,
         onEnterQuantity = viewModel::onSetProductComponentQuantity,
         addIsEnabled = isReadyToAdd,
-        isLoadingState = isLoading,
-        onDismiss = { if (!isLoading) viewModel.navBack() },
+        onDismiss = {  viewModel.navBack() },
         onItemSelect = viewModel::onSelectComponent,
-        onAddClick = { if (!isLoading) viewModel.makeComponentKindComponent() }
+        onAddClick = { viewModel.makeComponentKindComponent() }
     )
 }

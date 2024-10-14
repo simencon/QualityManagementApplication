@@ -16,6 +16,8 @@ import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentForm
 import com.simenko.qmapp.ui.main.structure.forms.sub_department.SubDepartmentViewModel
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.characteristics_operation.OperationCharacteristicsMain
+import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.characteristics_operation.OperationCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_channel.ChannelItemKeys
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_keys_channel.ChannelItemKeysViewModel
 import com.simenko.qmapp.ui.main.structure.products_to_manufacturing.item_kinds_sub_department.SubDepartmentItemKinds
@@ -68,6 +70,10 @@ inline fun <reified T : Any> NavGraphBuilder.companyStructureNavigation(mainScre
         composable<Route.Main.CompanyStructure.OperationAddEdit> {
             val viewModel: OperationViewModel = hiltViewModel()
             OperationForm(viewModel = viewModel, route = it.toRoute())
+        }
+        composable<Route.Main.CompanyStructure.OperationCharacteristics> {
+            val viewModel: OperationCharacteristicsViewModel = hiltViewModel()
+            OperationCharacteristicsMain(viewModel = viewModel, route = it.toRoute())
         }
     }
 }

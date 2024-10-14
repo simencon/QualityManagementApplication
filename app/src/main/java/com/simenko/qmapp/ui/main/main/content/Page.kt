@@ -300,6 +300,17 @@ enum class Page(
 
     ADD_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
     EDIT_OPERATION(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
+    OPERATION_CHARACTERISTICS(
+        drawerLink = EmptyString.str,
+        navIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        title = "Operation characteristics",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = OperationCharsTabs.toList(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null
+    ),
 
     ADD_PRODUCT_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Add product line", null, null, null, null, Icons.Filled.Save, null),
     EDIT_PRODUCT_LINE(EmptyString.str, Icons.AutoMirrored.Filled.ArrowBack, "Edit product line", null, null, null, null, Icons.Filled.Save, null),

@@ -88,9 +88,7 @@ fun Versions(modifier: Modifier = Modifier, viewModel: ProductListViewModel = hi
             )
         }
         if (items.isNotEmpty()) {
-            item {
-                Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp))
-            }
+            item { Spacer(modifier = Modifier.height(BOTTOM_ITEM_HEIGHT.dp)) }
         }
     }
 }

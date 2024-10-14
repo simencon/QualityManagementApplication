@@ -131,7 +131,7 @@ data class DomainItemToLine(
 }
 
 data class DomainCharacteristicToOperation(
-    val id: ID,
+    val id: ID = NoRecord.num,
     val charId: ID,
     val operationId: ID
 ) : DomainBaseModel<DatabaseCharacteristicToOperation>() {

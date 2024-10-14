@@ -239,4 +239,9 @@ interface ManufacturingService {
 
     @GET(CHARACTERISTIC_TO_OPERATION)
     suspend fun getCharacteristicsToOperations(): Response<List<NetworkCharacteristicToOperation>>
+    @POST(CHARACTERISTIC_TO_OPERATION)
+    suspend fun createCharacteristicToOperation(@Body record: NetworkCharacteristicToOperation): Response<NetworkCharacteristicToOperation>
+
+    @DELETE("$CHARACTERISTIC_TO_OPERATION/{id}")
+    suspend fun deleteCharacteristicToOperation(@Path("id") id: ID): Response<NetworkCharacteristicToOperation>
 }

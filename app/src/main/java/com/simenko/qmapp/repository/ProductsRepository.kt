@@ -507,6 +507,16 @@ class ProductsRepository @Inject constructor(
     }
     val characteristics = database.characteristicDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
+    val productCharsByLineId: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicWithParents>> = { pId ->
+        database.characteristicDao.getAllProductCharsByLineId(pId).map { list -> list.distinctBy { it.charId }.map { it.toDomainModel() } }
+    }
+    val componentCharsByLineId: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicWithParents>> = { pId ->
+        database.characteristicDao.getAllComponentCharsByLineId(pId).map { list -> list.distinctBy { it.charId }.map { it.toDomainModel() } }
+    }
+    val stageCharsByLineId: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicWithParents>> = { pId ->
+        database.characteristicDao.getAllStageCharsByLineId(pId).map { list -> list.distinctBy { it.charId }.map { it.toDomainModel() } }
+    }
+
 
     val metrics: (ID) -> Flow<List<DomainMetrix>> = { pId ->
         database.metricDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
