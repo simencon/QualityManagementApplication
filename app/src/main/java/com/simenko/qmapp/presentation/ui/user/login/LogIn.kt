@@ -49,7 +49,7 @@ fun LogIn(
 ) {
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-    val principle by viewModel.loggedOutPrinciple.collectAsStateWithLifecycle()
+    val principle by viewModel.loggedOutPrincipal.collectAsStateWithLifecycle()
     val principleErrors by viewModel.loggedOutPrincipleErrors.collectAsStateWithLifecycle()
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }

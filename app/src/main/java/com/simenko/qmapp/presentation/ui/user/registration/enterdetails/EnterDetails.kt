@@ -57,7 +57,7 @@ fun EnterDetails(
     viewModel: EnterDetailsViewModel,
     editMode: Boolean
 ) {
-    val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
+    val rawPrinciple by viewModel.rawPrincipal.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }

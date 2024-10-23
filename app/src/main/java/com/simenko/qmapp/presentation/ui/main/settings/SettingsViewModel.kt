@@ -11,7 +11,7 @@ import com.google.firebase.storage.storage
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.data.repository.UserRepository
 import com.simenko.qmapp.data.repository.UserState
-import com.simenko.qmapp.data.cache.prefs.storage.Principle
+import com.simenko.qmapp.data.cache.prefs.model.Principal
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -114,7 +114,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
-    val userLocalData: Principle get() = userRepository.user
+    val userLocalData: Principal get() = userRepository.user
 
     fun clearLoadingState(error: String? = null) {
         mainPageHandler.updateLoadingState(Triple(false, false, error))

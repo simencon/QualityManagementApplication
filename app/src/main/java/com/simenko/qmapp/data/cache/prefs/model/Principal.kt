@@ -1,27 +1,32 @@
-package com.simenko.qmapp.data.cache.prefs.storage
+package com.simenko.qmapp.data.cache.prefs.model
 
 import androidx.annotation.DrawableRes
 import com.simenko.qmapp.R
+import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import kotlinx.serialization.Serializable
 import java.time.Instant
 
-data class Principle(
-    var fullName: String,
-    var company: String,
-    var department: String,
-    var subDepartment: String?,
-    var jobRole: String,
-    var email: String,
-    var phoneNumber: Long,
-    var phoneNumberStr: String = "",
-    var restApiUrl: String,
-    var password: String,
-    var isEmailVerified: Boolean,
-    var isUserLoggedIn: Boolean,
-    var fbToken: String,
-    var epochFbDiff: Long,
-    var fbTokenExp: Long,
+@Serializable
+data class Principal(
+    var fullName: String = EmptyString.str,
+    var company: String = EmptyString.str,
+    var department: String = EmptyString.str,
+    var subDepartment: String = EmptyString.str,
+    var jobRole: String = EmptyString.str,
+    var email: String = EmptyString.str,
+    var phoneNumber: Long = NoRecord.num,
+    var phoneNumberStr: String = EmptyString.str,
+    var restApiUrl: String = EmptyString.str,
+    var password: String = EmptyString.str,
+    var isEmailVerified: Boolean = false,
+    var isUserLoggedIn: Boolean = false,
+    var fbToken: String = EmptyString.str,
+    var epochFbDiff: Long = NoRecord.num,
+    var fbTokenExp: Long = NoRecord.num,
+
+    // ToDoMe - to be removed
     val userStorage: Storage? = null,
     @DrawableRes val logo: Int = R.drawable.ic_launcher_round
 ) {
@@ -122,7 +127,7 @@ data class Principle(
         }
     }
 
-    fun storeUserData(user: Principle) {
+    fun storeUserData(user: Principal) {
         userStorage?.let {
             it.setString(USER_FULL_NAME, user.fullName)
             it.setString(USER_COMPANY, user.company)

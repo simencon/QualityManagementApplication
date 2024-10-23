@@ -29,12 +29,12 @@ import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.E
 import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.ErrorManagerImpl
 import com.simenko.qmapp.data.remote.implementation.security.MyTrustManager
 import com.simenko.qmapp.data.cache.db.implementation.*
+import com.simenko.qmapp.data.remote.serializer.JsonSingleton
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -92,12 +92,11 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRetrofitInstance(client: OkHttpClient): Retrofit {
-        val networkJson = Json { ignoreUnknownKeys = true }
         return Retrofit
             .Builder()
             .baseUrl(DEFAULT_REST_API_URL)
             .addConverterFactory(PairConverterFactory())
-            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(JsonSingleton.networkJson.asConverterFactory("application/json".toMediaType()))
             .client(client)
             .build()
     }

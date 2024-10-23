@@ -31,7 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
-import com.simenko.qmapp.data.cache.prefs.storage.Principle
+import com.simenko.qmapp.data.cache.prefs.model.Principal
 import com.simenko.qmapp.presentation.ui.main.main.setup.TopBarSetup
 import com.simenko.qmapp.presentation.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
@@ -172,7 +172,7 @@ fun AppBar(
 }
 
 @Composable
-fun DrawerHeader(userInfo: Principle) {
+fun DrawerHeader(userInfo: Principal) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

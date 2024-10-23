@@ -14,7 +14,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.data.cache.prefs.storage.FcmToken
-import com.simenko.qmapp.data.cache.prefs.storage.Principle
+import com.simenko.qmapp.data.cache.prefs.model.Principal
 import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,9 +35,9 @@ class UserRepository @Inject constructor(
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
     val userState: StateFlow<UserState> get() = _userState
-    var rawUser: Principle? = null
-    private val _user: Principle get() = Principle(storage)
-    val user: Principle get() = _user
+    var rawUser: Principal? = null
+    private val _user: Principal get() = Principal(storage)
+    val user: Principal get() = _user
     fun clearErrorMessage() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
@@ -165,16 +165,16 @@ class UserRepository @Inject constructor(
     /**
      * @link (https://app.diagrams.net/#G150Nrkavd2FyyPkCRrxgTbk2PX9qSbDwF)
      * */
-    fun registerUser(principle: Principle) {
-        auth.createUserWithEmailAndPassword(principle.email, principle.password)
+    fun registerUser(principal: Principal) {
+        auth.createUserWithEmailAndPassword(principal.email, principal.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _user.storeUserData(principle)
+                    _user.storeUserData(principal)
                     sendVerificationEmail(auth.currentUser)
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            _user.storeUserData(principle)
+                            _user.storeUserData(principal)
                             _userState.value = UserErrorState(UserError.USER_EXISTS.error)
                         }
 
@@ -396,7 +396,7 @@ class UserRepository @Inject constructor(
             }
         }
 
-    fun editUserData(principle: Principle) = this.callFirebaseFunction(principle, "updateUserData")
+    fun editUserData(principal: Principal) = this.callFirebaseFunction(principal, "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
                 _user.storeUserData(result.result)
@@ -411,12 +411,12 @@ class UserRepository @Inject constructor(
             }
         }
 
-    private fun callFirebaseFunction(user: Principle = this._user, fbFunction: String): Task<Principle> {
+    private fun callFirebaseFunction(user: Principal = this._user, fbFunction: String): Task<Principal> {
         return functions
             .getHttpsCallable(fbFunction)
             .call(user.dataToFirebase())
             .continueWith { task ->
-                Principle(storage, task.result?.data as Map<String, Any>)
+                Principal(storage, task.result?.data as Map<String, Any>)
             }
     }
 

@@ -9,7 +9,7 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.data.repository.UserRepository
-import com.simenko.qmapp.data.cache.prefs.storage.Principle
+import com.simenko.qmapp.data.cache.prefs.model.Principal
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -61,66 +61,66 @@ class EnterDetailsViewModel @Inject constructor(
 
     val fillInState: StateFlow<FillInState> get() = _fillInState
 
-    private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
+    private var _rawPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.user.copy())
     private var _rawPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
-    val rawPrinciple: StateFlow<Principle> get() = _rawPrinciple
+    val rawPrincipal: StateFlow<Principal> get() = _rawPrincipal
     val rawPrincipleErrors: StateFlow<UserErrors> get() = _rawPrincipleErrors
 
     fun setFullName(value: String) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(fullName = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(fullName = value)
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(fullNameError = false)
     }
 
     fun setDepartment(value: String) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(department = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(department = value)
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(departmentError = false)
     }
 
     fun setSubDepartment(value: String?) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(subDepartment = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(subDepartment = value?: EmptyString.str)
     }
 
     fun setJobRole(value: String) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(jobRole = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(jobRole = value)
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(jobRoleError = false)
     }
 
     fun setEmail(value: String) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(email = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(email = value)
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(emailError = false)
     }
 
     fun setPhoneNumber(value: Long) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(phoneNumber = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(phoneNumber = value)
     }
 
     fun setPassword(value: String) {
-        _rawPrinciple.value = _rawPrinciple.value.copy(password = value)
+        _rawPrincipal.value = _rawPrincipal.value.copy(password = value)
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(passwordError = false)
     }
 
-    fun validateInput(principle: Principle = _rawPrinciple.value) {
+    fun validateInput(principal: Principal = _rawPrincipal.value) {
         val errorMsg = buildString {
-            if (principle.fullName.isEmpty()) {
+            if (principal.fullName.isEmpty()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(fullNameError = true)
                 append("Full name field is mandatory\n")
             }
-            if (principle.department.isEmpty()) {
+            if (principal.department.isEmpty()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(departmentError = true)
                 append("Department field is mandatory\n")
             }
-            if (principle.jobRole.isEmpty()) {
+            if (principal.jobRole.isEmpty()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(jobRoleError = true)
                 append("Job role field is mandatory\n")
             }
-            if (principle.email.isEmpty()) {
+            if (principal.email.isEmpty()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(emailError = true)
                 append("Email field is mandatory\n")
-            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email).matches()) {
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principal.email).matches()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(emailError = true)
                 append("Wrong email format\n")
             }
-            if (principle.password.length < MIN_LENGTH) {
+            if (principal.password.length < MIN_LENGTH) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(passwordError = true)
                 append("Password has to be longer than 6 characters")
             }
@@ -131,7 +131,7 @@ class EnterDetailsViewModel @Inject constructor(
     }
 
     fun initRawUser() {
-        userRepository.rawUser = _rawPrinciple.value
+        userRepository.rawUser = _rawPrincipal.value
     }
 
     fun onFillInSuccess(fullName: String) {

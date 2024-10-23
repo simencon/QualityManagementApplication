@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.data.repository.UserRepository
 import com.simenko.qmapp.data.repository.UserState
-import com.simenko.qmapp.data.cache.prefs.storage.Principle
+import com.simenko.qmapp.data.cache.prefs.model.Principal
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.user.registration.enterdetails.UserErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,19 +21,19 @@ class LoginViewModel @Inject constructor(
         mainPageState.trySendLoadingState(state)
     }
 
-    private var _loggedOutPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
+    private var _loggedOutPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
     private var _loggedOutPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
-    val loggedOutPrinciple: StateFlow<Principle> get() = _loggedOutPrinciple
+    val loggedOutPrincipal: StateFlow<Principal> get() = _loggedOutPrincipal
     val loggedOutPrincipleErrors: StateFlow<UserErrors> get() = _loggedOutPrincipleErrors
     val userState: StateFlow<UserState> get() = userRepository.userState
 
     fun setEmail(value: String) {
-        _loggedOutPrinciple.value = _loggedOutPrinciple.value.copy(email = value)
+        _loggedOutPrincipal.value = _loggedOutPrincipal.value.copy(email = value)
         _loggedOutPrincipleErrors.value = _loggedOutPrincipleErrors.value.copy(emailError = false)
     }
 
     fun setPassword(value: String) {
-        _loggedOutPrinciple.value = _loggedOutPrinciple.value.copy(password = value)
+        _loggedOutPrincipal.value = _loggedOutPrincipal.value.copy(password = value)
         _loggedOutPrincipleErrors.value = _loggedOutPrincipleErrors.value.copy(passwordError = false)
     }
 
