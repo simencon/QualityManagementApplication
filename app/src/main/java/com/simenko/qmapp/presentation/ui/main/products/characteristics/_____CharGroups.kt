@@ -31,13 +31,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
 import com.simenko.qmapp.presentation.ui.common.HeaderWithTitle
 import com.simenko.qmapp.presentation.ui.common.ItemCard
 import kotlinx.coroutines.FlowPreview
@@ -60,14 +57,13 @@ fun CharGroups(
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.CHAR_GROUPS.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.CHAR_GROUPS.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
+        initialFirstVisibleItemIndex = viewModel.scrollStatesPrefs.charGroupList.first.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.scrollStatesPrefs.charGroupList.second.toInt()
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
-            viewModel.storage.setLong(ScrollStates.CHAR_GROUPS.indexKey, index.toLong())
-            viewModel.storage.setLong(ScrollStates.CHAR_GROUPS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
+            viewModel.scrollStatesPrefs.charGroupList =  index.toLong() to listState.firstVisibleItemScrollOffset.toLong()
         }
     }
 

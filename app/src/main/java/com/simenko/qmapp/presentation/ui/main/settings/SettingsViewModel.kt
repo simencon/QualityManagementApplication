@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,7 +40,7 @@ class SettingsViewModel @Inject constructor(
     val profilePhotoRef = _profilePhotoRef.asStateFlow()
 
     fun onEntered() {
-        firebaseAuth.signInWithEmailAndPassword(userLocalData.email, userLocalData.password).addOnCompleteListener { task ->
+        firebaseAuth.signInWithEmailAndPassword(profile.email, profile.password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 task.result.user?.uid?.let { uid ->
                     val ref = Firebase.storage("gs://${Constants.USER_PROFILE_PICTURE_BUCKET_NAME}").reference.child(uid)
@@ -59,7 +60,7 @@ class SettingsViewModel @Inject constructor(
                 uploadProfilePicture(picture, uid)
             }
         } else {
-            firebaseAuth.signInWithEmailAndPassword(userLocalData.email, userLocalData.password).addOnCompleteListener { task ->
+            firebaseAuth.signInWithEmailAndPassword(profile.email, profile.password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     task.result.user?.uid?.let { uid ->
                         uploadProfilePicture(picture, uid)
@@ -114,7 +115,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
-    val userLocalData: Principal get() = userRepository.user
+    val profile: Principal get() = userRepository.profile
 
     fun clearLoadingState(error: String? = null) {
         mainPageHandler.updateLoadingState(Triple(false, false, error))
@@ -131,6 +132,7 @@ class SettingsViewModel @Inject constructor(
         userRepository.deleteAccount(userEmail, password)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private fun updateUserData() {
         mainPageHandler.updateLoadingState(Triple(true, false, null))
         userRepository.updateUserData()

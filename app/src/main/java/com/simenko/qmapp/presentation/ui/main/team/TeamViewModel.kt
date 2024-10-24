@@ -106,7 +106,7 @@ class TeamViewModel @Inject constructor(
     val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
     val isOwnAccount: (String) -> Boolean = { userId ->
-        (userId == userRepository.user.email).also { if (it) Toast.makeText(context, "You cannot edit your own account!", Toast.LENGTH_LONG).show() }
+        (userId == userRepository.profile.email).also { if (it) Toast.makeText(context, "You cannot edit your own account!", Toast.LENGTH_LONG).show() }
     }
 
     /**

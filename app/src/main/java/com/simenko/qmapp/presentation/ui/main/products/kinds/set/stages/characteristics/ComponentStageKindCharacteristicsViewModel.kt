@@ -12,7 +12,6 @@ import com.simenko.qmapp.domain.entities.products.DomainCharacteristicComponentS
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -39,7 +38,6 @@ class ComponentStageKindCharacteristicsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
-    val storage: Storage,
 ) : ViewModel() {
     private val _componentStageKind = MutableStateFlow(DomainComponentStageKind.DomainComponentStageKindComplete())
     private val _charGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))

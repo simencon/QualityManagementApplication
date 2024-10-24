@@ -29,6 +29,10 @@ import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.E
 import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.ErrorManagerImpl
 import com.simenko.qmapp.data.remote.implementation.security.MyTrustManager
 import com.simenko.qmapp.data.cache.db.implementation.*
+import com.simenko.qmapp.data.cache.prefs.ProfilePrefs
+import com.simenko.qmapp.data.cache.prefs.ProfilePrefs.Companion.PROFILE_STORAGE
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs.Companion.SCROLL_STATES_STORAGE
 import com.simenko.qmapp.data.remote.serializer.JsonSingleton
 import dagger.Module
 import dagger.Provides
@@ -179,5 +183,17 @@ object AppModule {
     @Named("error_handler_interceptor")
     fun provideErrorHandlerInterceptor(errorManager: ErrorManager): Interceptor {
         return ErrorHandlerInterceptor(errorManager)
+    }
+
+    @Singleton
+    @Provides
+    fun provideProfilePrefs(@ApplicationContext context: Context): ProfilePrefs {
+        return ProfilePrefs(context.getSharedPreferences(PROFILE_STORAGE, Context.MODE_PRIVATE))
+    }
+
+    @Singleton
+    @Provides
+    fun provideScrollStatesPrefs(@ApplicationContext context: Context): ScrollStatesPrefs {
+        return ScrollStatesPrefs(context.getSharedPreferences(SCROLL_STATES_STORAGE, Context.MODE_PRIVATE))
     }
 }

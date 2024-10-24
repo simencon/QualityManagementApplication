@@ -61,7 +61,7 @@ class EnterDetailsViewModel @Inject constructor(
 
     val fillInState: StateFlow<FillInState> get() = _fillInState
 
-    private var _rawPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.user.copy())
+    private var _rawPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.profile)
     private var _rawPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
     val rawPrincipal: StateFlow<Principal> get() = _rawPrincipal
     val rawPrincipleErrors: StateFlow<UserErrors> get() = _rawPrincipleErrors

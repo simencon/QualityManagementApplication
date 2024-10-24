@@ -101,8 +101,8 @@ fun Settings(
     val onDenyLambda = remember { { viewModel.hideActionApproveDialog() } }
     val onApproveLambda = remember<(String) -> String> {
         {
-            if (it == viewModel.userLocalData.password) {
-                viewModel.deleteAccount(viewModel.userLocalData.email, it)
+            if (it == viewModel.profile.password) {
+                viewModel.deleteAccount(viewModel.profile.email, it)
                 EmptyString.str
             } else {
                 UserError.WRONG_PASSWORD.error
@@ -136,7 +136,7 @@ fun Settings(
     var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
 
     val cameraLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { isSuccessful ->
-        if (isSuccessful) tempPhotoUri.path?.let { it1 -> viewModel.onSaveNewPicture(tempPhotoUri) }
+        if (isSuccessful) tempPhotoUri.path?.let { _ -> viewModel.onSaveNewPicture(tempPhotoUri) }
     }
 
 
@@ -160,7 +160,7 @@ fun Settings(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
-            painter = image?.let { rememberDrawablePainter(drawable = it) } ?: painterResource(viewModel.userLocalData.logo),
+            painter = image?.let { rememberDrawablePainter(drawable = it) } ?: painterResource(viewModel.profile.logo),
             contentDescription = null,
 
             contentScale = ContentScale.Crop,
@@ -172,7 +172,7 @@ fun Settings(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = viewModel.userLocalData.fullName,
+            text = viewModel.profile.fullName,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -190,19 +190,19 @@ fun Settings(
                     .width(320.dp)
                     .height(0.dp)
             )
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.userLocalData.jobRole)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.profile.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Department",
-                body = viewModel.userLocalData.department +
-                        if (viewModel.userLocalData.subDepartment.isNullOrEmpty()) EmptyString.str else "/${viewModel.userLocalData.subDepartment}"
+                body = viewModel.profile.department +
+                        if (viewModel.profile.subDepartment.isEmpty()) EmptyString.str else "/${viewModel.profile.subDepartment}"
             )
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = viewModel.userLocalData.company)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = viewModel.userLocalData.email)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = viewModel.profile.company)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = viewModel.profile.email)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Phone number",
-                body = if (viewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else viewModel.userLocalData.phoneNumber.toString()
+                body = if (viewModel.profile.phoneNumber == NoRecord.num) "-" else viewModel.profile.phoneNumber.toString()
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -231,7 +231,7 @@ fun Settings(
 
     if (approveActionDialogVisibility) {
         ApproveAction(
-            msg = "Are you sure you want to delete your account: ${viewModel.userLocalData.email}?",
+            msg = "Are you sure you want to delete your account: ${viewModel.profile.email}?",
             onCanselClick = { onDenyLambda() },
             onOkClick = { password -> onApproveLambda(password) }
         )

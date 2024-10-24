@@ -34,15 +34,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.ComponentPref
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Constants.BOTTOM_ITEM_HEIGHT
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
 import com.simenko.qmapp.presentation.ui.common.HeaderWithTitle
 import com.simenko.qmapp.presentation.ui.common.ItemCardStringId
 import com.simenko.qmapp.presentation.ui.common.StatusChangeBtn
@@ -66,14 +63,13 @@ fun Versions(modifier: Modifier = Modifier, viewModel: ProductListViewModel = hi
     LaunchedEffect(Unit) { viewModel.setIsComposed(5, true) }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.VERSIONS.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.VERSIONS.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
+        initialFirstVisibleItemIndex = viewModel.scrollStatesPrefs.versionsList.first.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.scrollStatesPrefs.versionsList.second.toInt()
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
-            viewModel.storage.setLong(ScrollStates.VERSIONS.indexKey, index.toLong())
-            viewModel.storage.setLong(ScrollStates.VERSIONS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
+            viewModel.scrollStatesPrefs.versionsList = index.toLong() to listState.firstVisibleItemScrollOffset.toLong()
         }
     }
 

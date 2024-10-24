@@ -2,6 +2,7 @@ package com.simenko.qmapp.presentation.ui.main.products.kinds.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs
 import com.simenko.qmapp.domain.ComponentPref
 import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.EmptyString
@@ -15,8 +16,6 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.usecase.products.SyncProductsUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -49,7 +48,7 @@ class ProductListViewModel @Inject constructor(
     private val syncProductsUseCase: SyncProductsUseCase,
 
     private val repository: ProductsRepository,//to be removed
-    val storage: Storage,
+    val scrollStatesPrefs: ScrollStatesPrefs,
 ) : ViewModel() {
     private val _searchString = MutableStateFlow(EmptyString.str)
     private val _productKindId = MutableStateFlow(NoRecord.num)
@@ -180,8 +179,7 @@ class ProductListViewModel @Inject constructor(
                 if (viewState)
                     flow {
                         if (_productsVisibility.value.first.num != NoRecord.num) {
-                            storage.setLong(ScrollStates.PRODUCTS.indexKey, products.map { it.product.product.id }.indexOf(_productsVisibility.value.first.num).toLong())
-                            storage.setLong(ScrollStates.PRODUCTS.offsetKey, ZeroValue.num)
+                            scrollStatesPrefs.productsList = products.map { it.product.product.id }.indexOf(_productsVisibility.value.first.num).toLong() to ZeroValue.num
                             emit(Pair(true, sl))
 
                         } else {
@@ -199,8 +197,7 @@ class ProductListViewModel @Inject constructor(
     private val _versionListIsInitialized: Flow<Boolean> = _versions.flatMapLatest { versions ->
         flow {
             if (_versionsVisibility.value.first.str != NoRecordStr.str) {
-                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.itemVersion.fId }.indexOf(_versionsVisibility.value.first.str).toLong())
-                storage.setLong(ScrollStates.VERSIONS.offsetKey, ZeroValue.num)
+                scrollStatesPrefs.productsList = versions.map { it.itemVersion.fId }.indexOf(_versionsVisibility.value.first.str).toLong() to ZeroValue.num
                 emit(true)
             } else {
                 emit(true)

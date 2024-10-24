@@ -7,7 +7,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -31,7 +30,6 @@ class ProductKindsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
-    val storage: Storage,
 ) : ViewModel() {
     private val _productLineId = MutableStateFlow(NoRecord.num)
     private val _productKindsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))

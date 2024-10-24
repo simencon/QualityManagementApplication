@@ -10,7 +10,6 @@ import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKindKey
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -36,8 +35,7 @@ import javax.inject.Inject
 class ComponentStageKindKeysViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    private val repository: ProductsRepository,
-    val storage: Storage,
+    private val repository: ProductsRepository
 ) : ViewModel() {
     private val _componentStageKind = MutableStateFlow(DomainComponentStageKind.DomainComponentStageKindComplete())
     private val _componentStageKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))

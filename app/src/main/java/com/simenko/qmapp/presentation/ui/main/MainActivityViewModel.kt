@@ -34,13 +34,14 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
+
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val syncProductsUseCase: SyncProductsUseCase,
     private val repository: InvestigationsRepository,
 ) : ViewModel() {
-    val userInfo get() = userRepository.user
+    val profile get() = userRepository.profile
 
     /**
      * Top bar state holders -------------------------------------------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
-                (manufacturingRepository.companyByName(userRepository.user.company)?.id ?: NoRecord.num).let {
+                (manufacturingRepository.companyByName(profile.company)?.id ?: NoRecord.num).let {
                     appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.StructureView(companyId = it), popUpToRoute = Route.Main, inclusive = true)
                 }
             }
@@ -128,7 +129,7 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
-                (manufacturingRepository.companyByName(userRepository.user.company)?.id ?: NoRecord.num).let {
+                (manufacturingRepository.companyByName(profile.company)?.id ?: NoRecord.num).let {
                     appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLinesList(companyId = it), popUpToRoute = Route.Main, inclusive = true)
                 }
             }

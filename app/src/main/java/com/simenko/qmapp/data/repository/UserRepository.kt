@@ -11,13 +11,13 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.google.firebase.messaging.FirebaseMessaging
+import com.simenko.qmapp.data.cache.prefs.ProfilePrefs
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.data.cache.prefs.storage.FcmToken
+import com.simenko.qmapp.data.cache.prefs.model.FcmToken
 import com.simenko.qmapp.data.cache.prefs.model.Principal
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -28,53 +28,57 @@ import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 class UserRepository @Inject constructor(
-    private val storage: Storage,
+    private val profilePrefs: ProfilePrefs,
     private val auth: FirebaseAuth,
     private val functions: FirebaseFunctions,
     private val messaging: FirebaseMessaging
 ) {
+    val profile get() = profilePrefs.principal
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
     val userState: StateFlow<UserState> get() = _userState
+
+//    ToDoMe - should be removed in the future
     var rawUser: Principal? = null
-    private val _user: Principal get() = Principal(storage)
-    val user: Principal get() = _user
+
     fun clearErrorMessage() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
 
     fun clearUserData() {
-        _user.clearUserData()
+        profilePrefs.clear()
         clearErrorMessage()
     }
 
     /**
      *@link (https://app.diagrams.net/#G1vvhdmr_4ATIBjb91JfzASgCwj16VsOkY)
      * */
+    @ExperimentalSerializationApi
     fun getActualUserState() {
-        if (_user.email.isEmpty()) {
-            _user.clearUserData()
+        if (profilePrefs.principal.email.isEmpty()) {
+            profilePrefs.clear()
             _userState.value = UnregisteredState
-        } else if (_user.email.isNotEmpty() && _user.password.isEmpty()) {
+        } else if (profilePrefs.principal.email.isNotEmpty() && profilePrefs.principal.password.isEmpty()) {
             _userState.value = UserLoggedOutState()
-        } else if (_user.email.isNotEmpty() && _user.password.isNotEmpty()) {
-            auth.signInWithEmailAndPassword(_user.email, _user.password)
+        } else if (profilePrefs.principal.email.isNotEmpty() && profilePrefs.principal.password.isNotEmpty()) {
+            auth.signInWithEmailAndPassword(profilePrefs.principal.email, profilePrefs.principal.password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        if (_user.isEmailVerified) {
+                        if (profilePrefs.principal.isEmailVerified) {
 
-                            if (_user.restApiUrl != EmptyString.str) {
-                                if (_user.isUserLoggedIn) {
+                            if (profilePrefs.principal.restApiUrl != EmptyString.str) {
+                                if (profilePrefs.principal.isUserLoggedIn) {
                                     _userState.value = UserLoggedInState("Logged in, email is verified")
                                 } else {
                                     _userState.value = UserLoggedOutState()
                                 }
                             } else {
-                                callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
+                                callFirebaseFunction(profilePrefs.principal, "getUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
                                         val principle = task1.result
                                         if (principle.restApiUrl != EmptyString.str) {
-                                            _user.setUserRestApiUrl(principle.restApiUrl)
-                                            if (_user.isUserLoggedIn) {
+                                            val restApiUrl = profilePrefs.principal.restApiUrl
+                                            profilePrefs.principal = profilePrefs.principal.copy(restApiUrl = restApiUrl)
+                                            if (profilePrefs.principal.isUserLoggedIn) {
                                                 _userState.value = UserLoggedInState("Logged in, email is verified")
                                             } else {
                                                 _userState.value = UserLoggedOutState()
@@ -90,18 +94,18 @@ class UserRepository @Inject constructor(
 
                         } else {
                             if (auth.currentUser?.isEmailVerified == true) {
-                                var principle = this._user
-                                principle.isEmailVerified = true
-                                callFirebaseFunction(principle, "updateUserData").addOnCompleteListener { task1 ->
+
+                                callFirebaseFunction(profilePrefs.principal, "updateUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
-                                        _user.setUserIsEmailVerified(true)
-                                        this.updateFcmToken(_user.email)
-                                        callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task2 ->
+                                        profilePrefs.principal = profilePrefs.principal.copy(isEmailVerified = true)
+                                        this.updateFcmToken(profilePrefs.principal.email)
+                                        callFirebaseFunction(profilePrefs.principal, "getUserData").addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful) {
-                                                principle = task2.result
-                                                if (principle.restApiUrl != EmptyString.str) {
-                                                    _user.setUserRestApiUrl(principle.restApiUrl)
-                                                    if (_user.isUserLoggedIn) {
+                                                val restApiUrl = profilePrefs.principal.restApiUrl
+                                                profilePrefs.principal = task2.result
+                                                if (profilePrefs.principal.restApiUrl != EmptyString.str) {
+                                                    profilePrefs.principal = profilePrefs.principal.copy(restApiUrl = restApiUrl)
+                                                    if (profilePrefs.principal.isUserLoggedIn) {
                                                         _userState.value = UserLoggedInState("Logged in, email is verified")
                                                     } else {
                                                         _userState.value = UserLoggedOutState()
@@ -124,9 +128,9 @@ class UserRepository @Inject constructor(
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (_user.isEmailVerified) {
-                                    if (_user.restApiUrl != EmptyString.str) {
-                                        if (_user.isUserLoggedIn) {
+                                if (profilePrefs.principal.isEmailVerified) {
+                                    if (profilePrefs.principal.restApiUrl != EmptyString.str) {
+                                        if (profilePrefs.principal.isUserLoggedIn) {
                                             _userState.value = UserLoggedInState("Logged in, email is verified")
                                         } else {
                                             _userState.value = UserLoggedOutState()
@@ -147,13 +151,13 @@ class UserRepository @Inject constructor(
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
                                     _userState.value = UserLoggedOutState("Account has been disabled")
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
-                                    _user.clearUserData()
+                                    profilePrefs.clear()
                                     _userState.value = UnregisteredState
                                 }
                             }
 
                             else -> {
-                                _user.clearUserData()
+                                profilePrefs.clear()
                                 _userState.value = UnregisteredState
                             }
                         }
@@ -169,12 +173,12 @@ class UserRepository @Inject constructor(
         auth.createUserWithEmailAndPassword(principal.email, principal.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _user.storeUserData(principal)
+                    profilePrefs.principal = principal
                     sendVerificationEmail(auth.currentUser)
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            _user.storeUserData(principal)
+                            profilePrefs.principal = principal
                             _userState.value = UserErrorState(UserError.USER_EXISTS.error)
                         }
 
@@ -194,7 +198,7 @@ class UserRepository @Inject constructor(
                 _userState.value = UserErrorState(task.exception?.message)
             }
         }
-            ?: auth.signInWithEmailAndPassword(this._user.email, this._user.password).addOnCompleteListener { task ->
+            ?: auth.signInWithEmailAndPassword(profilePrefs.principal.email, profilePrefs.principal.password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     sendVerificationEmail(auth.currentUser)
                 } else {
@@ -207,7 +211,7 @@ class UserRepository @Inject constructor(
         if (email.isNotEmpty())
             auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _user.setUserEmail(email)
+                    profilePrefs.principal = profilePrefs.principal.copy(email = email)
                     _userState.value = UserLoggedOutState("Check your email box and set new password")
                 } else {
                     when (task.exception) {
@@ -228,22 +232,26 @@ class UserRepository @Inject constructor(
     }
 
     val getRestApiUrl: String
-        get() = _user.restApiUrl
+        get() = profilePrefs.principal.restApiUrl
 
     val authToken: String
-        get() = _user.fbToken
+        get() = profilePrefs.principal.fbToken
 
     //    ToDoMe - not yet in CleanArchitecture
     suspend fun getActualFbToken() = suspendCoroutine { continuation ->
-        if (Instant.now().epochSecond + _user.epochFbDiff < _user.fbTokenExp) {
-            continuation.resume(_user.fbToken)
+        if (Instant.now().epochSecond + profilePrefs.principal.epochFbDiff < profilePrefs.principal.fbTokenExp) {
+            continuation.resume(profilePrefs.principal.fbToken)
         } else {
-            auth.signInWithEmailAndPassword(_user.email, _user.password).addOnCompleteListener { task1 ->
+            auth.signInWithEmailAndPassword(profilePrefs.principal.email, profilePrefs.principal.password).addOnCompleteListener { task1 ->
                 if (task1.isSuccessful) {
                     auth.currentUser!!.getIdToken(true).addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
-                            _user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
-                            continuation.resume(_user.fbToken)
+                            profilePrefs.principal = profilePrefs.principal.copy(
+                                fbToken = task2.result.token ?: EmptyString.str,
+                                epochFbDiff = Instant.now().epochSecond - task2.result.authTimestamp,
+                                fbTokenExp = task2.result.expirationTimestamp
+                            )
+                            continuation.resume(profilePrefs.principal.fbToken)
                         } else {
                             throw IOException("Not possible to obtain token")
                         }
@@ -258,22 +266,24 @@ class UserRepository @Inject constructor(
     /**
      * @link (https://app.diagrams.net/#G1lU_2CKxfilfFdA1n6L66gEJCqNSH_wlY)
      * */
+    @ExperimentalSerializationApi
     fun loginUser(email: String, password: String) {
         if (email.isNotEmpty() && password.isNotEmpty())
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         auth.currentUser?.email?.let { this.updateFcmToken(it) }
-                        callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
+                        callFirebaseFunction(profilePrefs.principal, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
-                                val principle = task1.result
-                                _user.storeUserData(principle)
-                                _user.setUserEmail(auth.currentUser?.email ?: "no mail")
-                                _user.setUserPassword(password)
-                                _user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
-                                _user.setUserIsLoggedIn(true)
-                                if (_user.isEmailVerified) {
-                                    if (_user.restApiUrl != EmptyString.str) {
+                                profilePrefs.principal = task1.result.copy(
+                                    email = auth.currentUser?.email ?: "no mail",
+                                    password = password,
+                                    isEmailVerified = auth.currentUser?.isEmailVerified ?: false,
+                                    isUserLoggedIn = true
+                                )
+
+                                if (profilePrefs.principal.isEmailVerified) {
+                                    if (profilePrefs.principal.restApiUrl != EmptyString.str) {
                                         _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                     } else {
                                         _userState.value = UserAuthoritiesNotVerifiedState()
@@ -289,10 +299,10 @@ class UserRepository @Inject constructor(
                         println("loginUser error is ${task.exception?.message}")
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (_user.email == email && _user.password == password) {
-                                    _user.setUserIsLoggedIn(true)
-                                    if (_user.isEmailVerified) {
-                                        if (_user.restApiUrl != EmptyString.str) {
+                                if (profilePrefs.principal.email == email && profilePrefs.principal.password == password) {
+                                    profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = true)
+                                    if (profilePrefs.principal.isEmailVerified) {
+                                        if (profilePrefs.principal.restApiUrl != EmptyString.str) {
                                             _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                         } else {
                                             _userState.value = UserAuthoritiesNotVerifiedState()
@@ -300,9 +310,9 @@ class UserRepository @Inject constructor(
                                     } else {
                                         _userState.value = UserNeedToVerifyEmailState()
                                     }
-                                } else if (_user.email != email) {
+                                } else if (profilePrefs.principal.email != email) {
                                     _userState.value = UserErrorState(UserError.WRONG_EMAIL.error)
-                                } else if (_user.password != password) {
+                                } else if (profilePrefs.principal.password != password) {
                                     _userState.value = UserErrorState(UserError.WRONG_PASSWORD.error)
                                 }
                             }
@@ -328,7 +338,7 @@ class UserRepository @Inject constructor(
                             }
 
                             else -> {
-                                _user.clearUserData()
+                                profilePrefs.clear()
                                 _userState.value = UnregisteredState
                             }
                         }
@@ -343,11 +353,11 @@ class UserRepository @Inject constructor(
         if (auth.currentUser != null) {
             auth.signOut()
             if (auth.currentUser == null) {
-                _user.setUserIsLoggedIn(false)
+                profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = false)
                 _userState.value = UserLoggedOutState()
             }
         } else {
-            _user.setUserIsLoggedIn(false)
+            profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = false)
             _userState.value = UserLoggedOutState()
         }
     }
@@ -360,7 +370,7 @@ class UserRepository @Inject constructor(
                     if (task1.isSuccessful) {
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                _user.clearUserData()
+                                profilePrefs.clear()
                                 _userState.value = UnregisteredState
                             } else {
                                 _userState.value = UserErrorState(task2.exception?.message ?: UserError.UNKNOWN_ERROR.error)
@@ -368,7 +378,7 @@ class UserRepository @Inject constructor(
                         }
                     } else {
                         if (task1.exception?.message?.contains("User has been disabled") == true) {
-                            _user.clearUserData()
+                            profilePrefs.clear()
                             _userState.value = UnregisteredState
                         } else {
                             _userState.value = UserErrorState(task1.exception?.message ?: UserError.UNKNOWN_ERROR.error)
@@ -381,10 +391,11 @@ class UserRepository @Inject constructor(
     }
 
     //    ToDoMe - not yet in CleanArchitecture
+    @ExperimentalSerializationApi
     fun updateUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _user.storeUserData(result.result)
+                profilePrefs.principal = result.result
                 _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
@@ -396,10 +407,11 @@ class UserRepository @Inject constructor(
             }
         }
 
+    @ExperimentalSerializationApi
     fun editUserData(principal: Principal) = this.callFirebaseFunction(principal, "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _user.storeUserData(result.result)
+                profilePrefs.principal = result.result
                 _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
@@ -411,28 +423,27 @@ class UserRepository @Inject constructor(
             }
         }
 
-    private fun callFirebaseFunction(user: Principal = this._user, fbFunction: String): Task<Principal> {
+    @ExperimentalSerializationApi
+    private fun callFirebaseFunction(user: Principal = profilePrefs.principal, fbFunction: String): Task<Principal> {
         return functions
             .getHttpsCallable(fbFunction)
-            .call(user.dataToFirebase())
+            .call(user.toFireStoreRequest())
             .continueWith { task ->
-                Principal(storage, task.result?.data as Map<String, Any>)
+                profilePrefs.principal.copyWithFireStoreData(task.result?.data as Map<String, Any>)
             }
     }
-
-    private val _deviceFcmToken: FcmToken get() = FcmToken(storage)
 
     /**
      * @link (https://app.diagrams.net/#G1BMga3T4D0UNVDUc4v1pVe5eZw5lomqJj)
      * */
     private fun updateFcmToken(userEmail: String) {
-        if (userEmail.isNotEmpty() && _deviceFcmToken.fcmEmail != userEmail && _deviceFcmToken.fcmEmail.isNotEmpty()) {
-            this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+        if (userEmail.isNotEmpty() && profilePrefs.fcmToken.fcmEmail != userEmail && profilePrefs.fcmToken.fcmEmail.isNotEmpty()) {
+            this.callFirebaseFunction(profilePrefs.fcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                 if (deleteTask.isSuccessful) {
                     println("updateFcmToken - changed email deleted ${deleteTask.result}")
                     messaging.token.addOnCompleteListener { result ->
-                        _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, result.result)
-                        this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                        profilePrefs.fcmToken = profilePrefs.fcmToken.copy(fcmTimeStamp = Instant.now().epochSecond, fcmEmail = userEmail, fcmToken = result.result)
+                        this.callFirebaseFunction(profilePrefs.fcmToken, "createFcmToken").addOnCompleteListener { createTask ->
                             if (createTask.isSuccessful) {
                                 println("updateFcmToken - changed email created ${createTask.result}")
                             } else {
@@ -445,10 +456,10 @@ class UserRepository @Inject constructor(
                 }
             }
         } else if (userEmail.isEmpty()) {
-            this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+            this.callFirebaseFunction(profilePrefs.fcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                 if (deleteTask.isSuccessful) {
                     println("updateFcmToken - email is empty deleted ${deleteTask.result}")
-                    _deviceFcmToken.setValues(NoRecord.num.toLong(), EmptyString.str, EmptyString.str)
+                    profilePrefs.clear()
                 } else {
                     println("updateFcmToken - email is empty deleted/exception ${deleteTask.exception}")
                 }
@@ -456,12 +467,12 @@ class UserRepository @Inject constructor(
         } else {
             messaging.token.addOnCompleteListener { currentTokenTask ->
                 if (currentTokenTask.isSuccessful) {
-                    if (_deviceFcmToken.fcmToken.isNotEmpty() && _deviceFcmToken.fcmToken != currentTokenTask.result) {
-                        this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+                    if (profilePrefs.fcmToken.fcmToken.isNotEmpty() && profilePrefs.fcmToken.fcmToken != currentTokenTask.result) {
+                        this.callFirebaseFunction(profilePrefs.fcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                             if (deleteTask.isSuccessful) {
                                 println("updateFcmToken - changed token deleted ${deleteTask.result}")
-                                _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
-                                this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                                profilePrefs.fcmToken = profilePrefs.fcmToken.copy(fcmTimeStamp = Instant.now().epochSecond, fcmEmail = userEmail, fcmToken = currentTokenTask.result)
+                                this.callFirebaseFunction(profilePrefs.fcmToken, "createFcmToken").addOnCompleteListener { createTask ->
                                     if (createTask.isSuccessful) {
                                         println("updateFcmToken - changed token created ${createTask.result}")
                                     } else {
@@ -472,9 +483,9 @@ class UserRepository @Inject constructor(
                                 println("updateFcmToken - changed token deleted/exception ${deleteTask.exception}")
                             }
                         }
-                    } else if (_deviceFcmToken.fcmToken.isEmpty()) {
-                        _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
-                        this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                    } else if (profilePrefs.fcmToken.fcmToken.isEmpty()) {
+                        profilePrefs.fcmToken = profilePrefs.fcmToken.copy(fcmTimeStamp = Instant.now().epochSecond, fcmEmail = userEmail, fcmToken = currentTokenTask.result)
+                        this.callFirebaseFunction(profilePrefs.fcmToken, "createFcmToken").addOnCompleteListener { createTask ->
                             if (createTask.isSuccessful) {
                                 println("updateFcmToken - new token created ${createTask.result}")
                             } else {
@@ -492,7 +503,7 @@ class UserRepository @Inject constructor(
             .getHttpsCallable(fbFunction)
             .call(fcmToken.dataToFirebase())
             .continueWith { task ->
-                FcmToken(storage, task.result?.data as Map<String, Any>)
+                profilePrefs.fcmToken.copyWithFireStoreData(task.result?.data as Map<String, Any>)
             }
     }
 }

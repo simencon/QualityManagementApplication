@@ -2,14 +2,13 @@ package com.simenko.qmapp.presentation.ui.main.products.characteristics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -39,7 +38,7 @@ class CharacteristicsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
-    val storage: Storage,
+    val scrollStatesPrefs: ScrollStatesPrefs,
 ) : ViewModel() {
     private val _productLine = MutableStateFlow(NoRecord.num)
     private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
@@ -123,8 +122,7 @@ class CharacteristicsViewModel @Inject constructor(
                 if (viewState)
                     flow {
                         if (_charGroupVisibility.value.first.num != NoRecord.num) {
-                            storage.setLong(ScrollStates.CHAR_GROUPS.indexKey, firstList.map { it.charGroup.id }.indexOf(_charGroupVisibility.value.first.num).toLong())
-                            storage.setLong(ScrollStates.CHAR_GROUPS.offsetKey, ZeroValue.num)
+                            scrollStatesPrefs.charGroupList = firstList.map { it.charGroup.id }.indexOf(_charGroupVisibility.value.first.num).toLong() to ZeroValue.num
                             emit(Pair(true, secondListState))
                         } else {
                             emit(Pair(true, secondListState))
@@ -141,8 +139,7 @@ class CharacteristicsViewModel @Inject constructor(
     private val _secondListIsInitialized: Flow<Boolean> = _metrics.flatMapLatest { secondList ->
         flow {
             if (_metricVisibility.value.first.num != NoRecord.num) {
-                storage.setLong(ScrollStates.METRICS.indexKey, secondList.map { it.id }.indexOf(_metricVisibility.value.first.num).toLong())
-                storage.setLong(ScrollStates.METRICS.offsetKey, ZeroValue.num)
+                scrollStatesPrefs.charGroupList = secondList.map { it.id }.indexOf(_metricVisibility.value.first.num).toLong() to ZeroValue.num
                 emit(true)
             } else {
                 emit(true)

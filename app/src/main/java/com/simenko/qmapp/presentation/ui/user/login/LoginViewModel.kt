@@ -21,7 +21,7 @@ class LoginViewModel @Inject constructor(
         mainPageState.trySendLoadingState(state)
     }
 
-    private var _loggedOutPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
+    private var _loggedOutPrincipal: MutableStateFlow<Principal> = MutableStateFlow(userRepository.profile.copy(password = EmptyString.str))
     private var _loggedOutPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
     val loggedOutPrincipal: StateFlow<Principal> get() = _loggedOutPrincipal
     val loggedOutPrincipleErrors: StateFlow<UserErrors> get() = _loggedOutPrincipleErrors

@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -37,11 +36,9 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainItemTolerance
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
 import com.simenko.qmapp.presentation.ui.common.HeaderWithTitle
 import com.simenko.qmapp.presentation.ui.common.ItemCard
 import com.simenko.qmapp.presentation.ui.common.RecordFieldItem
@@ -61,14 +58,13 @@ fun Tolerances(modifier: Modifier = Modifier, viewModel: VersionTolerancesViewMo
     LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.METRICS.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.METRICS.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
+        initialFirstVisibleItemIndex = viewModel.scrollStatesPrefs.versionToleranceList.first.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.scrollStatesPrefs.versionToleranceList.second.toInt()
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
-            viewModel.storage.setLong(ScrollStates.METRICS.indexKey, index.toLong())
-            viewModel.storage.setLong(ScrollStates.METRICS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
+            viewModel.scrollStatesPrefs.versionToleranceList = index.toLong() to listState.firstVisibleItemScrollOffset.toLong()
         }
     }
 
@@ -153,7 +149,6 @@ fun Metric(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Tolerance(
     isEditMode: Boolean = true,

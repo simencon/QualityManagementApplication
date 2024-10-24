@@ -19,7 +19,6 @@ import com.simenko.qmapp.domain.entities.products.DomainCharacteristicToOperatio
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ManufacturingRepository
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -46,7 +45,6 @@ class OperationCharacteristicsViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
     private val productRepository: ProductsRepository,
-    val storage: Storage,
 ) : ViewModel() {
     private val _itemKindPref = MutableStateFlow(ProductPref.char)
     private val _route = MutableStateFlow(OperationCharacteristics(NoRecord.num, NoRecord.num))

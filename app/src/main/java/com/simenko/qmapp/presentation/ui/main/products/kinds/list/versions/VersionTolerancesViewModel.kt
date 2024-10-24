@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -28,8 +29,6 @@ import com.simenko.qmapp.domain.entities.products.DomainVersionStatus
 import com.simenko.qmapp.domain.usecase.products.MakeItemVersionUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -62,7 +61,7 @@ class VersionTolerancesViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val makeItemVersionUseCase: MakeItemVersionUseCase,
     private val repository: ProductsRepository,
-    val storage: Storage,
+    val scrollStatesPrefs: ScrollStatesPrefs,
 ) : ViewModel() {
     private val _itemKindId = MutableStateFlow(NoRecord.num)
     private val _itemFId = MutableStateFlow(NoRecordStr.str)
@@ -490,8 +489,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 if (viewState)
                     flow {
                         if (_charGroupVisibility.value.first.num != NoRecord.num) {
-                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(_charGroupVisibility.value.first.num).toLong())
-                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.offsetKey, ZeroValue.num)
+                            scrollStatesPrefs.versionCharGroupList = firstList.map { it.id }.indexOf(_charGroupVisibility.value.first.num).toLong() to ZeroValue.num
                             emit(Pair(true, secondListState))
                         } else {
                             emit(Pair(true, secondListState))
@@ -508,8 +506,7 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _secondListIsInitialized: Flow<Boolean> = tolerances.flatMapLatest { secondList ->
         flow {
             if (_toleranceVisibility.value.first.num != NoRecord.num) {
-                storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.first.id }.indexOf(_toleranceVisibility.value.first.num).toLong())
-                storage.setLong(ScrollStates.VERSION_TOLERANCES.offsetKey, ZeroValue.num)
+                scrollStatesPrefs.versionCharGroupList = secondList.map { it.first.id }.indexOf(_toleranceVisibility.value.first.num).toLong() to ZeroValue.num
                 emit(true)
             } else {
                 emit(true)

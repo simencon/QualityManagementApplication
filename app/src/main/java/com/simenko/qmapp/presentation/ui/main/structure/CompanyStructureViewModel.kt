@@ -2,14 +2,13 @@ package com.simenko.qmapp.presentation.ui.main.structure
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.data.cache.prefs.ScrollStatesPrefs
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ManufacturingRepository
-import com.simenko.qmapp.data.cache.prefs.storage.ScrollStates
-import com.simenko.qmapp.data.cache.prefs.storage.Storage
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -40,7 +39,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    val storage: Storage,
+    val scrollStatesPrefs: ScrollStatesPrefs,
 ) : ViewModel() {
     private val _companyId = MutableStateFlow(NoRecord.num)
     private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(NoRecord.num), NoRecord))
@@ -141,8 +140,7 @@ class CompanyStructureViewModel @Inject constructor(
                     if (viewState)
                         flow {
                             if (depVisibility.first.num != NoRecord.num) {
-                                storage.setLong(ScrollStates.DEPARTMENTS.indexKey, departments.map { it.department.id }.indexOf(depVisibility.first.num).toLong())
-                                storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num)
+                                scrollStatesPrefs.departmentsList = departments.map { it.department.id }.indexOf(depVisibility.first.num).toLong() to ZeroValue.num
                                 emit(Pair(true, sl))
 
                             } else {
@@ -162,8 +160,7 @@ class CompanyStructureViewModel @Inject constructor(
         _lines.flatMapLatest { lines ->
             flow {
                 if (linesVisibility.first.num != NoRecord.num) {
-                    storage.setLong(ScrollStates.LINES.indexKey, lines.map { it.id }.indexOf(linesVisibility.first.num).toLong())
-                    storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num)
+                    scrollStatesPrefs.linesList = lines.map { it.id }.indexOf(linesVisibility.first.num).toLong() to ZeroValue.num
                     emit(true)
                 } else {
                     emit(true)

@@ -137,7 +137,7 @@ class MainActivity : BaseActivity() {
                                     .fillMaxHeight()
                                     .verticalScroll(rememberScrollState())
                             ) {
-                                DrawerHeader(userInfo = viewModel.userInfo)
+                                DrawerHeader(userInfo = viewModel.profile)
                                 DrawerBody(
                                     selectedItemId = topBarSetup.link,
                                     onDrawerItemClick = { id -> onDrawerItemClick(id) }
