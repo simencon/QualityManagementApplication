@@ -21,6 +21,11 @@ class SystemRepository @Inject constructor(
     private val service: SystemService,
     private val crudeOperations: CrudeOperations
 ) {
+
+    suspend fun checkIfInitialState(): Boolean {
+        return database.userRoleDao.getRecords().isEmpty()
+    }
+
     suspend fun syncUserRoles() = crudeOperations.syncRecordsAll(
         database.userRoleDao
     ) { service.getUserRoles() }

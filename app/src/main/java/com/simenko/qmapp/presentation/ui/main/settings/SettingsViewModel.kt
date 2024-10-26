@@ -2,6 +2,7 @@ package com.simenko.qmapp.presentation.ui.main.settings
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -12,6 +13,7 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.data.repository.UserRepository
 import com.simenko.qmapp.data.repository.UserState
 import com.simenko.qmapp.data.cache.prefs.model.Principal
+import com.simenko.qmapp.domain.usecase.ClearDbUseCase
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.content.Page
@@ -21,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Inject
 
@@ -31,6 +34,7 @@ class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val remoteConfig: FirebaseRemoteConfig,
     private val firebaseAuth: FirebaseAuth,
+    private val clearDbUseCase: ClearDbUseCase
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -130,6 +134,12 @@ class SettingsViewModel @Inject constructor(
     fun deleteAccount(userEmail: String, password: String) {
         mainPageHandler.updateLoadingState(Triple(true, false, null))
         userRepository.deleteAccount(userEmail, password)
+    }
+
+    fun onLogOut() {
+        viewModelScope.launch {
+            clearDbUseCase.execute()
+        }
     }
 
     @OptIn(ExperimentalSerializationApi::class)

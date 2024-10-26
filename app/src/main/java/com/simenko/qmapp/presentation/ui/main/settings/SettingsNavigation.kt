@@ -33,7 +33,10 @@ inline fun <reified T : Any> NavGraphBuilder.settingsNavigation() {
                 modifier = Modifier
                     .padding(all = 0.dp)
                     .fillMaxWidth(),
-                onLogOut = { ContextCompat.startActivity(context, createLoginActivityIntent(context), null) },
+                onLogOut = {
+                    settingsModel.onLogOut()
+                    ContextCompat.startActivity(context, createLoginActivityIntent(context), null)
+                },
                 onEditUserData = { settingsModel.onUserDataEditClick() }
             )
         }

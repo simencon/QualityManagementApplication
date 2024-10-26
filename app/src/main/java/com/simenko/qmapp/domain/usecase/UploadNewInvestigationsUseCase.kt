@@ -13,9 +13,10 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ViewModelScoped
+@Singleton
 class UploadNewInvestigationsUseCase @Inject constructor(private val repository: InvestigationsRepository) {
     fun execute(scope: CoroutineScope): ReceiveChannel<Event<Resource<List<DomainOrder>>>> {
         return with(scope) {

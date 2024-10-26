@@ -41,7 +41,6 @@ class BaseApplication : Application(), Configuration.Provider {
         )
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(notificationChannel)
-
     }
 
     companion object {

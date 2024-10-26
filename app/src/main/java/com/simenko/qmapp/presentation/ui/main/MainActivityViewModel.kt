@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.usecase.SyncProductsUseCase
 import com.simenko.qmapp.data.repository.ManufacturingRepository
 import com.simenko.qmapp.data.repository.UserRepository
+import com.simenko.qmapp.domain.usecase.CheckIfInitialStateUseCase
 import com.simenko.qmapp.domain.usecase.GetUserCompanyIdUseCase
 import com.simenko.qmapp.domain.usecase.SyncInvestigationsMasterDataUseCase
 import com.simenko.qmapp.domain.usecase.SyncStructureDataUseCase
@@ -39,6 +40,7 @@ class MainActivityViewModel @Inject constructor(
 
     private val userRepository: UserRepository,
 
+    private val checkIfInitialStateUseCase: CheckIfInitialStateUseCase,
     private val getUserCompanyIdUseCase: GetUserCompanyIdUseCase,
     private val syncTeamDataUseCase: SyncTeamDataUseCase,
     private val syncStructureDataUseCase: SyncStructureDataUseCase,
@@ -46,6 +48,14 @@ class MainActivityViewModel @Inject constructor(
     private val syncInvestigationsMasterDataUseCase: SyncInvestigationsMasterDataUseCase,
 ) : ViewModel() {
     val profile get() = userRepository.profile
+    private val _isInitialState = MutableStateFlow(false)
+    val isInitialState get() = _isInitialState.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isInitialState.value = checkIfInitialStateUseCase.execute()
+        }
+    }
 
     /**
      * Top bar state holders -------------------------------------------------------------------------------------------------------------------------

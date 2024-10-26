@@ -1,6 +1,7 @@
 package com.simenko.qmapp.data.remote.implementation.interceptors.error_handler
 
 import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.BuildConfig
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.utils.FileLogger
 import okhttp3.Interceptor
@@ -15,7 +16,7 @@ class ErrorHandlerInterceptor(private val errorManager: ErrorManager) : Intercep
             val response = chain.proceed(request)
             FileLogger.logEvent(BaseApplication.instance, "${request.url.encodedPath}, response code - ${response.code} ")
             when (response.code) {
-                in 200..299 -> errorManager.handleError(ErrorType.Error1("Success!", "Got data from ${request.url.encodedPath} endpoint"))
+                in 200..299 -> if (BuildConfig.DEBUG) errorManager.handleError(ErrorType.Error1("Success!", "Got data from ${request.url.encodedPath} endpoint"))
                 in 400..499 -> errorManager.handleError(ErrorType.Error1("Some issue on client side", response.message))
                 in 500..599 -> errorManager.handleError(ErrorType.Error1("Some issue on server side", response.message))
                 else -> Unit

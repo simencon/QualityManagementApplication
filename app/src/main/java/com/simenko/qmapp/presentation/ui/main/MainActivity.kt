@@ -33,6 +33,13 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -46,8 +53,10 @@ import com.simenko.qmapp.navigation.AppNavigator
 import com.simenko.qmapp.navigation.MainScreenNavigation
 import com.simenko.qmapp.navigation.Route
 import com.simenko.qmapp.presentation.theme.QMAppTheme
+import com.simenko.qmapp.presentation.works.SyncMasterDataWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.Duration
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -84,6 +93,12 @@ class MainActivity : BaseActivity() {
         analytics = Firebase.analytics
 
         setContent {
+            val isInitialState by viewModel.isInitialState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(key1 = isInitialState) {
+                setUpAutoSync(isInitialState)
+            }
+
             val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
@@ -237,6 +252,33 @@ class MainActivity : BaseActivity() {
                     ).show()
                 }
             }
+    }
+
+    private fun setUpAutoSync(isInitialState: Boolean) {
+        if (isInitialState) {
+            WorkManager.getInstance(this.applicationContext).enqueueUniqueWork(
+                /* uniqueWorkName = */ SyncMasterDataWorker.UNIQUE_WORK_NAME,
+                /* existingWorkPolicy = */ExistingWorkPolicy.KEEP,
+                /* work = */OneTimeWorkRequestBuilder<SyncMasterDataWorker>()
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                    .build()
+            )
+        }
+        WorkManager.getInstance(this.applicationContext).enqueueUniquePeriodicWork(
+            /* uniqueWorkName = */ SyncMasterDataWorker.PERIODIC_WORK_NAME,
+            /* existingPeriodicWorkPolicy = */ ExistingPeriodicWorkPolicy.KEEP,
+            /* periodicWork = */ PeriodicWorkRequestBuilder<SyncMasterDataWorker>(Duration.ofDays(1))
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .build()
+        )
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
