@@ -51,7 +51,7 @@ android {
             signingConfig signingConfigs.releaseConfig
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "boolean", "IS_API_LOCAL_HOST", "true"
+            buildConfigField "boolean", "IS_API_LOCAL_HOST", "false"
         }
         releaseDebug {
             signingConfig signingConfigs.releaseConfig
