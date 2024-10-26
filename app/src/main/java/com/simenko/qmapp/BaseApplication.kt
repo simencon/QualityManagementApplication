@@ -32,6 +32,7 @@ class BaseApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         errorManager.init()
         val notificationChannel = NotificationChannel(
             SYNC_NOTIFICATION_CHANNEL_ID,
@@ -44,6 +45,9 @@ class BaseApplication : Application(), Configuration.Provider {
     }
 
     companion object {
+        lateinit var instance: BaseApplication
+            private set
+
         fun setupOneTimeSync(context: Context) {
             with(context) {
                 scheduleOneTimeSyncWork(SyncPeriods.LAST_HOUR, Duration.ofSeconds(0L))

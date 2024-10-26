@@ -181,7 +181,11 @@ class CrudeOperations @Inject constructor(private val errorConverter: Converter<
             DAO : DaoBaseModel<ID, PID, DB> {
         withContext(Dispatchers.IO) {
             val ntOrders = serviceGetRecords().run {
-                if (isSuccessful) body()?.map { it.toDatabaseModel() } ?: listOf() else throw IOException("Network error, orders not available.")
+                if (isSuccessful) {
+                    body()?.map { it.toDatabaseModel() } ?: listOf()
+                } else {
+                    throw IOException("Network error, orders not available.")
+                }
             }
             val dbOrders = dao.getRecords()
 

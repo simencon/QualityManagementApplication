@@ -10,9 +10,6 @@ sealed interface Route {
     @Serializable
     data object LoggedOut : Route {
         @Serializable
-        data object InitialScreen : Route
-
-        @Serializable
         data object Registration : Route {
             @Serializable
             data class EnterDetails(val userEditMode: Boolean = false) : Route

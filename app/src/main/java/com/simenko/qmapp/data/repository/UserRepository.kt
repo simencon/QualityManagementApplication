@@ -353,11 +353,15 @@ class UserRepository @Inject constructor(
         if (auth.currentUser != null) {
             auth.signOut()
             if (auth.currentUser == null) {
-                profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = false)
+                val latestEmail = profilePrefs.principal.email
+                profilePrefs.clear()
+                profilePrefs.principal = Principal(email = latestEmail)
                 _userState.value = UserLoggedOutState()
             }
         } else {
-            profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = false)
+            val latestEmail = profilePrefs.principal.email
+            profilePrefs.clear()
+            profilePrefs.principal = Principal(email = latestEmail)
             _userState.value = UserLoggedOutState()
         }
     }

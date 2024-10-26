@@ -23,7 +23,6 @@ import com.simenko.qmapp.data.repository.UserLoggedInState
 import com.simenko.qmapp.data.repository.UserLoggedOutState
 import com.simenko.qmapp.data.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.presentation.theme.QMAppTheme
-import com.simenko.qmapp.presentation.ui.user.LoadingScreen
 import com.simenko.qmapp.presentation.ui.user.UserViewModel
 import com.simenko.qmapp.presentation.ui.user.login.LogIn
 import com.simenko.qmapp.presentation.ui.user.login.LoginViewModel
@@ -61,11 +60,7 @@ fun InitialScreen(
                 }
             }
 
-            NavHost(navController = navController, startDestination = Route.LoggedOut.InitialScreen, route = Route.LoggedOut::class) {
-
-                composable<Route.LoggedOut.InitialScreen> {
-                    LoadingScreen()
-                }
+            NavHost(navController = navController, startDestination = Route.LoggedOut.Registration, route = Route.LoggedOut::class) {
 
                 navigation<Route.LoggedOut.Registration>(startDestination = Route.LoggedOut.Registration.EnterDetails()) {
                     composable<Route.LoggedOut.Registration.EnterDetails> { backStackEntry ->
