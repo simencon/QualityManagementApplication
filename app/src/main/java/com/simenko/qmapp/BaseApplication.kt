@@ -9,7 +9,7 @@ import androidx.work.*
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_NAME
 import com.simenko.qmapp.data.remote.implementation.interceptors.error_handler.ErrorManager
-import com.simenko.qmapp.presentation.works.SyncEntitiesWorker
+import com.simenko.qmapp.presentation.works.SyncInvestigationsWorker
 import com.simenko.qmapp.presentation.works.SyncPeriods
 import com.simenko.qmapp.presentation.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.presentation.works.WorkerKeys.LATEST_MILLIS
@@ -67,7 +67,7 @@ class BaseApplication : Application(), Configuration.Provider {
 
 
         private fun prepareOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration): OneTimeWorkRequest {
-            return OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+            return OneTimeWorkRequestBuilder<SyncInvestigationsWorker>()
                 .setInputData(
                     Data.Builder()
                         .putLong(LATEST_MILLIS, syncPeriod.latestMillis)

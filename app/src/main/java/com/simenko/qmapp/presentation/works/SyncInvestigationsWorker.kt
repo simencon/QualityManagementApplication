@@ -30,7 +30,7 @@ import dagger.assisted.AssistedInject
 import java.util.Objects
 
 @HiltWorker
-class SyncEntitiesWorker @AssistedInject constructor(
+class SyncInvestigationsWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
     private val invRepository: InvestigationsRepository,

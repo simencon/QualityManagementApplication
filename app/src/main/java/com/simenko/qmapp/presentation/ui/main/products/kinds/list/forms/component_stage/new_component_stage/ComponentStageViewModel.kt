@@ -12,7 +12,7 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainComponentComponentStage
 import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKindComponentStage
-import com.simenko.qmapp.domain.usecase.products.MakeComponentStageUseCase
+import com.simenko.qmapp.domain.usecase.MakeComponentStageUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler

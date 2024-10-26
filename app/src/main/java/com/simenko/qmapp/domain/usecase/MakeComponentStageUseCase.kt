@@ -1,4 +1,4 @@
-package com.simenko.qmapp.domain.usecase.products
+package com.simenko.qmapp.domain.usecase
 
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID

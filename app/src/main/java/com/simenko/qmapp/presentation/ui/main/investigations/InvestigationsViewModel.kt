@@ -8,6 +8,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.InvestigationsRepository
 import com.simenko.qmapp.data.repository.ManufacturingRepository
 import com.simenko.qmapp.data.repository.ProductsRepository
+import com.simenko.qmapp.domain.usecase.UploadNewInvestigationsUseCase
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.dialogs.DialogInput
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
@@ -40,6 +41,8 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
+
+    private val uploadNewInvestigationsUseCase: UploadNewInvestigationsUseCase,
 ) : ViewModel() {
 
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -634,30 +637,16 @@ class InvestigationsViewModel @Inject constructor(
 
     private fun uploadNewInvestigations() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
+            uploadNewInvestigationsUseCase.execute(this).consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
                         Status.SUCCESS -> {
-                            resource.data?.also {
-                                repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
-                                    event.getContentIfNotHandled()?.let { resource ->
-                                        when (resource.status) {
-                                            Status.LOADING -> {}
-                                            Status.SUCCESS -> {
-                                                resource.data?.let {
-                                                    if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
-                                                }
-                                                mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
-                                            }
-
-                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
-                                        }
-                                    }
-                                }
-                            } ?: mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
+                            resource.data?.let {
+                                if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
+                            }
+                            mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                         }
-
                         Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }

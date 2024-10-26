@@ -4,11 +4,13 @@ import androidx.compose.material3.FabPosition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.usecase.products.SyncProductsUseCase
-import com.simenko.qmapp.data.repository.InvestigationsRepository
+import com.simenko.qmapp.domain.usecase.SyncProductsUseCase
 import com.simenko.qmapp.data.repository.ManufacturingRepository
-import com.simenko.qmapp.data.repository.SystemRepository
 import com.simenko.qmapp.data.repository.UserRepository
+import com.simenko.qmapp.domain.usecase.GetUserCompanyIdUseCase
+import com.simenko.qmapp.domain.usecase.SyncInvestigationsMasterDataUseCase
+import com.simenko.qmapp.domain.usecase.SyncStructureDataUseCase
+import com.simenko.qmapp.domain.usecase.SyncTeamDataUseCase
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.presentation.ui.main.main.setup.FabSetup
@@ -36,10 +38,12 @@ class MainActivityViewModel @Inject constructor(
     private val mainPageState: MainPageState,
 
     private val userRepository: UserRepository,
-    private val systemRepository: SystemRepository,
-    private val manufacturingRepository: ManufacturingRepository,
+
+    private val getUserCompanyIdUseCase: GetUserCompanyIdUseCase,
+    private val syncTeamDataUseCase: SyncTeamDataUseCase,
+    private val syncStructureDataUseCase: SyncStructureDataUseCase,
     private val syncProductsUseCase: SyncProductsUseCase,
-    private val repository: InvestigationsRepository,
+    private val syncInvestigationsMasterDataUseCase: SyncInvestigationsMasterDataUseCase,
 ) : ViewModel() {
     val profile get() = userRepository.profile
 
@@ -117,10 +121,7 @@ class MainActivityViewModel @Inject constructor(
     fun onDrawerMenuCompanyStructureSelected() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-//                todo-me - companyId should be initially stored under user
-                (manufacturingRepository.companyByName(profile.company)?.id ?: NoRecord.num).let {
-                    appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.StructureView(companyId = it), popUpToRoute = Route.Main, inclusive = true)
-                }
+                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.StructureView(companyId = getUserCompanyIdUseCase.execute()), popUpToRoute = Route.Main, inclusive = true)
             }
         }
     }
@@ -128,10 +129,7 @@ class MainActivityViewModel @Inject constructor(
     fun onDrawerMenuProductsSelected() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-//                todo-me - companyId should be initially stored under user
-                (manufacturingRepository.companyByName(profile.company)?.id ?: NoRecord.num).let {
-                    appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLinesList(companyId = it), popUpToRoute = Route.Main, inclusive = true)
-                }
+                appNavigator.tryNavigateTo(route = Route.Main.ProductLines.ProductLinesList(companyId = getUserCompanyIdUseCase.execute()), popUpToRoute = Route.Main, inclusive = true)
             }
         }
     }
@@ -152,26 +150,10 @@ class MainActivityViewModel @Inject constructor(
         try {
             pullRefreshSetup.value.updateLoadingState(Triple(true, false, null))
 
-            systemRepository.syncUserRoles()
-            systemRepository.syncUsers()
-
-            manufacturingRepository.syncTeamMembers()
-            manufacturingRepository.syncCompanies()
-            manufacturingRepository.syncJobRoles()
-            manufacturingRepository.syncDepartments()
-            manufacturingRepository.syncSubDepartments()
-            manufacturingRepository.syncChannels()
-            manufacturingRepository.syncLines()
-            manufacturingRepository.syncOperations()
-            manufacturingRepository.syncOperationsFlows()
-
+            syncTeamDataUseCase.execute()
+            syncStructureDataUseCase.execute()
             syncProductsUseCase.execute()
-
-            repository.syncInputForOrder()
-            repository.syncOrdersStatuses()
-            repository.syncInvestigationReasons()
-            repository.syncInvestigationTypes()
-            repository.syncResultsDecryptions()
+            syncInvestigationsMasterDataUseCase.execute()
 
             pullRefreshSetup.value.updateLoadingState(Triple(false, false, null))
         } catch (e: Exception) {

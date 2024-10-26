@@ -13,7 +13,7 @@ import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.usecase.products.SyncProductsUseCase
+import com.simenko.qmapp.domain.usecase.SyncProductsUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler

@@ -26,7 +26,7 @@ import com.simenko.qmapp.domain.entities.products.DomainItemVersion
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.domain.entities.products.DomainVersionStatus
-import com.simenko.qmapp.domain.usecase.products.MakeItemVersionUseCase
+import com.simenko.qmapp.domain.usecase.MakeItemVersionUseCase
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.ProductsRepository
 import com.simenko.qmapp.presentation.ui.main.main.MainPageHandler
