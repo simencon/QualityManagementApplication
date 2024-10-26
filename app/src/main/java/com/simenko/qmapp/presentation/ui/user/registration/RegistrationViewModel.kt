@@ -25,7 +25,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun registerUser() {
         assert(userRepository.rawUser != null)
-        updateLoadingState(Triple(true, false, null))
+        updateLoadingState(Triple(false, true, null))
         userRepository.registerUser(userRepository.rawUser!!)
     }
 

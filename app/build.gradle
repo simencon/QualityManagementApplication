@@ -89,13 +89,13 @@ android {
 }
 
 dependencies {
-//    general staff
+    //    general staff
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.github.skydoves:landscapist-glide:2.3.6'
     ksp 'com.github.bumptech.glide:ksp:4.14.2'
 
-//    Firebase
+    //    Firebase
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-analytics-ktx'

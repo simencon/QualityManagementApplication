@@ -40,7 +40,7 @@ class UserRepository @Inject constructor(
 //    ToDoMe - should be removed in the future
     var rawUser: Principal? = null
 
-    fun clearErrorMessage() {
+     fun clearErrorMessage() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
 
@@ -268,7 +268,7 @@ class UserRepository @Inject constructor(
      * */
     @ExperimentalSerializationApi
     fun loginUser(email: String, password: String) {
-        if (email.isNotEmpty() && password.isNotEmpty())
+        if (email.isNotEmpty() && password.isNotEmpty()) {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -276,7 +276,7 @@ class UserRepository @Inject constructor(
                         callFirebaseFunction(profilePrefs.principal, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
                                 profilePrefs.principal = task1.result.copy(
-                                    email = auth.currentUser?.email ?: "no mail",
+                                    email = auth.currentUser?.email ?: email,
                                     password = password,
                                     isEmailVerified = auth.currentUser?.isEmailVerified ?: false,
                                     isUserLoggedIn = true
@@ -284,7 +284,7 @@ class UserRepository @Inject constructor(
 
                                 if (profilePrefs.principal.isEmailVerified) {
                                     if (profilePrefs.principal.restApiUrl != EmptyString.str) {
-                                        _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
+                                        _userState.value = UserLoggedInState(auth.currentUser?.email ?: email)
                                     } else {
                                         _userState.value = UserAuthoritiesNotVerifiedState()
                                     }
@@ -303,7 +303,7 @@ class UserRepository @Inject constructor(
                                     profilePrefs.principal = profilePrefs.principal.copy(isUserLoggedIn = true)
                                     if (profilePrefs.principal.isEmailVerified) {
                                         if (profilePrefs.principal.restApiUrl != EmptyString.str) {
-                                            _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
+                                            _userState.value = UserLoggedInState(auth.currentUser?.email ?: email)
                                         } else {
                                             _userState.value = UserAuthoritiesNotVerifiedState()
                                         }
@@ -326,6 +326,8 @@ class UserRepository @Inject constructor(
                                     _userState.value = UserErrorState(UserError.ACCOUNT_DISABLED.error)
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
                                     _userState.value = UserErrorState(UserError.USER_NOT_REGISTERED.error)
+                                } else {
+                                    _userState.value = UserErrorState(UserError.UNKNOWN_ERROR.error)
                                 }
                             }
                             //  ToDoMe - make sure this error is handled "An internal error has occurred. [ Requests from this Android client application com.simenko.qmapp are blocked. ]" - it means App is not allowed to FireBase project.
@@ -344,7 +346,7 @@ class UserRepository @Inject constructor(
                         }
                     }
                 }
-        else {
+        } else {
             _userState.value = UserErrorState(UserError.EMPTY_CREDENTIALS.error)
         }
     }

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,25 +52,32 @@ class UserViewModel @Inject constructor(
     /**
      * -----------------------------------------------------------------------------------------------------------------------------------------------
      * */
+    private val _isSubLoadingInProgress = MutableStateFlow(true)
+    val observerSubLoadingProcess: StateFlow<Boolean> get() = _isSubLoadingInProgress
+
     private val _isLoadingInProgress = MutableStateFlow(true)
-    val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
+    val observerLoadingProcess: StateFlow<Boolean> get() = _isLoadingInProgress
+
     private val _isErrorMessage = MutableStateFlow<String?>(null)
     val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
 
     fun updateLoadingState(state: Triple<Boolean, Boolean, String?>) {
-        _isLoadingInProgress.value = state.first
+        _isSubLoadingInProgress.value = state.first
+        _isLoadingInProgress.value = state.second
         _isErrorMessage.value = state.third
     }
 
     fun onNetworkErrorShown() {
+        _isSubLoadingInProgress.value = false
         _isLoadingInProgress.value = false
         _isErrorMessage.value = null
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
 
+    @OptIn(ExperimentalSerializationApi::class)
     private fun updateCurrentUserState() {
-        updateLoadingState(Triple(true, false, null))
+        updateLoadingState(Triple(false, true, null))
         userRepository.getActualUserState()
     }
 
@@ -78,7 +86,11 @@ class UserViewModel @Inject constructor(
      * */
     fun onStateIsNoState() {
         updateLoadingState(Triple(false, false, null))
-        appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen, popUpToRoute = Route.LoggedOut, inclusive = true)
+        if (userRepository.profile.email.isEmpty()) {
+            appNavigator.tryNavigateTo(route = Route.LoggedOut.Registration, popUpToRoute = Route.LoggedOut, inclusive = true)
+        } else {
+            appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn, popUpToRoute = Route.LoggedOut, inclusive = true)
+        }
         updateCurrentUserState()
     }
 
@@ -107,6 +119,7 @@ class UserViewModel @Inject constructor(
     }
 
     fun onStateIsUserLoggedInState(context: Context) {
+        updateLoadingState(Triple(false, false, null))
         ContextCompat.startActivity(context, createMainActivityIntent(context), null)
     }
 }

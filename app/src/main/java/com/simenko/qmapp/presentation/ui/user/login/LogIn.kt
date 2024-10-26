@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -42,7 +41,6 @@ import com.simenko.qmapp.data.repository.UserLoggedOutState
 import com.simenko.qmapp.presentation.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.presentation.ui.common.RecordFieldItem
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn(
     viewModel: LoginViewModel
@@ -66,7 +64,7 @@ fun LogIn(
                 msg = state.msg
                 error = UserError.NO_ERROR.error
             }
-            viewModel.updateLoadingState(Triple(false,  false,null))
+            viewModel.updateLoadingState(Triple(false, false, null))
         }
     }
 
@@ -137,6 +135,7 @@ fun LogIn(
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
+
         RecordActionTextBtn(
             text = "Login",
             onClick = { viewModel.login(principle.email, principle.password) },
@@ -148,17 +147,16 @@ fun LogIn(
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             enabled = msg == UserError.NO_ERROR.error && !(error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
         )
-        if (error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
-            RecordActionTextBtn(
-                text = "Register page",
-                onClick = { viewModel.sendResetPasswordEmail(principle.email) },
-                colors = Pair(
-                    ButtonDefaults.textButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    MaterialTheme.colorScheme.primary
-                )
+        RecordActionTextBtn(
+            text = "Create account",
+            onClick = { viewModel.onRegisterNewAccount() },
+            colors = Pair(
+                ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                MaterialTheme.colorScheme.primary
             )
+        )
     }
 }

@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -57,7 +61,7 @@ class UserActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         installSplashScreen().apply {
-            setKeepOnScreenCondition { userViewModel.isLoadingInProgress.value }
+            setKeepOnScreenCondition { userViewModel.observerSubLoadingProcess.value }
         }
 
         setContent {
@@ -68,48 +72,67 @@ class UserActivity : BaseActivity() {
                     appNavigator.subscribeNavigationEvents(this, navController)
                 }
 
-                val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerSubLoadingProcess by userViewModel.observerSubLoadingProcess.collectAsStateWithLifecycle()
+                val observerLoadingProcess by userViewModel.observerLoadingProcess.collectAsStateWithLifecycle()
 
-                Scaffold(
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            title = {
-                                Text(text = stringResource(R.string.app_name).uppercase(Locale.getDefault()))
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.onPrimary
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Scaffold(
+                        topBar = {
+                            CenterAlignedTopAppBar(
+                                title = {
+                                    Text(text = stringResource(R.string.app_name).uppercase(Locale.getDefault()))
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
-                        )
-                    }
-                ) {
-                    val pullRefreshState = rememberPullRefreshState(
-                        refreshing = observerLoadingProcess,
-                        onRefresh = {}
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
+                        }
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                        val pullRefreshState = rememberPullRefreshState(
+                            refreshing = observerSubLoadingProcess,
+                            onRefresh = {}
+                        )
+
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(it)
                         ) {
-                            InitialScreen(navController = navController, userViewModel = userViewModel)
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(it)
+                            ) {
+                                InitialScreen(navController = navController, userViewModel = userViewModel)
+                            }
+                            PullRefreshIndicator(
+                                refreshing = observerSubLoadingProcess,
+                                state = pullRefreshState,
+                                modifier = Modifier
+                                    .padding(it)
+                                    .align(Alignment.TopCenter),
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                contentColor = MaterialTheme.colorScheme.secondary
+                            )
                         }
-                        PullRefreshIndicator(
-                            refreshing = observerLoadingProcess,
-                            state = pullRefreshState,
-                            modifier = Modifier
-                                .padding(it)
-                                .align(Alignment.TopCenter),
-                            backgroundColor = MaterialTheme.colorScheme.onSecondary,
-                            contentColor = MaterialTheme.colorScheme.secondary
-                        )
+                    }
+
+                    if (observerLoadingProcess) {
+                        Dialog(onDismissRequest = {}) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            )
+                            {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(64.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
             }

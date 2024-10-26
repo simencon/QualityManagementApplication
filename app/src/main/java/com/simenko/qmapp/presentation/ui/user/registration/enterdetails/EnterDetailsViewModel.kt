@@ -146,7 +146,7 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            mainPageHandler?.updateLoadingState?.invoke(Triple(true, false, null))
+            mainPageHandler?.updateLoadingState?.invoke(Triple(false, true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
