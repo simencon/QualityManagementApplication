@@ -1,10 +1,13 @@
 package com.simenko.qmapp.presentation.ui.main.investigations.steps
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -16,12 +19,14 @@ import com.simenko.qmapp.presentation.ui.main.investigations.InvestigationsViewM
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.*
+import java.io.File
 
 @Composable
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
     viewModel: InvestigationsViewModel = hiltViewModel()
 ) {
+    val localContext = LocalContext.current
     val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
     val items by viewModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
@@ -33,6 +38,7 @@ fun SubOrdersStandAlone(
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteSubOrderClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProcessControlClick(it) } }
+    val onClickPrintLambda = remember<(ID, Context, File) -> Unit> { { a, b, c -> viewModel.onPrintSubOrderClick(a, b, c) } }
     val onClickStatusLambda = remember<(DomainSubOrderComplete, ID?) -> Unit> { { so, completedById -> viewModel.showStatusUpdateDialog(currentSubOrder = so, performerId = completedById) } }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
@@ -81,6 +87,7 @@ fun SubOrdersStandAlone(
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) },
+                onClickPrint = { onClickPrintLambda(it, localContext, getDirectory(localContext as Activity)) },
                 onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
             )
         }

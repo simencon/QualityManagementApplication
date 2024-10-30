@@ -1,5 +1,6 @@
 package com.simenko.qmapp.presentation.ui.main.investigations
 
+import android.content.Context
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -8,6 +9,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.InvestigationsRepository
 import com.simenko.qmapp.data.repository.ManufacturingRepository
 import com.simenko.qmapp.data.repository.ProductsRepository
+import com.simenko.qmapp.domain.usecase.GenerateOrderAsPdfUseCase
 import com.simenko.qmapp.domain.usecase.UploadNewInvestigationsUseCase
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.dialogs.DialogInput
@@ -29,6 +31,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
+import java.io.File
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
@@ -41,6 +44,7 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
+    private val generateOrderAsPdfUseCase: GenerateOrderAsPdfUseCase,
 
     private val uploadNewInvestigationsUseCase: UploadNewInvestigationsUseCase,
 ) : ViewModel() {
@@ -110,6 +114,12 @@ class InvestigationsViewModel @Inject constructor(
 
     fun onEditSubOrderClick(record: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(Route.Main.AllInvestigations.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
+    }
+
+    fun onPrintSubOrderClick(subOrderId: ID, context: Context, directory: File) {
+        viewModelScope.launch {
+            generateOrderAsPdfUseCase.execute(context, directory)
+        }
     }
 
     private fun onAddProcessControlClick() {
@@ -647,6 +657,7 @@ class InvestigationsViewModel @Inject constructor(
                             }
                             mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, null))
                         }
+
                         Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Triple(false, false, resource.message))
                     }
                 }

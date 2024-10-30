@@ -1,6 +1,8 @@
 package com.simenko.qmapp.presentation.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -13,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -33,7 +36,15 @@ import com.simenko.qmapp.presentation.ui.common.StatusWithPercentage
 import com.simenko.qmapp.presentation.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
+import java.io.File
 import kotlin.math.roundToInt
+
+fun getDirectory(activity: Activity): File {
+    val mediaDir = activity.externalMediaDirs.firstOrNull()?.let {
+        File(it, activity.resources.getString(R.string.app_name)).apply { mkdirs() }
+    }
+    return if (mediaDir != null && mediaDir.exists()) mediaDir else activity.filesDir
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -41,6 +52,7 @@ fun SubOrders(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: ID = NoRecord.num
 ) {
+    val localContext = LocalContext.current
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
@@ -48,6 +60,7 @@ fun SubOrders(
     val onClickDeleteLambda = remember<(ID) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
     val onClickAddLambda = remember<(ID) -> Unit> { { invModel.onAddSubOrderClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
+    val onClickPrintLambda = remember<(ID, Context, File) -> Unit> { { a, b, c -> invModel.onPrintSubOrderClick(a, b, c) } }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, ID?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrder = subOrderComplete, performerId = completedById) }
@@ -65,6 +78,7 @@ fun SubOrders(
                         onClickActions = { onClickActionsLambda(it) },
                         onClickDelete = { onClickDeleteLambda(it) },
                         onClickEdit = { onClickEditLambda(it) },
+                        onClickPrint = { onClickPrintLambda(it, localContext, getDirectory(localContext as Activity)) },
                         onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
                     )
                 }
@@ -90,6 +104,7 @@ fun SubOrderCard(
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickPrint: (ID) -> Unit,
     onClickStatus: (DomainSubOrderComplete, ID?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(subOrder.isExpanded).apply { targetState = !subOrder.isExpanded } }
@@ -98,7 +113,7 @@ fun SubOrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { (if (subOrder.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
+        targetValueByState = { (if (subOrder.isExpanded) CARD_OFFSET * 3 else 0f).dp() },
     )
 
     val containerColor = when (subOrder.isExpanded) {
@@ -125,6 +140,11 @@ fun SubOrderCard(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(Pair(subOrder.subOrder.orderId, subOrder.subOrder.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
+            )
+            IconButton(
+                modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                onClick = { onClickPrint(subOrder.subOrder.id) },
+                content = { Icon(imageVector = Icons.Filled.Print, contentDescription = "print action") },
             )
         }
         Card(
