@@ -9,7 +9,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.data.repository.InvestigationsRepository
 import com.simenko.qmapp.data.repository.ManufacturingRepository
 import com.simenko.qmapp.data.repository.ProductsRepository
-import com.simenko.qmapp.domain.usecase.GenerateOrderAsPdfUseCase
+import com.simenko.qmapp.domain.usecase.print_ticket.GenerateOrderAsPdfUseCase
 import com.simenko.qmapp.domain.usecase.UploadNewInvestigationsUseCase
 import com.simenko.qmapp.presentation.ui.main.main.MainPageState
 import com.simenko.qmapp.presentation.ui.dialogs.DialogInput
@@ -118,7 +118,7 @@ class InvestigationsViewModel @Inject constructor(
 
     fun onPrintSubOrderClick(subOrderId: ID, context: Context, directory: File) {
         viewModelScope.launch {
-            generateOrderAsPdfUseCase.execute(context, directory)
+            generateOrderAsPdfUseCase.execute(context, directory, subOrderId)
         }
     }
 

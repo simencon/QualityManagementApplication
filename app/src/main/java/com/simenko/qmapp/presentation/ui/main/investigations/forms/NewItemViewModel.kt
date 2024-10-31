@@ -184,10 +184,12 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
     private fun loadSubOrder(id: ID) {
-        val subOrder = repository.subOrderById(id)
-        val samples = repository.samplesBySubOrderId(id)
-        val tasks = repository.tasksBySubOrderId(id)
-        _subOrder.value = _subOrder.value.copy(subOrder = subOrder, samples = samples.toMutableList(), subOrderTasks = tasks.toMutableList())
+        viewModelScope.launch(Dispatchers.IO) {
+            val subOrder = repository.subOrderById(id)
+            val samples = repository.samplesBySubOrderId(id)
+            val tasks = repository.tasksBySubOrderId(id)
+            _subOrder.value = _subOrder.value.copy(subOrder = subOrder, samples = samples.toMutableList(), subOrderTasks = tasks.toMutableList())
+        }
     }
 
     // Master List -----------------------------------------------------------------------------------------------------------------------------------

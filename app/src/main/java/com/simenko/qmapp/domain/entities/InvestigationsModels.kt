@@ -351,7 +351,7 @@ data class DomainSubOrderComplete constructor(
 }
 
 @Stable
-data class DomainSubOrderTaskComplete constructor(
+data class DomainSubOrderTaskComplete (
     var subOrderTask: DomainSubOrderTask = DomainSubOrderTask(),
     var characteristic: DomainCharacteristic.DomainCharacteristicComplete = DomainCharacteristic.DomainCharacteristicComplete(),
     var status: DomainOrdersStatus = DomainOrdersStatus(),

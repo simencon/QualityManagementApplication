@@ -79,6 +79,11 @@ object StringUtils {
     }
 
     @JvmStatic
+    fun concatThreeStrings2(str1: String?, str2: String?, str3: String?): String {
+        return "${str1 ?: "-"}-${str2 ?: "-"} (${str3 ?: "-"})"
+    }
+
+    @JvmStatic
     fun concatFourStrings(str1: String?, str2: String?, str3: String?, str4: String?): String {
         return "${str1 ?: "-"} / ${str2 ?: "-"} / ${str3 ?: "-"} / ${str4 ?: "-"}"
     }
@@ -120,7 +125,7 @@ object StringUtils {
         val arr = original.split("/").toTypedArray()
         val last = arr[arr.lastIndex]
 
-        return if(last == "true" || last == "false")
+        return if (last == "true" || last == "false")
             last.toBoolean()
         else
             false

@@ -252,8 +252,15 @@ class InvestigationsRepository @Inject constructor(
         database.subOrderDao.getRecordById(id).let { it?.toDomainModel() ?: throw IOException("no such sub order in local DB") }
     }
 
+    val subOrderCompleteById: (ID) -> DomainSubOrderComplete = { id ->
+        database.subOrderDao.getRecordByIdComplete(id).let { it?.toDomainModel() ?: throw IOException("no such sub order in local DB") }
+    }
+
     val tasksBySubOrderId: (ID) -> List<DomainSubOrderTask> = { subOrderId -> database.taskDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
-    val samplesBySubOrderId: (ID) -> List<DomainSample> = { subOrderId -> database.sampleDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
+    val tasksCompleteBySubOrderId: suspend (ID) -> List<DomainSubOrderTaskComplete> = { subOrderId -> database.taskDao.getRecordsCompleteByParentIdForUI(subOrderId).map { it.toDomainModel() } }
+    val samplesBySubOrderId: suspend (ID) -> List<DomainSample> = { subOrderId -> database.sampleDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
+    val samplesCompleteBySubOrderId: suspend (ID) -> List<DomainSampleComplete> = { subOrderId -> database.sampleDao.getRecordsCompleteByParentIdForUI(subOrderId).map { it.toDomainModel() } }
+    val resultsCompleteBySubOrderId: suspend (ID) -> List<DomainResultComplete> = { subOrderId -> database.resultDao.getRecordsCompleteByParentIdForUI(subOrderId).map { it.toDomainModel() } }
 
 //    -------------------------------------------------------------
 

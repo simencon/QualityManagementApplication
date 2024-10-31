@@ -38,4 +38,11 @@ abstract class SampleDao : DaoBaseModel<ID, ID, DatabaseSample>, DaoTimeDependen
                 "where s.subOrderId = :parentId;"
     )
     abstract fun getRecordsByParentIdForUI(parentId: ID): Flow<List<DatabaseSampleComplete>>
+
+    @Transaction
+    @Query(
+        "select s.* from `samples_results` s " +
+                "where s.subOrderId = :parentId;"
+    )
+    abstract suspend fun getRecordsCompleteByParentIdForUI(parentId: ID): List<DatabaseSampleComplete>
 }

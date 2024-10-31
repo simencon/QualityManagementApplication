@@ -91,7 +91,6 @@ fun ResultCard(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Result(
     result: DomainResultComplete = DomainResultComplete(),

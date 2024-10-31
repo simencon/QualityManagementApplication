@@ -38,4 +38,11 @@ abstract class TaskDao : DaoBaseModel<ID, ID, DatabaseSubOrderTask>, DaoTimeDepe
                 "where t.subOrderId = :subOrderId;"
     )
     abstract fun getRecordsByParentIdForUI(subOrderId: ID): Flow<List<DatabaseSubOrderTaskComplete>>
+
+    @Transaction
+    @Query(
+        "select t.* from `sub_order_task_complete` t " +
+                "where t.subOrderId = :subOrderId;"
+    )
+    abstract suspend fun getRecordsCompleteByParentIdForUI(subOrderId: ID): List<DatabaseSubOrderTaskComplete>
 }
