@@ -38,6 +38,7 @@ inline fun <reified T : Route> NavGraphBuilder.processControl(mainScreenPadding:
         composable<Route.Main.ProcessControl.ProcessControlList> { backStackEntry ->
             val route = backStackEntry.toRoute<Route.Main.ProcessControl.ProcessControlList>()
             val viewModel: InvestigationsViewModel = hiltViewModel()
+//            InvestigationsWithDetails(invModel = viewModel, isPcOnly = true, orderId = route.orderId, subOrderId = route.subOrderId)
             InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel, isPcOnly = true, orderId = route.orderId, subOrderId = route.subOrderId)
         }
         composable<Route.Main.ProcessControl.SubOrderAddEdit> { backStackEntry ->

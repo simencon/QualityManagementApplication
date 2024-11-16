@@ -4,11 +4,17 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -21,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.presentation.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.presentation.ui.dialogs.StatusUpdateDialog
@@ -33,7 +40,9 @@ import kotlinx.coroutines.flow.collectLatest
 fun InvestigationsMainComposition(
     mainScreenPadding: PaddingValues,
     invModel: InvestigationsViewModel = hiltViewModel(),
-    isPcOnly: Boolean, orderId: ID, subOrderId: ID,
+    isPcOnly: Boolean,
+    orderId: ID,
+    subOrderId: ID,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -94,4 +103,66 @@ fun InvestigationsMainComposition(
                 invModel = invModel
             )
     }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+fun InvestigationsWithDetails(
+    invModel: InvestigationsViewModel = hiltViewModel(),
+    isPcOnly: Boolean,
+    orderId: ID,
+    subOrderId: ID,
+) {
+    val context = LocalContext.current
+    val isSecondRowVisible by invModel.isSecondRowVisible.collectAsStateWithLifecycle(false)
+    val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
+    val dialogInput by invModel.dialogInput.observeAsState()
+
+    val sampleVisibility by invModel.samplesVisibility.collectAsStateWithLifecycle()
+
+    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
+
+    LaunchedEffect(Unit) {
+        invModel.onEntered(isPcOnly, orderId, subOrderId)
+        invModel.syncInvestigationsEvent.collectLatest { if (it) BaseApplication.setupOneTimeSync(context) }
+    }
+
+    LaunchedEffect(isSecondRowVisible) {
+        if (isSecondRowVisible) {
+            navigator.navigateTo(pane = ListDetailPaneScaffoldRole.Detail)
+        } else {
+            navigator.navigateTo(pane = ListDetailPaneScaffoldRole.List)
+        }
+    }
+
+    LaunchedEffect(sampleVisibility) {
+        if (sampleVisibility.first != NoRecord) {
+            navigator.navigateTo(pane = ListDetailPaneScaffoldRole.Extra)
+        } else {
+            navigator.navigateTo(pane = ListDetailPaneScaffoldRole.Detail)
+        }
+    }
+
+    NavigableListDetailPaneScaffold(
+        modifier = Modifier.fillMaxWidth(),
+        navigator = navigator,
+        listPane = {
+            AnimatedPane {
+                if (isPcOnly)
+                    SubOrdersStandAlone(modifier = Modifier.fillMaxSize(), viewModel = invModel)
+                else
+                    Orders(modifier = Modifier.fillMaxSize(0.6f), viewModel = invModel)
+            }
+        },
+        detailPane = {
+            AnimatedPane {
+                SampleComposition(modifier = Modifier.fillMaxSize(), invModel = invModel)
+            }
+        },
+        extraPane = {
+            AnimatedPane {
+                SampleComposition(modifier = Modifier.fillMaxSize(), invModel = invModel)
+            }
+        }
+    )
 }
