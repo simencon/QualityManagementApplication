@@ -262,6 +262,9 @@ sealed interface Route {
 
             @Serializable
             data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num) : Route
+
+            @Serializable
+            data object InvestigationsFilter: Route
         }
 
         @Serializable

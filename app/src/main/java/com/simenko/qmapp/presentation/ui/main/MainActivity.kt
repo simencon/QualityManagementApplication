@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -43,6 +44,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.presentation.ui.main.main.content.AppBar
 import com.simenko.qmapp.presentation.ui.main.main.content.DrawerBody
@@ -69,6 +71,9 @@ class MainActivity : BaseActivity() {
     }
 
     @Inject
+    lateinit var messaging: FirebaseMessaging
+
+    @Inject
     lateinit var remoteConfig: FirebaseRemoteConfig
 
     @Inject
@@ -83,6 +88,9 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fetchAndActivateRemoteConfigValues()
+        messaging.subscribeToTopic("general").addOnCompleteListener {
+            if (it.isSuccessful) Log.d("BaseApplication_onCreate", "onCreate: Subscribed to 'general' topic")
+        }
 
         if (
             ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
