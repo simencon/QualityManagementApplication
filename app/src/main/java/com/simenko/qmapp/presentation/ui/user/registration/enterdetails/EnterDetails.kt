@@ -49,6 +49,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.data.repository.UserError
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.presentation.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.presentation.ui.common.RecordFieldItem
 
@@ -173,7 +174,7 @@ fun EnterDetails(
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             modifier = Modifier.width(320.dp),
-            valueParam = Triple(rawPrinciple.phoneNumber.phoneNumberToString(), false) { viewModel.setPhoneNumber(it.stringToPhoneNumber()) },
+            valueParam = Triple(rawPrinciple.phoneNumber ?: EmptyString.str, false) { viewModel.setPhoneNumber(it) },
             keyboardNavigation = Pair(focusRequesterPhoneNumber) { if (!editMode) focusRequesterPassword.requestFocus() else keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Phone, if (!editMode) ImeAction.Next else ImeAction.Done),
             contentDescription = Triple(Icons.Default.Phone, "Phone number", "Enter your phone number"),

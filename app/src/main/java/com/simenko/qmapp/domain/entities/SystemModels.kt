@@ -25,7 +25,7 @@ data class DomainUserRole(
 data class DomainUser(
     var email: String = NoRecordStr.str,
     var teamMemberId: ID = NoRecord.num,
-    var phoneNumber: Long? = null,
+    var phoneNumber: String? = null,
     var fullName: String? = null,
     var company: String? = null,
     var companyId: ID = NoRecord.num,

@@ -202,7 +202,7 @@ fun Settings(
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Phone number",
-                body = if (viewModel.profile.phoneNumber == NoRecord.num) "-" else viewModel.profile.phoneNumber.toString()
+                body = viewModel.profile.phoneNumber ?: "-"
             )
         }
         Spacer(modifier = Modifier.height(20.dp))

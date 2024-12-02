@@ -35,7 +35,7 @@ data class DatabaseUser(
     val email: String,
     @ColumnInfo(index = true)
     val teamMemberId: Long,
-    val phoneNumber: Long?,
+    val phoneNumber: String?,
     val fullName: String?,
     val company: String?,
     @ColumnInfo(index = true)

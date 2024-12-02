@@ -35,7 +35,7 @@ fun UserExistDialog(
     ) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
+            modifier = Modifier.padding(10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(

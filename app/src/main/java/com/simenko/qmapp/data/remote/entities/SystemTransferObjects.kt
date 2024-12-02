@@ -20,7 +20,7 @@ data class NetworkUserRole(
 data class NetworkUser(
     val email: String,
     val teamMemberId: Long,
-    val phoneNumber: Long? = null,
+    val phoneNumber: String? = null,
     val fullName: String? = null,
     val company: String? = null,
     val companyId: Long,

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "f1cc2b4f041843551f3645ba4215b2c4",
+    "identityHash": "f26f56c47d948a48e4ac7c29bac995a0",
     "entities": [
       {
         "tableName": "user_roles",
@@ -40,7 +40,7 @@
       },
       {
         "tableName": "users",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`email` TEXT NOT NULL, `teamMemberId` INTEGER NOT NULL, `phoneNumber` INTEGER, `fullName` TEXT, `company` TEXT, `companyId` INTEGER NOT NULL, `department` TEXT, `departmentId` INTEGER NOT NULL, `subDepartment` TEXT, `subDepartmentId` INTEGER NOT NULL, `jobRole` TEXT, `restApiUrl` TEXT, `userUid` TEXT, `isEmailVerified` INTEGER NOT NULL, `roles` TEXT, `accountNonExpired` INTEGER NOT NULL, `accountNonLocked` INTEGER NOT NULL, `credentialsNonExpired` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, PRIMARY KEY(`email`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`email` TEXT NOT NULL, `teamMemberId` INTEGER NOT NULL, `phoneNumber` TEXT, `fullName` TEXT, `company` TEXT, `companyId` INTEGER NOT NULL, `department` TEXT, `departmentId` INTEGER NOT NULL, `subDepartment` TEXT, `subDepartmentId` INTEGER NOT NULL, `jobRole` TEXT, `restApiUrl` TEXT, `userUid` TEXT, `isEmailVerified` INTEGER NOT NULL, `roles` TEXT, `accountNonExpired` INTEGER NOT NULL, `accountNonLocked` INTEGER NOT NULL, `credentialsNonExpired` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, PRIMARY KEY(`email`))",
         "fields": [
           {
             "fieldPath": "email",
@@ -57,7 +57,7 @@
           {
             "fieldPath": "phoneNumber",
             "columnName": "phoneNumber",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -5434,7 +5434,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f1cc2b4f041843551f3645ba4215b2c4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f26f56c47d948a48e4ac7c29bac995a0')"
     ]
   }
 }

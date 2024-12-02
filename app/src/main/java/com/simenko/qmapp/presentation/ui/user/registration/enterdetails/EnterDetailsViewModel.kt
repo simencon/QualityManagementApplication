@@ -90,8 +90,12 @@ class EnterDetailsViewModel @Inject constructor(
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(emailError = false)
     }
 
-    fun setPhoneNumber(value: Long) {
-        _rawPrincipal.value = _rawPrincipal.value.copy(phoneNumber = value)
+    fun setPhoneNumber(value: String?) {
+        if (_rawPrincipal.value.phoneNumber != value) {
+            val phoneRegex = Regex("^[+]?[0-9]{0,15}\$")
+            if (value?.matches(phoneRegex) != true) return
+            _rawPrincipal.value = _rawPrincipal.value.copy(phoneNumber = value)
+        }
     }
 
     fun setPassword(value: String) {
@@ -156,21 +160,6 @@ class EnterDetailsViewModel @Inject constructor(
                 }
             }
         }
-    }
-}
-
-fun Long.phoneNumberToString(): String = if (this == NoRecord.num) "" else this.toString()
-
-
-fun String.stringToPhoneNumber(): Long {
-    var filtered = this.filter { it.isDigit() }
-    if (filtered.length > 18) {
-        filtered = filtered.dropLast(1)
-    }
-    return if (filtered == EmptyString.str) {
-        NoRecord.num
-    } else {
-        filtered.toLong()
     }
 }
 
