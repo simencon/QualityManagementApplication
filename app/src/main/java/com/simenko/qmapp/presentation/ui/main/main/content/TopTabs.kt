@@ -23,11 +23,6 @@ enum class TeamTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeContentColor = state.third
         return this
     }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = TeamTabs.values().toList()
-        override val startingTabItem: TabItem = EMPLOYEES
-    }
 }
 
 enum class ProgressTabs(override val tag: SelectedNumber) : TabItem {
@@ -50,11 +45,6 @@ enum class ProgressTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeContentColor = state.third
         return this
     }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = entries
-        override val startingTabItem: TabItem = ALL
-    }
 }
 
 enum class SubDepItemKindsTabs(override val tag: SelectedNumber) : TabItem {
@@ -75,11 +65,6 @@ enum class SubDepItemKindsTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeBackgroundColor = state.second
         this.badgeContentColor = state.third
         return this
-    }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = entries
-        override val startingTabItem: TabItem = PRODUCT_KINDS
     }
 }
 
@@ -102,11 +87,6 @@ enum class ChannelItemKeysTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeContentColor = state.third
         return this
     }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = entries
-        override val startingTabItem: TabItem = PRODUCT_KEYS
-    }
 }
 
 enum class LineItemsTabs(override val tag: SelectedNumber) : TabItem {
@@ -128,11 +108,6 @@ enum class LineItemsTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeContentColor = state.third
         return this
     }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = entries
-        override val startingTabItem: TabItem = PRODUCTS
-    }
 }
 
 enum class OperationCharsTabs(override val tag: SelectedNumber) : TabItem {
@@ -153,10 +128,5 @@ enum class OperationCharsTabs(override val tag: SelectedNumber) : TabItem {
         this.badgeBackgroundColor = state.second
         this.badgeContentColor = state.third
         return this
-    }
-
-    companion object : TabItem.Static {
-        fun toList(): List<TabItem> = entries
-        override val startingTabItem: TabItem = PRODUCT_C
     }
 }

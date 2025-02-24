@@ -115,8 +115,8 @@ class MainActivity : BaseActivity() {
             QMAppTheme {
                 val navController = rememberNavController()
                 val currentBackStack by navController.currentBackStackEntryAsState()
-                val route = currentBackStack?.destination?.route
-                println(route)
+                val startDestination = currentBackStack?.destination?.parent?.startDestinationRoute
+                println("Start destination: ${startDestination}")
 
                 val scope = rememberCoroutineScope()
 
@@ -242,6 +242,10 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        analytics.logEvent("main_activity_resumed", null)
+    }
 
     private fun fetchAndActivateRemoteConfigValues() {
         remoteConfig.fetchAndActivate()

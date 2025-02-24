@@ -36,7 +36,7 @@ enum class Page(
         titlePlaceholderText = "Search by full name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TeamTabs.toList(),
+        topTabsContent = TeamTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = TeamActions.toList()
@@ -216,7 +216,7 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toList(),
+        topTabsContent = ProgressTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = InvestigationsActions.toList()
@@ -228,7 +228,7 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toList(),
+        topTabsContent = ProgressTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null,
         actionMenuItems = ProcessControlActions.toList()
@@ -265,7 +265,7 @@ enum class Page(
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
-        topTabsContent = SubDepItemKindsTabs.toList(),
+        topTabsContent = SubDepItemKindsTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null
     ),
@@ -279,7 +279,7 @@ enum class Page(
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
-        topTabsContent = ChannelItemKeysTabs.toList(),
+        topTabsContent = ChannelItemKeysTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null
     ),
@@ -293,7 +293,7 @@ enum class Page(
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
-        topTabsContent = LineItemsTabs.toList(),
+        topTabsContent = LineItemsTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null
     ),
@@ -307,7 +307,7 @@ enum class Page(
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
-        topTabsContent = OperationCharsTabs.toList(),
+        topTabsContent = OperationCharsTabs.entries,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null
     ),
@@ -379,15 +379,11 @@ interface TabItem {
     val index: Int
     val tag: SelectedNumber
     val title: String
-
     var badgeCount: Int
+
     var badgeBackgroundColor: Color
     var badgeContentColor: Color
 
     fun getBadge(): Triple<Int, Color, Color>
     fun updateBadge(state: Triple<Int, Color, Color>): TabItem
-
-    interface Static {
-        val startingTabItem: TabItem
-    }
 }
