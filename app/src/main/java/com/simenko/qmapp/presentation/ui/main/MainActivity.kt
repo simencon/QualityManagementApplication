@@ -54,6 +54,7 @@ import com.simenko.qmapp.presentation.ui.BaseActivity
 import com.simenko.qmapp.navigation.AppNavigator
 import com.simenko.qmapp.navigation.MainScreenNavigation
 import com.simenko.qmapp.navigation.Route
+import com.simenko.qmapp.other.RemoteConfigConst.GROUP_PARAMETER
 import com.simenko.qmapp.presentation.theme.QMAppTheme
 import com.simenko.qmapp.presentation.works.SyncMasterDataWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -251,17 +252,10 @@ class MainActivity : BaseActivity() {
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(
-                        this,
-                        "Fetch and activate succeeded",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    val group = remoteConfig.getString(GROUP_PARAMETER)
+                    Toast.makeText(this, "Yor device belongs to group: $group", Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(
-                        this,
-                        "Fetch failed",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    Toast.makeText(this, "Fetch failed", Toast.LENGTH_SHORT).show()
                 }
             }
     }
